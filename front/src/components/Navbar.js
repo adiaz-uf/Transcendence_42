@@ -2,7 +2,7 @@ import { Nav, Navbar, Container } from "react-bootstrap";
 
 export default function NavBar() {
     return (
-        <Navbar expand="lg" bg="dark" variant="dark" sticky="top">
+        <Navbar expand="lg" bg="dark" variant="dark" className="navbar-fixed-top">
         <Container>
         <Navbar.Brand href="#home">Trascendence</Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-bar"/>

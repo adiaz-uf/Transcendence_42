@@ -1,12 +1,17 @@
 import { Button, Form } from 'react-bootstrap';
 import '../styles/login.css'
+import { Link } from "react-router-dom";
 
-export default function Login({/* handleSubmit, ...props */}) {
+/*{ handleSubmit, ...props }*/
+export default function Login() {
+
     return (
+		<div className='login-container'>
+			<h1 className='header'>Login into Trascendence</h1>
 		<div className='login-wrapper'>
 			<div className='login-form-container'>
 			<Form >
-				<Form.Group id='username' className='mb-3'>
+				<Form.Group id='username' className='mb-4'>
 					<Form.Control
 						type='text'
 						//value={props.username}
@@ -16,7 +21,7 @@ export default function Login({/* handleSubmit, ...props */}) {
 					/>
 				</Form.Group>
 
-				<Form.Group id='password' className='mb-3'>
+				<Form.Group id='password' className='mb-4'>
 					<Form.Control
 						type='text'
 						//value={props.password}
@@ -25,19 +30,24 @@ export default function Login({/* handleSubmit, ...props */}) {
 						//onChange={propTypes.handlePasswordChange}
 					/>
 				</Form.Group>
-
+				<Link to="/app">
 				<Button id='form-login-button' className='w-100'>
 					Login
 				</Button>
-				
-				<div className='register-container'>
+				</Link>
+
+				<div className='login-register-container'>
 				<Form.FloatingLabel>¿Dont have an account?</Form.FloatingLabel>
-				<Button id='form-login-button' className='w-50'>
+				<Link to="/register" className='w-50'>
+				<Button id='form-login-button' className='w-100'>
 					Register
 				</Button>
+                </Link>
 				</div>
+
 			</Form>
 			</div>
+		</div>
 		</div>
     );
 }
