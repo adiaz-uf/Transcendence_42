@@ -8,8 +8,8 @@ export default function NavBar() {
         <Navbar.Toggle aria-controls="responsive-navbar-bar"/>
         <Navbar.Collapse id="responsive-navbar-bar">
             <Nav className="me-auto">
-                <Nav.Link href="/">Home</Nav.Link>
-                <Nav.Link href="/">Stats</Nav.Link>
+                <Nav.Link href="/app">Home</Nav.Link>
+                <Nav.Link href="/stats">Stats</Nav.Link>
                 <Nav.Link href="/">Tournament</Nav.Link>
             </Nav>
             <Nav>
