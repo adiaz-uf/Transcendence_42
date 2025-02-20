@@ -3,7 +3,7 @@ DOCKER_COMPOSE = docker-compose
 PROJECT_NAME = transcendence
 
 # Basic commands
-.PHONY: help up down build restart logs clean dbshell shell
+.PHONY: help up down build restart logs clean dbshell shell fclean re
 
 help:  ## Display the list of available commands
 	@echo "Available commands:"
@@ -54,3 +54,10 @@ npm_install:  ## Install React dependencies
 npm_build:  ## Build the React project for production
 	$(DOCKER_COMPOSE) exec frontend npm run build
 
+fclean:  ## Completely clean the project (remove containers and volumes)
+	$(DOCKER_COMPOSE) down -v
+
+re:  ## Rebuild and restart the project from scratch
+	$(MAKE) fclean
+	$(MAKE) build
+	$(MAKE) up
