@@ -1,4 +1,4 @@
-import { Col, Row } from 'react-bootstrap';
+import { Row } from 'react-bootstrap';
 import '../styles/statspage.css'
 
 export default function Stat({title, value}) {

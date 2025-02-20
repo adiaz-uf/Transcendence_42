@@ -7,7 +7,7 @@ export default function Login() {
 
     return (
 		<div className='login-container'>
-			<h1 className='header'>Login into Trascendence</h1>
+			<h1 className='header'>Login into Transcendence</h1>
 		<div className='login-wrapper'>
 			<div className='login-form-container'>
 			<Form >
@@ -44,7 +44,6 @@ export default function Login() {
 				</Button>
                 </Link>
 				</div>
-
 			</Form>
 			</div>
 		</div>

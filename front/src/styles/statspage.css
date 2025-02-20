@@ -6,38 +6,42 @@
     justify-items: center;
     text-align: center;
     padding: 2em;
+    position: contain;
 }
 
 .stats-container {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    overflow-wrap: normal;
-    flex-direction: row;
-    justify-content:space-evenly;
-    background-color: rgb(71, 69, 65);
-    border-style: groove;
-    border-color: aqua;
-    border-width: 4px;
+    display: grid;
+    margin: 0 auto;
+    gap: 3em;
+    margin-top: 3em;
 }
 
 .stat-wrapper {
-    display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     color: #fff;
-    width: 100%;
-    border-style: groove;
-    border-color: aqua;
-    border-width: 4px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    background-color:#343538;
+    padding: 1em;
+    border-radius: 10px;
 }
 
 .stat {
-    width: auto;
-    padding: 1em;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.4);
     color: #fff;
-    background-color:#343538;
 }
+
+@media (min-width: 400px) {
+    .stats-container { grid-template-columns: repeat(1, 1fr); }
+    } 
+
+@media (min-width: 600px) {
+    .stats-container { grid-template-columns: repeat(2, 1fr); }
+    } 
+
+@media (min-width: 900px) {
+    .stats-container { grid-template-columns: repeat(3, 1fr); }
+    }
+
+@media (min-width: 1200px) {
+    .stats-container { grid-template-columns: repeat(4, 1fr); }
+    }

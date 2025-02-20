@@ -1,4 +1,3 @@
-
 import { Image } from 'react-bootstrap';
 import NavBar from '../components/Navbar'
 import '../styles/App.css'
