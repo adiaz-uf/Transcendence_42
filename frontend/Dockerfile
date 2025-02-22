@@ -16,11 +16,13 @@ COPY . .
 # Build the React application
 RUN npm run build
 
+# Install `serve` to serve the production build
+RUN npm install -g serve
+
 # Expose the port your app runs on
 EXPOSE 3000
  
-# Serve the production build instead of running the dev server
-RUN npm install -g serve
+# Serve the built React app
 CMD ["serve", "-s", "build"]
 
 # Running the dev server

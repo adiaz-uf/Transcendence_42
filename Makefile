@@ -1,5 +1,5 @@
 # Variables
-DOCKER_COMPOSE = docker compose
+DOCKER_COMPOSE = docker-compose
 PROJECT_NAME = transcendence
 
 # Basic commands
