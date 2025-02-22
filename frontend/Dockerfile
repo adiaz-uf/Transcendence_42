@@ -19,5 +19,9 @@ RUN npm run build
 # Expose the port your app runs on
 EXPOSE 3000
  
-# Define the command to run your app
-CMD ["npm", "start"]
+# Serve the production build instead of running the dev server
+RUN npm install -g serve
+CMD ["serve", "-s", "build"]
+
+# Running the dev server
+#CMD ["npm", "start"]
