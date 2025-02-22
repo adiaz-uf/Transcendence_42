@@ -5,6 +5,8 @@ PROJECT_NAME = transcendence
 # Basic commands
 .PHONY: help up down build restart logs clean dbshell shell fclean re
 
+.SILENT:
+
 help:  ## Display the list of available commands
 	@echo "Available commands:"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
