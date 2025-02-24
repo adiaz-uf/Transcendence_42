@@ -28,7 +28,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: serve -s build
+    command: sh -c "npm run build && serve -s build"
 
   db:
     image: postgres:17
