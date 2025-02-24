@@ -49,8 +49,8 @@ services:
       - frontend
       - backend
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./frontend/build:/usr/share/nginx/html:ro
