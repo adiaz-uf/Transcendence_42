@@ -59,6 +59,10 @@ npm_build:  ## Build the React project for production
 fclean:  ## Completely clean the project (remove containers and volumes)
 	$(DOCKER_COMPOSE) down -v
 
+init: build up  ## Initialize the project
+	$(DOCKER_COMPOSE) exec frontend npm run build
+	$(DOCKER_COMPOSE) restart nginx
+
 re:  ## Rebuild and restart the project from scratch
 	$(MAKE) fclean
 	$(MAKE) build
