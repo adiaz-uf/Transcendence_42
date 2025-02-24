@@ -1,8 +1,10 @@
-FROM python:3.11
+FROM python:3.13-alpine
 
 # Prevent Python from writing .pyc files
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+
+RUN apk add --no-cache postgresql-client
 
 WORKDIR /app
 
