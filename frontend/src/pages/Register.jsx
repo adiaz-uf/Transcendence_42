@@ -1,16 +1,38 @@
 import { Button, Form } from 'react-bootstrap';
+import { useState } from "react";
+import api from "../api";
 import '../styles/login.css'
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 /* handleSubmit, ...props} */
-export default function Register() {
+export default function Register({route}) {
 
+	const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+	 const handleSubmit = async (e) => {
+        setLoading(true);
+        e.preventDefault();
+
+		try {
+			const res = await api.post(route, { username, password })
+			navigate("/login")
+		}
+		catch (error) {
+			alert(error)
+		} 
+		finally {
+			setLoading(false)
+		}
+	 }
     return (
 		<div className='login-container'>
 			<h1 className='header'>Register Page</h1>
 		<div className='login-wrapper'>
 			<div className='register-form-container'>
-			<Form >
+			<Form onSubmit={handleSubmit}>
                 
                 <Form.Group id='email' className='mb-3'>
                 <Form.Label className="text-label">Email address</Form.Label>
@@ -30,10 +52,10 @@ export default function Register() {
                 <Form.Label className="text-label">Enter Username</Form.Label>
 					<Form.Control
 						type='text'
-						//value={props.username}
+						value={username}
 						name='Username'
 						placeholder='Username'
-						//onChange={propTypes.handleUsernameChange}
+						onChange={(e) => setUsername(e.target.value)}
 					/>
 				</Form.Group>
                 
@@ -53,10 +75,10 @@ export default function Register() {
                 <Form.Label className="text-label">New Password</Form.Label>
 					<Form.Control
 						type='text'
-						//value={props.password}
+						value={password}
 						name='NewPassword'
 						placeholder='New Password'
-						//onChange={propTypes.handlePasswordChange}
+						onChange={(e) => setPassword(e.target.value)}
 					/>
 				</Form.Group>
 
@@ -71,12 +93,9 @@ export default function Register() {
 					/>
 				</Form.Group>
                 </div>
-				<Link to="/alert">
-				<Button id='form-login-button' className='mt-2 w-100'>
+				<Button id='form-login-button' className='mt-2 w-100' type='submit'>
 					Register
 				</Button>
-				</Link>
-
 			</Form>
 			</div>
 		</div>
