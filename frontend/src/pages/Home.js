@@ -2,7 +2,7 @@ import { Image } from 'react-bootstrap';
 import NavBar from '../components/Navbar'
 import '../styles/App.css'
 
-function App() {
+function Home() {
   return (
     <div>
       <NavBar/>
@@ -15,4 +15,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;

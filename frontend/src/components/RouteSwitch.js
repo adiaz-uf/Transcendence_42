@@ -1,20 +1,41 @@
-import App from '../pages/App'
+import Home from '../pages/Home'
 import Login from "../pages/Login"
 import Register from '../pages/Register'
 import Stats from '../pages/Statspage'
+import NotFound from "../pages/NotFound"
 import Alert from '../components/Alert'
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from './ProtectedRoute'
+
+function Logout() {
+    localStorage.clear()
+    return <Navigate to="/login" />
+  }
+  
+  function RegisterAndLogout() {
+    localStorage.clear()
+    return <Register route='/api/user/register/'/>
+  }
 
 export default function RouterSwitch() {
       return (
         <BrowserRouter>
             <Routes>
-                <Route path ='/' element ={<Login/>}/>
-                <Route path ='/register' element ={<Register/>}/>
-                <Route path ='/app' element ={<App/>}/>
-                <Route path ='/login' element ={<Login/>}/>
+                <Route 
+                    path ='/' 
+                    element ={
+                    <ProtectedRoute>
+                        <Home/>
+                    </ProtectedRoute>
+                    }
+                />
+                <Route path ='/login' element ={<Login route='/api/token/'/>}/>
+                <Route path ='/logout' element ={<Logout/>}/>
+                <Route path ='/register' element ={<RegisterAndLogout/>}/>
+                {/* <Route path ='/home' element ={<Home/>}/> */}
                 <Route path ='/stats' element ={<Stats/>}/>
                 <Route path ='/alert' element ={<Alert/>}/>
+                <Route path ='*' element ={<NotFound/>}/>
             </Routes>
         </BrowserRouter>
 );
