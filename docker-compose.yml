@@ -13,7 +13,8 @@ services:
       - db
     volumes:
       - ./backend:/app
-    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+      - ./backend/migrations:/app/migrations
+    command: sh -c "python manage.py migrate && gunicorn backend.wsgi:application --bind 0.0.0.0:8000"
 
   frontend:
     build: ./frontend

@@ -27,7 +27,8 @@ class NoteDelete(generics.DestroyAPIView):
         user = self.request.user
         return Note.objects.filter(author=user)
 
-class CreateUserView(generics.CreateAPIView):
+#class CreateUserView(generics.CreateAPIView):
+class CreateUserView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
