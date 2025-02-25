@@ -43,7 +43,9 @@ services:
       - "5432:5432"
 
   pgadmin:
-    image: dpage/pgadmin4
+    build:
+      context: ./pgadmin
+      dockerfile: Dockerfile
     container_name: pong_pgadmin
     restart: always
     env_file:
