@@ -1,44 +1,36 @@
-import { io } from "socket.io-client";
-
-// Generate or retrieve a persistent user ID
 let userId = localStorage.getItem("userId");
 if (!userId) {
     userId = `user-${Math.random().toString(36).substr(2, 9)}`;
     localStorage.setItem("userId", userId);
 }
 
-/*
-const socket = io(`wss://${window.location.hostname}/socket.io/`, {
-    transports: ["websocket"],
-    secure: true,
-    reconnection: true,         // Enable auto-reconnect
-    reconnectionAttempts: 10,   // Retry 10 times before failing
-    reconnectionDelay: 2000,    // Wait 2 seconds between retries
-});
-*/
-
 const socket = new WebSocket(`wss://${window.location.hostname}/socket.io/`);
 
-export const connectWebSocket = () => {
-    socket.on("connect", () => {
-        console.log("Connected to WebSocket server");
-    });
+socket.addEventListener("open", () => {
+    console.log("Connected to WebSocket server");
+});
 
-    socket.on("disconnect", () => {
-        console.warn("Disconnected from WebSocket server");
-    });
-};
+socket.addEventListener("close", (event) => {
+    console.warn(`Disconnected from WebSocket server: ${event.reason}`);
+});
+
+socket.addEventListener("error", (error) => {
+    console.error("WebSocket Error:", error);
+});
 
 export const joinGame = (gameId) => {
-    socket.emit("joinGame", gameId);
+    const message = JSON.stringify({ action: "joinGame", gameId });
+    socket.send(message);
 };
 
 export const sendPlayerMove = (key) => {
-    socket.emit("playerMove", { key });
+    const message = JSON.stringify({ action: "playerMove", key });
+    socket.send(message);
 };
 
 export const listenForGameUpdates = (callback) => {
-    socket.on("updateGame", (data) => {
+    socket.addEventListener("message", (event) => {
+        const data = JSON.parse(event.data);
         callback(data);
     });
 };
