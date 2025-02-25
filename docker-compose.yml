@@ -57,20 +57,6 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
-  websocket:
-    build: ./websocket
-    container_name: pong_websocket
-    restart: always
-    env_file:
-      - .env
-    expose:
-      - "${WEBSOCKET_PORT}"
-    depends_on:
-      - backend
-    volumes:
-      - ./websocket:/app
-    command: sh -c "node server.js"
-
   nginx:
     image: nginx:latest
     container_name: pong_nginx

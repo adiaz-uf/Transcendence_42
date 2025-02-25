@@ -8,3 +8,7 @@ psycopg[binary]
 pytz
 sqlparse
 python-dotenv
+
+#Django channels for WebSocket
+channels
+channels-redis
