@@ -17,7 +17,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+	"build": "GENERATE_SOURCEMAP=false react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -38,6 +39,8 @@
     ]
   },
   "devDependencies": {
-    "web-vitals": "^4.2.4"
+    "socket.io-client": "^4.8.1",
+    "web-vitals": "^4.2.4",
+    "webpack": "^5.98.0"
   }
 }
