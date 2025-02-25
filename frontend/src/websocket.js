@@ -7,14 +7,17 @@ if (!userId) {
     localStorage.setItem("userId", userId);
 }
 
-const socket = io("wss://transcendence.local", {
-    path: "/socket.io/",
+/*
+const socket = io(`wss://${window.location.hostname}/socket.io/`, {
     transports: ["websocket"],
     secure: true,
     reconnection: true,         // Enable auto-reconnect
     reconnectionAttempts: 10,   // Retry 10 times before failing
     reconnectionDelay: 2000,    // Wait 2 seconds between retries
 });
+*/
+
+const socket = new WebSocket(`wss://${window.location.hostname}/socket.io/`);
 
 export const connectWebSocket = () => {
     socket.on("connect", () => {
@@ -41,4 +44,3 @@ export const listenForGameUpdates = (callback) => {
 };
 
 export default socket;
-
