@@ -10,5 +10,19 @@ class Note(models.Model):
     def __str__(seld):
         return self.title
 
+""" class Tournament(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
+    Semifinal1 = models.ForeignKey("Match", on_delete=models.SET_NULL, null=True)
+    Semifinal2 = models.ForeignKey("Match", on_delete=models.SET_NULL, null=True)
+    FinalMatch = models.ForeignKey("Match", on_delete=models.SET_NULL, null=True)
+
+class Match(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
+    Player1 = models.ForeignKey("User", on_delete=models.SET_NULL, null=True)
+    Player2 = models.ForeignKey("User", on_delete=models.SET_NULL, null=True)
+    P1score = models.IntegerField()
+    P2score = models.IntegerField() """
+
+
 
 # Create your models here.
