@@ -14,7 +14,7 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/migrations:/app/migrations
-    command: sh -c "python manage.py migrate && gunicorn backend.wsgi:application --bind 0.0.0.0:${BACKEND_PORT}"
+    command: sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p ${BACKEND_PORT} backend.asgi:application"
 
   frontend:
     build: ./frontend
