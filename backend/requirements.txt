@@ -3,7 +3,7 @@ Django
 django-cors-headers
 djangorestframework
 djangorestframework-simplejwt
-gunicorn
+daphne
 psycopg[binary]
 pytz
 sqlparse
