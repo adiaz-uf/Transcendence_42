@@ -3,11 +3,9 @@ import ReactDOM from 'react-dom/client';
 import RouteSwitch from "./components/RouteSwitch"
 import './index.css';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { connectWebSocket } from "./websocket"; // Import WebSocket initialization
+import socket from './websocket'; // Import WebSocket initialization
 
 //import reportWebVitals from '../test/reportWebVitals';
-
-connectWebSocket();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
