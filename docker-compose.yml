@@ -14,7 +14,9 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/migrations:/app/migrations
-    command: sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p ${BACKEND_PORT} backend.asgi:application"
+    command: sh -c "/app/init.sh"
+    networks:
+      - transcendence_net
 
   frontend:
     build: ./frontend
@@ -29,7 +31,9 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: sh -c "npm run build && serve -s build"
+    command: sh -c "serve -s build"
+    networks:
+      - transcendence_net
 
   db:
     image: postgres:17
@@ -41,6 +45,8 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - transcendence_net
 
   pgadmin:
     build:
@@ -56,20 +62,9 @@ services:
       - db
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-
-  websocket:
-    build: ./websocket
-    container_name: pong_websocket
-    restart: always
-    env_file:
-      - .env
-    expose:
-      - "${WEBSOCKET_PORT}"
-    depends_on:
-      - backend
-    volumes:
-      - ./websocket:/app
-    command: sh -c "node server.js"
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+    networks:
+      - transcendence_net
 
   nginx:
     image: nginx:latest
@@ -85,7 +80,13 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./frontend/build:/usr/share/nginx/html:ro
       - ./certs:/etc/ssl/certs
+    networks:
+      - transcendence_net
 
 volumes:
   pgdata:
   pgadmin_data:
+
+networks:
+  transcendence_net:
+    driver: bridge
