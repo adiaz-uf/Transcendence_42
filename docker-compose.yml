@@ -14,6 +14,8 @@ services:
     volumes:
       - ./backend:/app
       - ./backend/migrations:/app/migrations
+    ports:
+      - "${BACKEND_PORT}:8000"
     command: sh -c "/app/init.sh"
     networks:
       - transcendence_net
@@ -44,7 +46,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     networks:
       - transcendence_net
 
