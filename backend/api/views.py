@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, NoteSerializer
+from .serializers import UserSerializer, NoteSerializer, TournamentSerializer, MatchSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Note
+from .models import Note, Tournament, Match
 
 class NoteListCreate(generics.ListCreateAPIView):
     serializer_class = NoteSerializer
@@ -30,6 +30,16 @@ class NoteDelete(generics.DestroyAPIView):
 class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+
+class CreateTournamentView(generics.CreateAPIView):
+    serializer_class = TournamentSerializer
+    queryset = Tournament.objects.all()
+    permission_classes = [AllowAny]
+
+class CreateMatchView(generics.CreateAPIView):
+    serializer_class = MatchSerializer
+    queryset = Match.objects.all()
     permission_classes = [AllowAny]
 
 # Create your views here.
