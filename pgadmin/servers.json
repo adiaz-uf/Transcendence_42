@@ -1,0 +1,15 @@
+{
+    "Servers": {
+        "1": {
+            "Group": "${PGADMIN_SERVER_GROUP}",
+            "Name": "${PGADMIN_SERVER_NAME}",
+            "Host": "${PGADMIN_SERVER_HOST}",
+            "Port": ${PGADMIN_SERVER_PORT},
+            "MaintenanceDB": "${PGADMIN_SERVER_DB}",
+            "Username": "${PGADMIN_SERVER_USER}",
+            "PassFile": "${PGADMIN_SERVER_PGPASS_FILE}",
+            "SSLMode": "${PGADMIN_SERVER_SSLMODE}",
+            "Favorite": true
+        }
+    }
+}
