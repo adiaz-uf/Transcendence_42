@@ -3,7 +3,12 @@ Django
 django-cors-headers
 djangorestframework
 djangorestframework-simplejwt
-gunicorn
+daphne
+psycopg[binary]
 pytz
 sqlparse
 python-dotenv
+
+#Django channels for WebSocket
+channels
+channels-redis

@@ -6,21 +6,26 @@ services:
     container_name: pong_backend
     restart: always
     env_file:
-      - ./backend/.env
+      - .env
     expose:
-      - "8000"
+      - "${BACKEND_PORT}"
     depends_on:
       - db
     volumes:
       - ./backend:/app
-    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+      - ./backend/migrations:/app/migrations
+    ports:
+      - "${BACKEND_PORT}:8000"
+    command: sh -c "/app/init.sh"
+    networks:
+      - transcendence_net
 
   frontend:
     build: ./frontend
     container_name: pong_frontend
     restart: always
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT}:3000"
     stdin_open: true
     tty: true
     depends_on:
@@ -28,18 +33,39 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: serve -s build
+    command: sh -c "serve -s build"
+    networks:
+      - transcendence_net
 
   db:
     image: postgres:17
     container_name: pong_db
     restart: always
     env_file:
-      - ./backend/.env
+      - .env
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - transcendence_net
+
+  pgadmin:
+    build:
+      context: ./pgadmin
+      dockerfile: Dockerfile
+    container_name: pong_pgadmin
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${PGADMIN_PORT}:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - transcendence_net
 
   nginx:
     image: nginx:latest
@@ -55,6 +81,13 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./frontend/build:/usr/share/nginx/html:ro
       - ./certs:/etc/ssl/certs
+    networks:
+      - transcendence_net
 
 volumes:
   pgdata:
+  pgadmin_data:
+
+networks:
+  transcendence_net:
+    driver: bridge

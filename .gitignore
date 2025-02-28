@@ -1,3 +1,7 @@
 # Ignore virtual environments
+virtualenv/
+venv/
+dump.rdb
+#.env/
 *.pyc
 __pycache__/
