@@ -60,6 +60,7 @@ init: build up  ## Initialize the project
 
 fclean:  ## Completely clean the project (remove containers and volumes)
 	$(DOCKER_COMPOSE) down -v
+	@docker rmi $$(docker images -qa)
 
 re:  ## Rebuild and restart the project from scratch
 	$(MAKE) fclean
