@@ -4,7 +4,7 @@ if (!userId) {
     localStorage.setItem("userId", userId);
 }
 
-const SERVER_URL = `wss://${window.location.hostname}/ws/`;
+const SERVER_URL = `wss://${window.location.hostname}/ws/game/`;
 let socket;
 let reconnectAttempts = 0;
 const maxReconnectAttempts = 10;
@@ -35,12 +35,22 @@ const connectWebSocket = () => {
         console.error("WebSocket Error:", error);
     });
 
-    socket.addEventListener("message", (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "gameUpdate" && gameUpdateCallback) {
-            gameUpdateCallback(data);
-        }
-    });
+	socket.addEventListener("message", (event) => {
+		try {
+			const data = JSON.parse(event.data);
+
+			if (data.type === "gameUpdate") {
+				console.log("Game update received:", data);
+				if (gameUpdateCallback) {
+					gameUpdateCallback(data);
+				}
+			} else {
+				console.log("Other message reveived:", data);
+			}
+		} catch (error) {
+			console.error("Error during the WebSocket's parsing:", error);
+		}
+	});
 };
 
 connectWebSocket();
