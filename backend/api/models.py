@@ -36,7 +36,7 @@ class Tournament(models.Model):
 
 # can a match not be linked to a tournament
 class Match(models.Model):
-    tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=True)
     team_left = models.ForeignKey(Team, on_delete=models.CASCADE)
     team_right = models.ForeignKey(Team, on_delete=models.CASCADE)
     GAMES_MODES = {
