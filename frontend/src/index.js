@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import RouteSwitch from "./components/RouteSwitch"
 import './index.css';
 import "bootstrap/dist/css/bootstrap.min.css";
+import socket from './websocket'; // Import WebSocket initialization
 
 //import reportWebVitals from '../test/reportWebVitals';
 
