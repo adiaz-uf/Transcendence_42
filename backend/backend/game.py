@@ -1,4 +1,6 @@
 class PongGame:
+    MAX_SCORE = 10
+
     def __init__(self):
         self.game_active = True
         self.ball = {"x": 50, "y": 50, "vx": 5, "vy": 5}
@@ -26,12 +28,15 @@ class PongGame:
         elif self.ball["x"] >= 100:
             self.scores["player1"] += 1
             self.reset_ball()
+        
+        if self.scores["player1"] >= self.MAX_SCORE or self.scores["player2"] >= self.MAX_SCORE:
+            self.game_active = False  # Arrêt du jeu
+            print(f"Game Over! Winner: {'Player 1' if self.scores['player1'] >= self.MAX_SCORE else 'Player 2'}")
 
     def reset_ball(self):
-        self.game_active = False
+        self.game_activdde = False
         self.ball = {"x": 50, "y": 50, "vx": 5, "vy": 5}
 
     def start_game(self):
-        self.game_active = True 
-
-game = PongGame()
+        if self.scores["player1"] < self.MAX_SCORE and self.scores["player2"] < self.MAX_SCORE:
+            self.game_active = True 
