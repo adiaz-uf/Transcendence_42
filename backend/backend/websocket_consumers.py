@@ -25,6 +25,8 @@ class PongConsumer(AsyncWebsocketConsumer):
             game_manager.update_paddle(self.game_id, self.player_id, data["move"])
 
     async def game_loop(self):
+        self.previous_state = None
+
         while True:
             if self.game.game_active:
                 self.game.update()
@@ -32,11 +34,19 @@ class PongConsumer(AsyncWebsocketConsumer):
                 await asyncio.sleep(1)  # Wait 1 second before restarting
                 self.game.start_game()
 
-            await self.send(json.dumps({
-                "type": "gameUpdate",
+            current_state = deepcopy({
                 "ball": self.game.ball,
                 "paddles": self.game.paddles,
                 "scores": self.game.scores
-            }))
+            })
+
+            if current_state != self.previous_state:
+                await self.send(json.dumps({
+                    "type": "gameUpdate",
+                    "ball": self.game.ball,
+                    "paddles": self.game.paddles,
+                    "scores": self.game.scores
+                }))
+                self.previous_state = current_state
 
             await asyncio.sleep(0.06)  # 60ms delay for smooth updates
