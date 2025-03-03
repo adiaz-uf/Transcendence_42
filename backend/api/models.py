@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AbstractUser, Group, Permission
 from django.db.models import Model
 
 class Note(models.Model):
@@ -13,22 +13,31 @@ class Note(models.Model):
 
 
 # Create your models here.
-
-# change password so it's hashed
-class UserProfile(models.Model):
-    username = models.CharField(max_length=20, unique=True)
-    email = models.EmailField(max_length=254, unique=True)
-    password = models.CharField(max_length=60)
+class UserProfile(AbstractUser):
     given_name = models.CharField(max_length=35)
     surname = models.CharField(max_length=35)
+    
+    # overriding the groups and user_permissions inherited from AbstractUser
+    groups = models.ManyToManyField(
+        Group,
+        related_name="user_profiles",
+        blank=True
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        related_name="user_profiles",
+        blank=True
+    )
 
     def __str__(self):
-        return self.name
+        return self.username
 
 
 class Tournament(models.Model):
+    name = models.CharField(max_length=35)
     created_at = models.DateTimeField(editable=False)
     owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    matches = models.ManyToManyField("Match", related_name="matches")
 
     def __str__(self):
         return self.name
@@ -37,36 +46,32 @@ class Tournament(models.Model):
 # can a match not be linked to a tournament
 class Match(models.Model):
     tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=True)
-    team_left = models.ForeignKey(Team, on_delete=models.CASCADE)
-    team_right = models.ForeignKey(Team, on_delete=models.CASCADE)
-    GAMES_MODES = {
-        SINGLEPLAYER: "SINGLEPLAYER",
-        MULTIPLAYER: "MULTIPLAYER",
-    }
-    game_mode = models.CharField(choices=GAMES_MODES, default=SINGLEPLAYER)
+    team_left = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_left")
+    team_right = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_right")
+    left_score = models.PositiveIntegerField()
+    right_score = models.PositiveIntegerField()
+    is_multiplayer = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
-
 
 class Team(models.Model):
-    score = models.PositiveIntegerField()
+    name = models.CharField(max_length=35)
     match_id = models.ForeignKey(Match, on_delete=models.CASCADE)
-    player1_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    player2_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
+    player1_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="player1_id")
+    player2_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, related_name="player2_id")
 
     def __str__(self):
         return self.name
-
 
 
 # not sure if ball_duration actually calculates the live ball duration
 class GoalStat(models.Model):
     user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    match_id = models.ForeignKey(Match, on_delete=models.CASCADE)
     hit_corners = models.PositiveIntegerField()
     ball_duration = models.DurationField()
     pos_y = models.DecimalField(max_digits=5, decimal_places=2)
-    match_id = models.ForeignKey(Match, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
