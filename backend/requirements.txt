@@ -4,6 +4,7 @@ django-cors-headers
 djangorestframework
 djangorestframework-simplejwt
 daphne
+twisted[http2,tls]
 psycopg[binary]
 pytz
 sqlparse

@@ -1,4 +1,5 @@
 import { Nav, Navbar, Container } from "react-bootstrap";
+import '../styles/App.css'
 
 export default function NavBar() {
     return (
@@ -14,7 +15,9 @@ export default function NavBar() {
             </Nav>
             <Nav>
             <Navbar.Text>
-              Signed in as: <a href="/profile"> Adiaz-uf</a>
+              Signed in as: 
+              <a href="/profile" className="user-link"> Adiaz-uf </a> 
+              <a href="/logout" className="user-link"> Logout </a>
             </Navbar.Text>
             </Nav>
           </Navbar.Collapse>

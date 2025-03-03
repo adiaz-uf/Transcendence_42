@@ -4,35 +4,77 @@ if (!userId) {
     localStorage.setItem("userId", userId);
 }
 
-const socket = new WebSocket(`wss://${window.location.hostname}/socket.io/`);
+const SERVER_URL = `wss://${window.location.hostname}/ws/game/`;
+let socket;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 10;
+const reconnectDelay = 2000; // 2 seconds
 
-socket.addEventListener("open", () => {
-    console.log("Connected to WebSocket server");
-});
+const connectWebSocket = () => {
+    socket = new WebSocket(SERVER_URL);
 
-socket.addEventListener("close", (event) => {
-    console.warn(`Disconnected from WebSocket server: ${event.reason}`);
-});
+    socket.addEventListener("open", () => {
+        console.log("Connected to WebSocket server");
+        reconnectAttempts = 0;
+    });
 
-socket.addEventListener("error", (error) => {
-    console.error("WebSocket Error:", error);
-});
+    socket.addEventListener("close", (event) => {
+        console.warn(`Disconnected from WebSocket server: ${event.reason}`);
+        if (reconnectAttempts < maxReconnectAttempts) {
+            setTimeout(() => {
+                console.log(`Reconnecting... Attempt ${reconnectAttempts + 1}/${maxReconnectAttempts}`);
+                reconnectAttempts++;
+                connectWebSocket();
+            }, reconnectDelay);
+        } else {
+            console.error("Maximum reconnection attempts reached. WebSocket will not reconnect.");
+        }
+    });
+
+    socket.addEventListener("error", (error) => {
+        console.error("WebSocket Error:", error);
+    });
+
+	socket.addEventListener("message", (event) => {
+		try {
+			const data = JSON.parse(event.data);
+
+			if (data.type === "gameUpdate") {
+				console.log("Game update received:", data);
+				if (gameUpdateCallback) {
+					gameUpdateCallback(data);
+				}
+			} else {
+				console.log("Other message reveived:", data);
+			}
+		} catch (error) {
+			console.error("Error during the WebSocket's parsing:", error);
+		}
+	});
+};
+
+connectWebSocket();
+
+const sendMessage = (message) => {
+    if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(message));
+    } else {
+        console.warn("WebSocket not ready. Message not sent.");
+    }
+};
 
 export const joinGame = (gameId) => {
-    const message = JSON.stringify({ action: "joinGame", gameId });
-    socket.send(message);
+    sendMessage({ action: "joinGame", gameId, userId });
 };
 
 export const sendPlayerMove = (key) => {
-    const message = JSON.stringify({ action: "playerMove", key });
-    socket.send(message);
+    sendMessage({ action: "playerMove", key, userId });
 };
 
+let gameUpdateCallback = null;
+
 export const listenForGameUpdates = (callback) => {
-    socket.addEventListener("message", (event) => {
-        const data = JSON.parse(event.data);
-        callback(data);
-    });
+    gameUpdateCallback = callback;
 };
 
 export default socket;
