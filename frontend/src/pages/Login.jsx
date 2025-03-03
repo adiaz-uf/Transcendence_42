@@ -18,6 +18,8 @@ export default function Login({route}) {
         e.preventDefault();
 
         try {
+			if (username === "" || password === "")
+				throw "Please enter all the fields"
             const res = await api.post(route, { username, password })
             localStorage.setItem(ACCESS_TOKEN, res.data.access);
             localStorage.setItem(REFRESH_TOKEN, res.data.refresh);

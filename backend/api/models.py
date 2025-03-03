@@ -8,10 +8,9 @@ class Note(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
 
-    def __str__(seld):
+    def __str__(self):
         return self.title
-
-
+      
 # Create your models here.
 class UserProfile(AbstractUser):
     given_name = models.CharField(max_length=35)
@@ -34,6 +33,7 @@ class UserProfile(AbstractUser):
 
 
 class Tournament(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=35)
     created_at = models.DateTimeField(editable=False)
     owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
@@ -45,6 +45,7 @@ class Tournament(models.Model):
 
 # can a match not be linked to a tournament
 class Match(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
     tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=True)
     team_left = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_left")
     team_right = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_right")
