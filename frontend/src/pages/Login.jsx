@@ -23,6 +23,7 @@ export default function Login({route}) {
             const res = await api.post(route, { username, password })
             localStorage.setItem(ACCESS_TOKEN, res.data.access);
             localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+			localStorage.setItem("username", username); // Guardas el username en el localStorage
             navigate("/")
         } catch (error) {
             alert(error)
