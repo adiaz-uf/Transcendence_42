@@ -22,7 +22,7 @@ export default function Register({route}) {
 		try {
 			if (username === "" || email === "" || name === "" || password === "" || repeatpassword === "")
 				throw "Please enter all the fields"
-			else if (username != repeatpassword)
+			else if (password != repeatpassword)
 				throw "Passwords must be the same!"
 			const res = await api.post(route, { username, password })
 			navigate("/login")

@@ -1,7 +1,16 @@
 import { Nav, Navbar, Container } from "react-bootstrap";
+import { useState, useEffect} from "react";
 import '../styles/App.css'
 
 export default function NavBar() {
+
+  const [username, setUsername] = useState('');
+  useEffect(() => {
+    const savedUsername = localStorage.getItem("username");
+    if (savedUsername) {
+        setUsername(savedUsername);  // Establecer el username en el estado
+    }
+  }, []);
     return (
         <Navbar expand="lg" bg="dark" variant="dark" className="navbar-fixed-top">
         <Container>
@@ -16,7 +25,7 @@ export default function NavBar() {
             <Nav>
             <Navbar.Text>
               Signed in as: 
-              <a href="/profile" className="user-link"> Adiaz-uf </a> 
+              <a href="/profile" className="user-link"> {username ? username : 'Guest'} </a> 
               <a href="/logout" className="user-link"> Logout </a>
             </Navbar.Text>
             </Nav>
