@@ -14,3 +14,8 @@
     place-content: center;
     padding: 1em;
 }
+
+.user-link {
+    padding: 0.3em;
+    text-decoration: none;
+}

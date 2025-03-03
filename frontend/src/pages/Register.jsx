@@ -9,6 +9,9 @@ export default function Register({route}) {
 
 	const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+	const [repeatpassword, setRepeatPassword] = useState("");
+	const [email, setEmail] = useState("");
+	const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -17,6 +20,10 @@ export default function Register({route}) {
         e.preventDefault();
 
 		try {
+			if (username === "" || email === "" || name === "" || password === "" || repeatpassword === "")
+				throw "Please enter all the fields"
+			else if (username != repeatpassword)
+				throw "Passwords must be the same!"
 			const res = await api.post(route, { username, password })
 			navigate("/login")
 		}
@@ -38,10 +45,10 @@ export default function Register({route}) {
                 <Form.Label className="text-label">Email address</Form.Label>
 					<Form.Control
 						type='text'
-						//value={props.email}
+						value={email}
 						name='email'
 						placeholder='email@email.com'
-						//onChange={propTypes.handleemailChange}
+						onChange={(e) => setEmail(e.target.value)}
 					/>
                     <Form.Label className="text-muted-email">
                         We'll never share your email with anyone else.
@@ -63,10 +70,10 @@ export default function Register({route}) {
                 <Form.Label className="text-label">Enter Your Name</Form.Label>
 					<Form.Control
 						type='text'
-						//value={props.name}
+						value={name}
 						name='name'
 						placeholder='Name'
-						//onChange={propTypes.handlenameChange}
+						onChange={(e) => setName(e.target.value)}
 					/>
 				</Form.Group>
                 </div>
@@ -86,10 +93,10 @@ export default function Register({route}) {
                 <Form.Label className="text-label">Repeat Password</Form.Label>
 					<Form.Control
 						type='text'
-						//value={props.password}
+						value={repeatpassword}
 						name='RepeatPassword'
 						placeholder='Repeat Password'
-						//onChange={propTypes.handlePasswordChange}
+						onChange={(e) => setRepeatPassword(e.target.value)}
 					/>
 				</Form.Group>
                 </div>
