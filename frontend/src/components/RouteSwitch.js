@@ -3,6 +3,7 @@ import Login from "../pages/Login"
 import Register from '../pages/Register'
 import Stats from '../pages/Statspage'
 import NotFound from "../pages/NotFound"
+import Profile from "../pages/Profile"
 import Alert from '../components/Alert'
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute'
@@ -32,8 +33,9 @@ export default function RouterSwitch() {
                 <Route path ='/login' element ={<Login route='/api/token/'/>}/>
                 <Route path ='/logout' element ={<Logout/>}/>
                 <Route path ='/register' element ={<RegisterAndLogout/>}/>
-                {/* <Route path ='/home' element ={<Home/>}/> */}
-                <Route path ='/stats' element ={<Stats/>}/>
+                <Route path ='/home' element ={<ProtectedRoute><Home/></ProtectedRoute>}/>
+                <Route path ='/profile' element ={<ProtectedRoute><Profile/></ProtectedRoute>}/>
+                <Route path ='/stats' element ={<ProtectedRoute><Stats/></ProtectedRoute>}/>
                 <Route path ='/alert' element ={<Alert/>}/>
                 <Route path ='*' element ={<NotFound/>}/>
             </Routes>
