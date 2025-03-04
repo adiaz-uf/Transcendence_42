@@ -1,0 +1,44 @@
+/* Estilos generales */
+.profile-card {
+  background-color: #343538 !important;
+  color: #fff !important;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 20px !important;
+  font-size: 1.3em;
+}
+
+.avatar {
+  background-color: #4b5e67; /* Fondo gris oscuro */
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 50px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin: 0 auto;
+  margin-bottom: 15px;
+}
+
+/* Modal */
+.modal-header {
+  background-color: #26292d;
+}
+
+.modal-body {
+  background-color: #26292d;
+}
+
+
+/* Botón */
+button {
+  background-color: #0062cc;
+  border: none;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
