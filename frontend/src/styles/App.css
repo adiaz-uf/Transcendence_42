@@ -19,3 +19,25 @@
     padding: 0.3em;
     text-decoration: none;
 }
+
+.container-404 {
+    width: 100%;
+    text-align: center; 
+}
+
+.container-404:after {
+    content: '';
+    display: block;
+    border-bottom: 1px solid;
+}
+
+.header-404 {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    font-size: 3em;
+}
+
+.text-404 {
+    font-size: 1.5em;
+    text-align: center;
+}

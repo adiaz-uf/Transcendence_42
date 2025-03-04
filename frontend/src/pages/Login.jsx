@@ -1,4 +1,4 @@
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Spinner } from 'react-bootstrap';
 import { useState } from "react";
 import api from "../api";
 import '../styles/login.css'
@@ -19,7 +19,7 @@ export default function Login({route}) {
 
         try {
 			if (username === "" || password === "")
-				throw "Please enter all the fields"
+				throw new Error("Please enter all the fields");
             const res = await api.post(route, { username, password })
             localStorage.setItem(ACCESS_TOKEN, res.data.access);
             localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
@@ -34,7 +34,8 @@ export default function Login({route}) {
 	
     return (
 		<div className='login-container'>
-			<h1 className='header'>Login into Transcendence</h1>
+			<h1 className='header'>Welcome to pong!</h1>
+			<h1 className='header'>Login to play</h1>
 		<div className='login-wrapper'>
 			<div className='login-form-container'>
 			<Form onSubmit={handleSubmit}>
@@ -47,10 +48,9 @@ export default function Login({route}) {
 						onChange={(e) => setUsername(e.target.value)}
 					/>
 				</Form.Group>
-
 				<Form.Group id='password' className='mb-4'>
 					<Form.Control
-						type='text'
+						type='password'
 						value={password}
 						name='Password'
 						placeholder='Password'
@@ -58,9 +58,12 @@ export default function Login({route}) {
 					/>
 				</Form.Group>
 				<Button id='form-login-button' className='w-100' type='submit'>
-					Login
+				{loading ? (
+					<Spinner animation="border" size="sm" /> // Indicador de carga
+				) : (
+					'Login'
+				)}
 				</Button>
-
 				<div className='login-register-container'>
 				<Form.FloatingLabel>¿Dont have an account?</Form.FloatingLabel>
 				<Link to="/register" className='w-50'>

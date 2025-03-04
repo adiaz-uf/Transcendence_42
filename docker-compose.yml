@@ -33,7 +33,8 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: sh -c "serve -s build"
+    #command: sh -c "serve -s build"
+    command: sh -c "npm start"
     networks:
       - transcendence_net
 
