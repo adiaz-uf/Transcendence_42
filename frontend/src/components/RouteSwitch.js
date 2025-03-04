@@ -34,7 +34,7 @@ export default function RouterSwitch() {
                 <Route path ='/logout' element ={<Logout/>}/>
                 <Route path ='/register' element ={<RegisterAndLogout/>}/>
                 <Route path ='/home' element ={<ProtectedRoute><Home/></ProtectedRoute>}/>
-                <Route path ='/profile' element ={<ProtectedRoute><Profile/></ProtectedRoute>}/>
+                <Route path ='/profile' element ={<Profile/>}/>
                 <Route path ='/stats' element ={<ProtectedRoute><Stats/></ProtectedRoute>}/>
                 <Route path ='/alert' element ={<Alert/>}/>
                 <Route path ='*' element ={<NotFound/>}/>
