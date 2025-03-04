@@ -1,4 +1,4 @@
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Spinner } from 'react-bootstrap';
 import { useState } from "react";
 import api from "../api";
 import '../styles/login.css'
@@ -21,10 +21,10 @@ export default function Register({route}) {
 
 		try {
 			if (username === "" || email === "" || name === "" || password === "" || repeatpassword === "")
-				throw "Please enter all the fields"
-			else if (password != repeatpassword)
-				throw "Passwords must be the same!"
-			const res = await api.post(route, { username, password })
+				throw new Error("Please enter all the fields");
+			else if (password !== repeatpassword)
+				throw new Error("Passwords must be the same!");
+			await api.post(route, { username, password });
 			navigate("/login")
 		}
 		catch (error) {
@@ -40,11 +40,10 @@ export default function Register({route}) {
 		<div className='login-wrapper'>
 			<div className='register-form-container'>
 			<Form onSubmit={handleSubmit}>
-                
                 <Form.Group id='email' className='mb-3'>
-                <Form.Label className="text-label">Email address</Form.Label>
+                <Form.Label>Email address</Form.Label>
 					<Form.Control
-						type='text'
+						type='email'
 						value={email}
 						name='email'
 						placeholder='email@email.com'
@@ -56,7 +55,7 @@ export default function Register({route}) {
 				</Form.Group>
                 <div className='register-register-container'>
 				<Form.Group id='username' className='mb-3 w-100'>
-                <Form.Label className="text-label">Enter Username</Form.Label>
+                <Form.Label>Enter Username</Form.Label>
 					<Form.Control
 						type='text'
 						value={username}
@@ -65,9 +64,8 @@ export default function Register({route}) {
 						onChange={(e) => setUsername(e.target.value)}
 					/>
 				</Form.Group>
-                
                 <Form.Group id='name' className='mb-3 w-100'>
-                <Form.Label className="text-label">Enter Your Name</Form.Label>
+                <Form.Label>Enter Your Name</Form.Label>
 					<Form.Control
 						type='text'
 						value={name}
@@ -79,20 +77,19 @@ export default function Register({route}) {
                 </div>
                 <div className='register-register-container'>
 				<Form.Group id='newpassword' className='mb-3 w-100'>
-                <Form.Label className="text-label">New Password</Form.Label>
+                <Form.Label>New Password</Form.Label>
 					<Form.Control
-						type='text'
+						type='password'
 						value={password}
 						name='NewPassword'
 						placeholder='New Password'
 						onChange={(e) => setPassword(e.target.value)}
 					/>
 				</Form.Group>
-
                 <Form.Group id='repeatpassword' className='mb-3 w-100'>
-                <Form.Label className="text-label">Repeat Password</Form.Label>
+                <Form.Label>Repeat Password</Form.Label>
 					<Form.Control
-						type='text'
+						type='password'
 						value={repeatpassword}
 						name='RepeatPassword'
 						placeholder='Repeat Password'
@@ -101,7 +98,14 @@ export default function Register({route}) {
 				</Form.Group>
                 </div>
 				<Button id='form-login-button' className='mt-2 w-100' type='submit'>
-					Register
+				{loading ? (
+				<>
+					<Spinner animation="border" size="sm" />
+					{' '}Loading...
+				</>
+				) : (
+					'Register'
+				)}
 				</Button>
 			</Form>
 			</div>

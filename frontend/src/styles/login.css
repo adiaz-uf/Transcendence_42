@@ -6,7 +6,6 @@
     gap: 2em;
 }
 .header {
-    color: #fff;
     font-size: 3em;
 }
 
@@ -27,7 +26,6 @@
 }
 
 .login-register-container {
-    color: #fff;
     display:flex;
     padding-top: 1.3em;
     align-items: center;
@@ -44,15 +42,10 @@
 }
 
 .register-register-container {
-    color: #fff;
     display:flex;
     align-items: center;
     justify-content: space-between;
     gap: 1em;
-}
-
-.text-label {
-    color: #fff;
 }
 
 .text-muted-email {
