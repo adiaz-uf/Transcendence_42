@@ -1,7 +1,6 @@
 import Home from '../pages/Home'
 import Login from "../pages/Login"
 import Register from '../pages/Register'
-import Stats from '../pages/Statspage'
 import NotFound from "../pages/NotFound"
 import Profile from "../pages/Profile"
 import Alert from '../components/Alert'
@@ -35,7 +34,6 @@ export default function RouterSwitch() {
                 <Route path ='/register' element ={<RegisterAndLogout/>}/>
                 <Route path ='/home' element ={<ProtectedRoute><Home/></ProtectedRoute>}/>
                 <Route path ='/profile' element ={<Profile/>}/>
-                <Route path ='/stats' element ={<ProtectedRoute><Stats/></ProtectedRoute>}/>
                 <Route path ='/alert' element ={<Alert/>}/>
                 <Route path ='*' element ={<NotFound/>}/>
             </Routes>
