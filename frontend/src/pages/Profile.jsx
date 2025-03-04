@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Card, Modal } from 'react-bootstrap';
-import '../styles/profile.css'; // Importamos el archivo CSS
+import '../styles/profile.css';
 import NavBar from '../components/Navbar';
+import Stat from '../components/Stat';
 
 export default function Profile() {
   // Estado para los datos del perfil
@@ -17,7 +18,6 @@ export default function Profile() {
   const [newName, setNewName] = useState(name);
   const [newEmail, setNewEmail] = useState(email);
   const [newUsername, setNewUsername] = useState(username);
-  const [newBio, setNewBio] = useState(bio);
 
   // Función para manejar la apertura y cierre del modal
   const handleShowModal = () => setShowModal(true);
@@ -29,7 +29,6 @@ export default function Profile() {
     setName(newName);
     setEmail(newEmail);
     setUsername(newUsername);
-    setBio(newBio);
     handleCloseModal(); // Cerrar el modal después de cambiar los datos
   };
 
@@ -41,40 +40,27 @@ export default function Profile() {
   return (
     <>
     <NavBar/>
-    <Container className="my-5">
+    <div className='profile-body'>
+    <div className="profile-container">
       <Row>
-        <Col md={4}>
-          {/* Perfil de usuario */}
-          <Card className="profile-card">
-            <Card.Body className="text-center">
-              {/* Avatar con la primera letra del nombre */}
+        <Col md={8}>
+          {/* Información de perfil */}
+          <div className="profile-card">
+            <div>
+              <h1>Profile Details</h1>
               <div className="avatar">
                 {getAvatarLetter(name)}
               </div>
-              <h5>{name}</h5>
-              <p>@{username}</p>
-              <p>{email}</p>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={8}>
-          {/* Información de perfil */}
-          <Card className="profile-card">
-            <Card.Body>
-              <h1>Profile Details</h1>
               <p><strong>Name:</strong> {name}</p>
               <p><strong>Email:</strong> {email}</p>
               <p><strong>Username:</strong> {username}</p>
-              <p><strong>Bio:</strong> {bio}</p>
-              {/* Botón para cambiar datos */}
               <Button variant="primary" onClick={handleShowModal}>
                 Change Data
               </Button>
-            </Card.Body>
-          </Card>
+            </div>
+          </div>
         </Col>
       </Row>
-
       {/* Modal para editar los datos */}
       <Modal show={showModal} onHide={handleCloseModal} dialogClassName="modal-dialog-centered">
         <Modal.Header closeButton>
@@ -111,25 +97,24 @@ export default function Profile() {
                 placeholder="Enter your username"
               />
             </Form.Group>
-
-            <Form.Group controlId="formBio">
-              <Form.Label>Bio</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={newBio}
-                onChange={(e) => setNewBio(e.target.value)}
-                placeholder="Enter a short bio"
-              />
-            </Form.Group>
-
             <Button variant="primary" type="submit" className="mt-3 w-100">
               Save Changes
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
-    </Container>
+    </div>
+    <div className='stats-container'>
+      <Stat title={"Matches Played"} value={"5"}/>
+      <Stat title={"Win Rate"} value={"4.0"}/>
+      <Stat title={"Wins"} value={"4"}/>
+      <Stat title={"Loses"} value={"1"}/>
+      <Stat title={"stat"} value={"999"}/>
+      <Stat title={"stat"} value={"999"}/>
+      <Stat title={"stat"} value={"999"}/>
+      <Stat title={"stat"} value={"999"}/>
+    </div>
+    </div>
     </>
   );
 }

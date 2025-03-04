@@ -1,5 +1,5 @@
 import { Row } from 'react-bootstrap';
-import '../styles/statspage.css'
+import '../styles/profile.css'
 
 export default function Stat({title, value}) {
     return (
