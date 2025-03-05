@@ -12,6 +12,10 @@ package-lock.json
 
 # production
 /build
+.pnpm-store/
+pnpm-lock.yaml
+
+
 
 # misc
 .DS_Store
