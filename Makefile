@@ -50,11 +50,11 @@ makemigrations:  ## Generate Django migrations
 test:  ## Run Django tests
 	$(DOCKER_COMPOSE) exec backend python manage.py test
 
-npm_install:  ## Install React dependencies
-	$(DOCKER_COMPOSE) exec frontend npm install
+pnpm_install:  ## Install React dependencies
+	$(DOCKER_COMPOSE) exec frontend npm install -g pnpm && pnpm install
 
-npm_build:  ## Build the React project for production
-	$(DOCKER_COMPOSE) exec frontend npm run build
+pnpm_build:  ## Build the React project for production
+	$(DOCKER_COMPOSE) exec frontend pnpm run build
 
 init: build up  ## Initialize the project
 
