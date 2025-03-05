@@ -13,7 +13,7 @@ package-lock.json
 # production
 /build
 .pnpm-store/
-pnpm-lock.yaml
+#pnpm-lock.yaml
 
 
 
