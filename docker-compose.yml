@@ -21,7 +21,9 @@ services:
       - transcendence_net
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+#      dockerfile: Dockerfile-dev # uncomment this line if you are Alex
     container_name: pong_frontend
     restart: always
     ports:
@@ -33,7 +35,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    command: sh -c "serve -s build"
     networks:
       - transcendence_net
 
