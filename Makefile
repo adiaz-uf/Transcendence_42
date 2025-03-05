@@ -51,7 +51,7 @@ test:  ## Run Django tests
 	$(DOCKER_COMPOSE) exec backend python manage.py test
 
 pnpm_install:  ## Install React dependencies
-	$(DOCKER_COMPOSE) exec frontend npm install -g pnpm && pnpm install
+	$(DOCKER_COMPOSE) exec frontend pnpm install
 
 pnpm_build:  ## Build the React project for production
 	$(DOCKER_COMPOSE) exec frontend pnpm run build
