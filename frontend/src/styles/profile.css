@@ -3,41 +3,53 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   min-height: 100vh;
   background-color: #26292d;
-  /* text-align: center; */
+  text-align: center;
   padding: 2em;
   padding-left: 3em;
   padding-right: 3em;
 }
 
 .profile-container {
-  background-color: #0056b3;
-  text-align: center;
-}
-
-.profile-card {
-  background-color: #343538 !important;
-  color: #fff !important;
-  border: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
-  border-radius: 20px !important;
-  font-size: 1.3em;
-  padding: 1em;
-}
-
-.avatar {
-  background-color: #4b5e67; 
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 50px;
-  font-weight: bold;
-  text-transform: uppercase;
-  margin: 0 auto;
-  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 2em; /* Ajusta el espacio entre avatar y los datos */
 }
+
+.profile-info {
+  display: flex;
+  flex-direction: row; /* Pone los elementos en fila (avatar + detalles) */
+  align-items: center;
+  gap: 2em;
+  flex-wrap: wrap;
+}
+
+.avatar {
+  width: 4em;
+  height: 4em;
+  border-radius: 50%;
+  background-color: #007bff; /* Color de fondo del avatar */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+}
+
+.profile-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.profile-details h1 {
+  margin-bottom: 10px;
+}
+
+.profile-details p {
+  margin: 5px 0;
+}
+
 
 /* Modal */
 .modal-header {
@@ -68,15 +80,10 @@ button:hover {
 
 .stat-wrapper {
   text-align: center;
-  color: #fff;
   box-shadow: 0 0 10px rgba(0,0,0,0.4);
   background-color:#343538;
   padding: 1em;
   border-radius: 10px;
-}
-
-.stat {
-  color: #fff;
 }
 
 @media (min-width: 400px) {
@@ -94,3 +101,11 @@ button:hover {
 @media (min-width: 1200px) {
   .stats-container { grid-template-columns: repeat(4, 1fr); }
   }
+
+@media (max-width: 768px) {
+  /* Para pantallas más pequeñas */
+  .profile-info {
+    flex-direction: column; /* Cambiar a columna cuando el ancho de la pantalla sea pequeño */
+    align-items: center;
+  }
+}

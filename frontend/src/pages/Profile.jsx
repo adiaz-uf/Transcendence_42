@@ -39,82 +39,75 @@ export default function Profile() {
 
   return (
     <>
-    <NavBar/>
-    <div className='profile-body'>
-    <div className="profile-container">
-      <Row>
-        <Col md={8}>
-          {/* Información de perfil */}
-          <div className="profile-card">
-            <div>
+      <NavBar />
+      <div className='profile-body'>
+        <div className="profile-container">
+          <div className="avatar">
+            {getAvatarLetter(name)}
+          </div>
+          <div className="profile-info">
+            <div className="profile-details">
               <h1>Profile Details</h1>
-              <div className="avatar">
-                {getAvatarLetter(name)}
-              </div>
-              <p><strong>Name:</strong> {name}</p>
-              <p><strong>Email:</strong> {email}</p>
-              <p><strong>Username:</strong> {username}</p>
+              <h5><strong>Name:</strong> {name}</h5>
+              <h5><strong>Email:</strong> {email}</h5>
+              <h5><strong>Username:</strong> {username}</h5>
               <Button variant="primary" onClick={handleShowModal}>
                 Change Data
               </Button>
             </div>
           </div>
-        </Col>
-      </Row>
-      {/* Modal para editar los datos */}
-      <Modal show={showModal} onHide={handleCloseModal} dialogClassName="modal-dialog-centered">
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Profile Data</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleChangeData}>
-            <Form.Group controlId="formName">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="Enter your name"
-              />
-            </Form.Group>
-
-            <Form.Group controlId="formEmail">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="Enter your email"
-              />
-            </Form.Group>
-
-            <Form.Group controlId="formUsername">
-              <Form.Label>Username</Form.Label>
-              <Form.Control
-                type="text"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="Enter your username"
-              />
-            </Form.Group>
-            <Button variant="primary" type="submit" className="mt-3 w-100">
-              Save Changes
-            </Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
-    </div>
-    <div className='stats-container'>
-      <Stat title={"Matches Played"} value={"5"}/>
-      <Stat title={"Win Rate"} value={"4.0"}/>
-      <Stat title={"Wins"} value={"4"}/>
-      <Stat title={"Loses"} value={"1"}/>
-      <Stat title={"stat"} value={"999"}/>
-      <Stat title={"stat"} value={"999"}/>
-      <Stat title={"stat"} value={"999"}/>
-      <Stat title={"stat"} value={"999"}/>
-    </div>
-    </div>
+        </div>
+        {/* Modal para editar los datos */}
+        <Modal show={showModal} onHide={handleCloseModal} dialogClassName="modal-dialog-centered" style={{"border-radius":"20px"}}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Profile Data</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form onSubmit={handleChangeData}>
+              <Form.Group controlId="formName">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Enter your name"
+                />
+              </Form.Group>
+              <Form.Group controlId="formEmail">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  placeholder="Enter your email"
+                />
+              </Form.Group>
+              <Form.Group controlId="formUsername">
+                <Form.Label>Username</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="Enter your username"
+                />
+              </Form.Group>
+              <Button variant="primary" type="submit" className="mt-3 w-100">
+                Save Changes
+              </Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
+        <div className='stats-container'>
+          <Stat title={"Matches Played"} value={"5"} />
+          <Stat title={"Win Rate"} value={"4.0"} />
+          <Stat title={"Wins"} value={"4"} />
+          <Stat title={"Loses"} value={"1"} />
+          <Stat title={"stat"} value={"999"} />
+          <Stat title={"stat"} value={"999"} />
+          <Stat title={"stat"} value={"999"} />
+          <Stat title={"stat"} value={"999"} />
+        </div>
+      </div>
     </>
   );
 }
