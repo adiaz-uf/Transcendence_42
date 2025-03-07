@@ -1,6 +1,7 @@
 # Ignore virtual environments
 virtualenv/
 venv/
+backend/static/
 dump.rdb
 #.env/
 *.pyc
