@@ -1,25 +1,23 @@
-# Use the latest LTS version of Node.js
-FROM node:22-alpine
- 
-# Set the working directory inside the container
+# Base image for development
+FROM node:alpine
+
+# Install PNPM globally using npm
+RUN npm install -g pnpm
+
+# Set the working directory
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Copy dependency management files
+COPY package.json pnpm-lock.yaml ./
 
-# Copy package.json and package-lock.json
-COPY package*.json pnpm-lock.yaml ./
-
-# Configurer le cache PNPM
-RUN pnpm config set store-dir .pnpm-store
-
-# Install dependencies
+# Install dependencies with PNPM
 RUN pnpm install --frozen-lockfile
 
-# Copy the rest of your application files
+# Copy the entire application code
 COPY . .
- 
-# Expose the port your app runs on
+
+# Expose port 3000 (default for React dev server)
 EXPOSE 3000
- 
-# Serve the built React app
-CMD ["pnpm",  "start"]
+
+# Command to start the development server
+CMD ["pnpm", "start"]

@@ -24,7 +24,10 @@ services:
   frontend:
     build:
       context: ./frontend
-      #dockerfile: Dockerfile-dev # uncomment this line if you are Alex
+#      dockerfile: Dockerfile-dev         # uncomment this line if you are Alex
+#    volumes:                             # uncomment this line if you are Alex
+#      - ./frontend/src:/app/src          # uncomment this line if you are Alex
+#      - ./frontend/public:/app/public    # uncomment this line if you are Alex
     container_name: pong_frontend
     restart: always
     ports:
