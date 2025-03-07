@@ -13,8 +13,8 @@ class Note(models.Model):
       
 # Create your models here.
 class UserProfile(AbstractUser):
-    given_name = models.CharField(max_length=35)
-    surname = models.CharField(max_length=35)
+    given_name = models.CharField(max_length=35, null=True, blank=True)
+    surname = models.CharField(max_length=35, null=True, blank=True)
     
     # overriding the groups and user_permissions inherited from AbstractUser
     groups = models.ManyToManyField(
@@ -35,8 +35,8 @@ class UserProfile(AbstractUser):
 class Tournament(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=35)
-    created_at = models.DateTimeField(editable=False)
-    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(editable=False, null=True)
+    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
     matches = models.ManyToManyField("Match", related_name="matches")
 
     def __str__(self):
@@ -47,10 +47,10 @@ class Tournament(models.Model):
 class Match(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=True)
-    team_left = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_left")
-    team_right = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_right")
-    left_score = models.PositiveIntegerField()
-    right_score = models.PositiveIntegerField()
+    team_left = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_left", null=True)
+    team_right = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_right", null=True)
+    left_score = models.PositiveIntegerField(default=0)
+    right_score = models.PositiveIntegerField(default=0)
     is_multiplayer = models.BooleanField(default=False)
 
     def __str__(self):

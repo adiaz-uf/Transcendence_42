@@ -11,7 +11,8 @@ export default function Register({route}) {
     const [password, setPassword] = useState("");
 	const [repeatpassword, setRepeatPassword] = useState("");
 	const [email, setEmail] = useState("");
-	const [name, setName] = useState("");
+	const [first_name, setFirstname] = useState("");
+	const [last_name, setLastname] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -20,11 +21,11 @@ export default function Register({route}) {
         e.preventDefault();
 
 		try {
-			if (username === "" || email === "" || name === "" || password === "" || repeatpassword === "")
+			if (username === "" || email === "" || first_name === "" ||last_name === "" || password === "" || repeatpassword === "")
 				throw new Error("Please enter all the fields");
 			else if (password !== repeatpassword)
 				throw new Error("Passwords must be the same!");
-			await api.post(route, { username, password });
+			await api.post(route, { username, password, email, first_name, last_name });
 			navigate("/login")
 		}
 		catch (error) {
@@ -64,18 +65,28 @@ export default function Register({route}) {
 						onChange={(e) => setUsername(e.target.value)}
 					/>
 				</Form.Group>
-                <Form.Group id='name' className='mb-3 w-100'>
-                <Form.Label>Enter Your Name</Form.Label>
+                <Form.Group id='firstname' className='mb-3 w-100'>
+                <Form.Label>First Name</Form.Label>
 					<Form.Control
 						type='text'
-						value={name}
-						name='name'
-						placeholder='Name'
-						onChange={(e) => setName(e.target.value)}
+						value={first_name}
+						name='first_name'
+						placeholder='First Name'
+						onChange={(e) => setFirstname(e.target.value)}
 					/>
 				</Form.Group>
                 </div>
-                <div className='register-register-container'>
+				<div className='register-register-container'>
+				<Form.Group id='last_name' className='mb-3 w-100'>
+                <Form.Label>Second Name</Form.Label>
+					<Form.Control
+						type='text'
+						value={last_name}
+						name='last_name'
+						placeholder='Last Name'
+						onChange={(e) => setLastname(e.target.value)}
+					/>
+				</Form.Group>
 				<Form.Group id='newpassword' className='mb-3 w-100'>
                 <Form.Label>New Password</Form.Label>
 					<Form.Control
@@ -86,6 +97,8 @@ export default function Register({route}) {
 						onChange={(e) => setPassword(e.target.value)}
 					/>
 				</Form.Group>
+				</div>
+                <div className='register-register-container'>
                 <Form.Group id='repeatpassword' className='mb-3 w-100'>
                 <Form.Label>Repeat Password</Form.Label>
 					<Form.Control
@@ -96,8 +109,7 @@ export default function Register({route}) {
 						onChange={(e) => setRepeatPassword(e.target.value)}
 					/>
 				</Form.Group>
-                </div>
-				<Button id='form-login-button' className='mt-2 w-100' type='submit'>
+				<Button id='form-login-button' className='mt-3 w-100' type='submit'>
 				{loading ? (
 				<>
 					<Spinner animation="border" size="sm" />
@@ -107,6 +119,7 @@ export default function Register({route}) {
 					'Register'
 				)}
 				</Button>
+                </div>
 			</Form>
 			</div>
 		</div>
