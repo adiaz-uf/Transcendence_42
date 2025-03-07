@@ -8,10 +8,10 @@ COPY pgpass /.pgpass
 
 COPY servers.json /pgadmin4/servers.json
 
-COPY entrypoint.sh /pgadmin4/entrypoint.sh
+COPY entrypoint-custom.sh /pgadmin4/entrypoint-custom.sh
 
-RUN chmod 600 /.pgpass && chmod +x /pgadmin4/entrypoint.sh
+RUN chmod 600 /.pgpass && chmod +x /pgadmin4/entrypoint-custom.sh
 
 EXPOSE 80
 
-ENTRYPOINT ["/pgadmin4/entrypoint.sh"]
+ENTRYPOINT ["/pgadmin4/entrypoint-custom.sh"]
