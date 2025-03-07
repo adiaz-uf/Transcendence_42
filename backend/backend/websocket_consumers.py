@@ -1,5 +1,6 @@
 import asyncio
 import json
+from copy import deepcopy
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .game_manager import game_manager
 from .game import PongGame
