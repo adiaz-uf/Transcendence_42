@@ -1,6 +1,6 @@
 FROM python:3.13-alpine
 
-RUN apk add --no-cache postgresql-client
+RUN apk add --no-cache postgresql-client netcat-openbsd
 
 WORKDIR /app
 
