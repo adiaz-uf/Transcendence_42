@@ -7,71 +7,83 @@ import NavBar from '../components/Navbar';
 import Stat from '../components/Stat';
 
 export default function Profile() {
-  // Estado para los datos del perfil
+  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
-  const [loading, setLoading] = useState(true); // Estado para manejar el estado de carga
-  const [error, setError] = useState(null); // Estado para manejar errores
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null); 
 
-  // Estado para mostrar el modal de editar datos
   const [showModal, setShowModal] = useState(false);
 
-  // Estado para guardar los nuevos datos
   const [newName, setNewName] = useState(name);
   const [newEmail, setNewEmail] = useState(email);
   const [newUsername, setNewUsername] = useState(username);
 
-  // Función para manejar la apertura y cierre del modal
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
-  // Función para manejar el cambio de datos
-  const handleChangeData = (e) => {
+  const handleChangeData = async (e) => {
     e.preventDefault();
-    setName(newName);
-    setEmail(newEmail);
-    setUsername(newUsername);
-    handleCloseModal(); // Cerrar el modal después de cambiar los datos
+
+    const updatedData = {
+      first_name: newName.split(' ')[0],  // Asumiendo que el nombre es el primer nombre
+      last_name: newName.split(' ')[1] || '', // Asumiendo que el apellido es el segundo nombre
+      email: newEmail,
+    };
+
+    try {
+      const response = await axios.patch('/api/user/profile/update/', updatedData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
+        },
+      });
+
+      // Actualiza el estado con los nuevos datos
+      setName(newName);
+      setEmail(newEmail);
+      setUsername(newUsername);
+
+      // Cierra el modal después de la actualización
+      handleCloseModal();
+
+      console.log("Profile updated:", response.data);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      setError("Error updating profile");
+    }
   };
 
-  // Función para obtener la primera letra del nombre para el avatar
   const getAvatarLetter = (name) => {
-    return name.charAt(0).toUpperCase(); // Obtiene la primera letra en mayúscula
+    return name.charAt(0).toUpperCase();
   };
 
-  // Función para obtener los datos del perfil desde el backend
   const fetchProfileData = async () => {
     try {
       const response = await axios.get('/api/user/profile/', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`, // Obtenemos el token desde el localStorage
+          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
         },
       });
 
-      // Si la petición es exitosa, actualizamos el estado con los datos del perfil
       const { username, email, first_name, last_name } = response.data;
       setUsername(username);
       setEmail(email);
-      setName(`${first_name} ${last_name}`); // Combina el nombre y apellido
-      setLoading(false); // Cambiamos el estado de carga
+      setName(`${first_name} ${last_name}`); 
+      setLoading(false); 
     } catch (err) {
-      setError('Error fetching profile data'); // Si hay un error, mostramos un mensaje
-      setLoading(false); // Cambiamos el estado de carga
+      setError('Error fetching profile data'); 
+      setLoading(false); 
     }
   };
 
-  // Usamos useEffect para hacer el fetching del perfil cuando el componente se monta
   useEffect(() => {
-    fetchProfileData(); // Fetch de los datos del perfil cuando el componente se monta
+    fetchProfileData();
   }, []);
 
-  // Si estamos cargando, mostramos un mensaje de carga
   if (loading) {
     return <div>Loading...</div>;
   }
-
-  // Si hubo un error, mostramos un mensaje de error
   if (error) {
     return <div>{error}</div>;
   }

@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework import generics
+from rest_framework import generics, status
 from .serializers import UserSerializer, NoteSerializer, TournamentSerializer, MatchSerializer
+from .serializers import UserProfileUpdateSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -42,6 +43,20 @@ class ProfileView(APIView):
         user = request.user  # Obtiene el usuario autenticado
         serializer = UserSerializer(user)  # Serializa los datos del usuario
         return Response(serializer.data)  # Devuelve los datos serializados
+    
+
+
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request):
+        user = request.user
+        serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CreateTournamentView(generics.CreateAPIView):
     serializer_class = TournamentSerializer
