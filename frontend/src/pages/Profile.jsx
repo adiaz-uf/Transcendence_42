@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Card, Modal } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Form, Button, Modal } from 'react-bootstrap';
+import axios from 'axios'; // Importamos axios para hacer las peticiones
+import { ACCESS_TOKEN } from "../constants"; 
 import '../styles/profile.css';
 import NavBar from '../components/Navbar';
 import Stat from '../components/Stat';
 
 export default function Profile() {
   // Estado para los datos del perfil
-  const [name, setName] = useState('Agustin Doe');
-  const [email, setEmail] = useState('john.doe@example.com');
-  const [username, setUsername] = useState('johndoe');
-  const [bio, setBio] = useState('A short bio about John.');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(true); // Estado para manejar el estado de carga
+  const [error, setError] = useState(null); // Estado para manejar errores
 
   // Estado para mostrar el modal de editar datos
   const [showModal, setShowModal] = useState(false);
@@ -36,6 +39,42 @@ export default function Profile() {
   const getAvatarLetter = (name) => {
     return name.charAt(0).toUpperCase(); // Obtiene la primera letra en mayúscula
   };
+
+  // Función para obtener los datos del perfil desde el backend
+  const fetchProfileData = async () => {
+    try {
+      const response = await axios.get('/api/user/profile/', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`, // Obtenemos el token desde el localStorage
+        },
+      });
+
+      // Si la petición es exitosa, actualizamos el estado con los datos del perfil
+      const { username, email, first_name, last_name } = response.data;
+      setUsername(username);
+      setEmail(email);
+      setName(`${first_name} ${last_name}`); // Combina el nombre y apellido
+      setLoading(false); // Cambiamos el estado de carga
+    } catch (err) {
+      setError('Error fetching profile data'); // Si hay un error, mostramos un mensaje
+      setLoading(false); // Cambiamos el estado de carga
+    }
+  };
+
+  // Usamos useEffect para hacer el fetching del perfil cuando el componente se monta
+  useEffect(() => {
+    fetchProfileData(); // Fetch de los datos del perfil cuando el componente se monta
+  }, []);
+
+  // Si estamos cargando, mostramos un mensaje de carga
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Si hubo un error, mostramos un mensaje de error
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <>

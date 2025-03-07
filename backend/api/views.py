@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from rest_framework import generics
 from .serializers import UserSerializer, NoteSerializer, TournamentSerializer, MatchSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from .models import Note, Tournament, Match
 
 class NoteListCreate(generics.ListCreateAPIView):
@@ -32,6 +34,14 @@ class CreateUserView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]  # Asegura que el usuario esté autenticado
+
+    def get(self, request):
+        user = request.user  # Obtiene el usuario autenticado
+        serializer = UserSerializer(user)  # Serializa los datos del usuario
+        return Response(serializer.data)  # Devuelve los datos serializados
 
 class CreateTournamentView(generics.CreateAPIView):
     serializer_class = TournamentSerializer
