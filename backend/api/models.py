@@ -1,12 +1,12 @@
 from django.db import models
-from django.contrib.auth.models import User, AbstractUser, Group, Permission
-from django.db.models import Model
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 class Note(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
     create_at = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notes")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes")
 
     def __str__(self):
         return self.title
@@ -15,18 +15,10 @@ class Note(models.Model):
 class UserProfile(AbstractUser):
     given_name = models.CharField(max_length=35, null=True, blank=True)
     surname = models.CharField(max_length=35, null=True, blank=True)
-    
-    # overriding the groups and user_permissions inherited from AbstractUser
-    groups = models.ManyToManyField(
-        Group,
-        related_name="user_profiles",
-        blank=True
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name="user_profiles",
-        blank=True
-    )
+   
+    # 2FA
+    totp_secret = models.CharField(max_length=64, blank=True, null=True)
+    is_2fa_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username

@@ -1,24 +1,27 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Note
-from .models import Tournament
-from .models import Match
+from .models import UserProfile, Note, Tournament, Match
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["id", "username", "password", "email", "first_name", "last_name"]                 #These are all the fields which will be serialized when accepting and/or returning a user
+        model = UserProfile
+        fields = ["id", "username", "password", "email", "given_name", "surname"]                 #These are all the fields which will be serialized when accepting and/or returning a user
         extra_kwargs = {"password": {"write_only": True}}       #Write only means this field wont be returned and cant be read be users
         
     def create(self, validated_data):                           #This will be called when creaing a user. validated data is sent via JSON and contains the fields created above
-        user = User.objects.create_user(**validated_data)       #This data is then stored in a user and returned, this def is created in CustomUserManager
+        user = UserProfile.objects.create_user(
+            username=validated_data["username"],
+            password=validated_data["password"],
+            email=validated_data.get("email", ""),
+            given_name=validated_data.get("given_name", ""),
+            surname=validated_data.get("surname", "")
+        )       #This data is then stored in a user and returned, this def is created in CustomUserManager
         return user
     
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["first_name", "last_name", "email", "username"]
+        model = UserProfile
+        fields = ["email", "username", "given_name", "surname"]
 
 
 class NoteSerializer(serializers.ModelSerializer):

@@ -11,10 +11,12 @@
 
 .profile-container {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 2em; /* Ajusta el espacio entre avatar y los datos */
+  margin-bottom: 1em;
 }
 
 .profile-info {
@@ -34,12 +36,13 @@
   justify-content: center;
   align-items: center;
   font-size: 2rem;
+  color: #fff;
 }
 
 .profile-details {
   display: flex;
   flex-direction: column;
-  gap: 1em;
+  gap: 0.5em;
 }
 
 .profile-details h1 {
@@ -50,14 +53,54 @@
   margin: 5px 0;
 }
 
-
-/* Modal */
-.modal-header {
-  background-color: #26292d;
+.profile-container,
+.profile-details {
+  text-align: center;
 }
 
-.modal-body {
+.qr-code {
+	display: block;
+	margin: 0 auto;
+	max-width: 200px;
+	border-radius: 15px;
+	margin-bottom: 1rem;
+}
+
+.profile-buttons {
+	display: flex;
+	gap: 1rem;
+	justify-content: center;
+	margin-top: 1rem;
+}
+
+.profile-buttons button {
+  width: 150px; 
+  text-align: center;
+}
+
+/* Modal */
+.custom-modal .modal-content {
   background-color: #26292d;
+  border-radius: 15px;
+  border: none;
+  color: #fff;
+}
+
+.custom-modal .modal-header,
+.custom-modal .modal-body,
+.custom-modal .modal-footer {
+  background-color: #26292d;
+  border-radius: 15px;
+}
+
+.custom-modal .modal-header {
+  background-color: inherit;
+  border-bottom: none;
+  padding-bottom: 0.5rem;
+}
+
+.custom-modal .modal-body .form-control {
+  margin-bottom: 1.5rem;
 }
 
 
@@ -83,7 +126,7 @@ button:hover {
   box-shadow: 0 0 10px rgba(0,0,0,0.4);
   background-color:#343538;
   padding: 1em;
-  border-radius: 10px;
+  border-radius: 15px;
 }
 
 @media (min-width: 400px) {
