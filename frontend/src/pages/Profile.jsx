@@ -149,8 +149,7 @@ export default function Profile() {
         <Modal
           show={showModal}
           onHide={handleCloseModal}
-          dialogClassName="modal-dialog-centered"
-          contentClassName="custom-modal"
+          dialogClassName="custom-modal"
         >
           <Modal.Header closeButton>
             <Modal.Title>Edit Profile Data</Modal.Title>
