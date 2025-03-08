@@ -57,8 +57,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api',
+    'django_otp',
+    'django_otp.plugins.otp_totp',
     'rest_framework',
+    'api',
     'corsheaders',
 ]
 
@@ -120,6 +122,7 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = 'api.UserProfile'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

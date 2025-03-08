@@ -10,6 +10,11 @@ pytz
 sqlparse
 python-dotenv
 
+# 2FA
+django-otp
+qrcode
+pillow
+
 #Django channels for WebSocket
 channels
 channels-redis
