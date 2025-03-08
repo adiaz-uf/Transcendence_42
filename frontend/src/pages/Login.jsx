@@ -10,7 +10,9 @@ export default function Login({route}) {
 
 	const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+	const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
+	const [requires2FA, setRequires2FA] = useState(false);
     const navigate = useNavigate();
 
 	const handleSubmit = async (e) => {
@@ -20,13 +22,21 @@ export default function Login({route}) {
         try {
 			if (username === "" || password === "")
 				throw new Error("Please enter all the fields");
-            const res = await api.post(route, { username, password })
-            localStorage.setItem(ACCESS_TOKEN, res.data.access);
-            localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-			localStorage.setItem("username", username); // Guardas el username en el localStorage
-            navigate("/")
-        } catch (error) {
-            alert(error)
+            const res = await api.post(route, { 
+				username,
+				password,
+				...(requires2FA && { code })
+			})
+			if (res.status === 206) {
+				setRequires2FA(true);  // Ask for 2FA code
+			} else {
+				localStorage.setItem(ACCESS_TOKEN, res.data.access);
+				localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+				localStorage.setItem("username", username);
+				navigate("/");
+			}
+		} catch (error) {
+            alert(error.response?.data?.error || error.message);
         } finally {
             setLoading(false)
         }
@@ -57,6 +67,17 @@ export default function Login({route}) {
 						onChange={(e) => setPassword(e.target.value)}
 					/>
 				</Form.Group>
+				{requires2FA && (
+					<Form.Group id='code' className='mb-4'>
+						<Form.Control
+							type='text'
+							value={code}
+							name='Code'
+							placeholder='2FA Code'
+							onChange={(e) => setCode(e.target.value)}
+						/>
+					</Form.Group>
+				)}
 				<Button id='form-login-button' className='w-100' type='submit'>
 				{loading ? (
 					<Spinner animation="border" size="sm" /> // Indicador de carga
