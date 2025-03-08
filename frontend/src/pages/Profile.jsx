@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
-import axios from 'axios'; // Importamos axios para hacer las peticiones
+import axios from 'axios';
 import { ACCESS_TOKEN } from "../constants"; 
 import '../styles/profile.css';
 import NavBar from '../components/Navbar';
 import Stat from '../components/Stat';
 
 export default function Profile() {
-  
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
-  const [loading, setLoading] = useState(true); 
-  const [error, setError] = useState(null); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
+  const [show2FAModal, setShow2FAModal] = useState(false);
+  const [qrCode, setQrCode] = useState('');
+  const [secret, setSecret] = useState('');
+  const [twoFACode, setTwoFACode] = useState('');
 
   const [newName, setNewName] = useState(name);
   const [newEmail, setNewEmail] = useState(email);
@@ -22,94 +26,132 @@ export default function Profile() {
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+  const handleShow2FAModal = () => setShow2FAModal(true);
+  const handleClose2FAModal = () => {
+    setShow2FAModal(false);
+    setTwoFACode('');
+  };
+
+  const fetchProfileData = async () => {
+    try {
+      const response = await axios.get('/api/user/profile/', {
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+      });
+      const { username, email, given_name, surname } = response.data;
+      setUsername(username);
+      setEmail(email);
+      setName(`${given_name} ${surname}`);
+      setNewName(`${given_name} ${surname}`);
+      setNewEmail(email);
+      setNewUsername(username);
+
+      const twoFAResponse = await axios.get('/api/setup-2fa/', {
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+      });
+      setIs2FAEnabled(twoFAResponse.data.is_2fa_enabled);
+      setLoading(false);
+    } catch (err) {
+      setError('Error fetching profile data');
+      setLoading(false);
+    }
+  };
 
   const handleChangeData = async (e) => {
     e.preventDefault();
-
     const updatedData = {
-      first_name: newName.split(' ')[0],  // Asumiendo que el nombre es el primer nombre
-      last_name: newName.split(' ')[1] || '', // Asumiendo que el apellido es el segundo nombre
+      given_name: newName.split(' ')[0],
+      surname: newName.split(' ')[1] || '',
       email: newEmail,
+      username: newUsername,
     };
-
     try {
       const response = await axios.patch('/api/user/profile/update/', updatedData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-
-      // Actualiza el estado con los nuevos datos
-      setName(newName);
-      setEmail(newEmail);
-      setUsername(newUsername);
-
-      // Cierra el modal después de la actualización
+      setName(`${response.data.given_name} ${response.data.surname}`);
+      setEmail(response.data.email);
+      setUsername(response.data.username);
       handleCloseModal();
-
-      console.log("Profile updated:", response.data);
     } catch (error) {
       console.error("Error updating profile:", error);
       setError("Error updating profile");
     }
   };
 
-  const getAvatarLetter = (name) => {
-    return name.charAt(0).toUpperCase();
-  };
-
-  const fetchProfileData = async () => {
+  const handleSetup2FA = async () => {
     try {
-      const response = await axios.get('/api/user/profile/', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
-        },
+      const response = await axios.get('/api/setup-2fa/', {
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-
-      const { username, email, first_name, last_name } = response.data;
-      setUsername(username);
-      setEmail(email);
-      setName(`${first_name} ${last_name}`); 
-      setLoading(false); 
-    } catch (err) {
-      setError('Error fetching profile data'); 
-      setLoading(false); 
+      setQrCode(response.data.qr_code);
+      setSecret(response.data.secret);
+      setIs2FAEnabled(response.data.is_2fa_enabled);
+      handleShow2FAModal();
+    } catch (error) {
+      console.error("Error fetching 2FA setup:", error);
+      setError("Error fetching 2FA setup");
     }
   };
+
+  const handleToggle2FA = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = is2FAEnabled ? { code: twoFACode, disable: true } : { code: twoFACode };
+      const response = await axios.post('/api/setup-2fa/', payload, {
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+      });
+      alert(response.data.message);
+      setIs2FAEnabled(!is2FAEnabled);
+      handleClose2FAModal();
+    } catch (error) {
+      console.error("Error toggling 2FA:", error);
+      alert(error.response?.data?.error || "Error toggling 2FA");
+    }
+  };
+
+  const getAvatarLetter = (name) => name.charAt(0).toUpperCase();
 
   useEffect(() => {
     fetchProfileData();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  if (error) {
-    return <div>{error}</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <>
       <NavBar />
       <div className='profile-body'>
         <div className="profile-container">
-          <div className="avatar">
-            {getAvatarLetter(name)}
-          </div>
+          <div className="avatar">{getAvatarLetter(name)}</div>
           <div className="profile-info">
-            <div className="profile-details">
-              <h1>Profile Details</h1>
-              <h5><strong>Name:</strong> {name}</h5>
-              <h5><strong>Email:</strong> {email}</h5>
-              <h5><strong>Username:</strong> {username}</h5>
-              <Button variant="primary" onClick={handleShowModal}>
-                Change Data
-              </Button>
-            </div>
+
+			<div className="profile-details">
+			  <h1>Profile Details</h1>
+			  <h5><strong>Name:</strong> {name}</h5>
+			  <h5><strong>Email:</strong> {email}</h5>
+			  <h5><strong>Username:</strong> {username}</h5>
+			
+			  <div className="profile-buttons">
+			    <Button variant="primary" onClick={handleShowModal}>
+			      Change Data
+			    </Button>
+			    <Button variant={is2FAEnabled ? "danger" : "success"} onClick={handleSetup2FA}>
+			      {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
+			    </Button>
+			  </div>
+			</div>
+
           </div>
         </div>
-        {/* Modal para editar los datos */}
-        <Modal show={showModal} onHide={handleCloseModal} dialogClassName="modal-dialog-centered" style={{"border-radius":"20px"}}>
+
+        {/* Modal pour modifier les données du profil */}
+        <Modal
+          show={showModal}
+          onHide={handleCloseModal}
+          dialogClassName="modal-dialog-centered"
+          contentClassName="custom-modal"
+        >
           <Modal.Header closeButton>
             <Modal.Title>Edit Profile Data</Modal.Title>
           </Modal.Header>
@@ -148,6 +190,48 @@ export default function Profile() {
             </Form>
           </Modal.Body>
         </Modal>
+
+        {/* Modal pour activer/désactiver la 2FA */}
+        <Modal
+          show={show2FAModal}
+          onHide={handleClose2FAModal}
+          dialogClassName="custom-modal"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {is2FAEnabled ? "Disable Two-Factor Authentication" : "Enable Two-Factor Authentication"}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {!is2FAEnabled && qrCode && (
+              <>
+                <p>Scan this QR code with your authenticator app:</p>
+                <img src={qrCode} alt="2FA QR Code" className="qr-code" />
+                <p>Or enter this secret manually: <strong>{secret}</strong></p>
+              </>
+            )}
+            {is2FAEnabled && <p>Enter your 2FA code to disable it:</p>}
+            <Form onSubmit={handleToggle2FA}>
+              <Form.Group controlId="form2FACode">
+                <Form.Label>2FA Code</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={twoFACode}
+                  onChange={(e) => setTwoFACode(e.target.value)}
+                  placeholder="Enter the 6-digit code"
+                />
+              </Form.Group>
+              <Button 
+                variant={is2FAEnabled ? "danger" : "success"} 
+                type="submit" 
+                className="mt-3 w-100"
+              >
+                {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
+              </Button>
+            </Form>
+          </Modal.Body>
+        </Modal>
+
         <div className='stats-container'>
           <Stat title={"Matches Played"} value={"5"} />
           <Stat title={"Win Rate"} value={"4.0"} />
