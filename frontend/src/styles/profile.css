@@ -99,6 +99,11 @@
   padding-bottom: 0.5rem;
 }
 
+.custom-modal .modal-body .form-control {
+  margin-bottom: 1.5rem;
+}
+
+
 /* Botón */
 button {
   background-color: #0062cc;
