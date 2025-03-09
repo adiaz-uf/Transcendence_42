@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate
+from django.db import connection
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -46,6 +47,30 @@ class CreateTournamentView(generics.CreateAPIView):
     serializer_class = TournamentSerializer
     queryset = Tournament.objects.all()
     permission_classes = [AllowAny]
+
+class MatchesPlayedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Definir la consulta SQL
+        query = """
+            SELECT COUNT(*)
+            FROM match m
+            JOIN team t1 ON m.team_left_id = t1.id
+            JOIN team t2 ON m.team_right_id = t2.id
+            WHERE t1.player1_id_id = %s OR t1.player2_id_id = %s
+            OR t2.player1_id_id = %s OR t2.player2_id_id = %s;
+        """
+        
+        # Ejecutar la consulta SQL con el ID del usuario
+        with connection.cursor() as cursor:
+            cursor.execute(query, [user.id, user.id, user.id, user.id])
+            result = cursor.fetchone()  # Esto devolverá un tuple con el resultado
+        
+        # Devuelve el número de partidos jugados
+        return Response({"matches_played": result[0]})
 
 class CreateMatchView(generics.CreateAPIView):
     serializer_class = MatchSerializer
