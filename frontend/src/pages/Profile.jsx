@@ -13,6 +13,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [matchesPlayed, setMatchesPlayed] = useState(0);
 
   const [showModal, setShowModal] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
@@ -44,6 +45,12 @@ export default function Profile() {
       setNewName(`${given_name} ${surname}`);
       setNewEmail(email);
       setNewUsername(username);
+
+      // Number of matches played by user
+      const matchesResponse = await axios.get('/api/user/matches-played/', {
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+      });
+      setMatchesPlayed(matchesResponse.data.matches_played); 
 
       const twoFAResponse = await axios.get('/api/setup-2fa/', {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
@@ -232,7 +239,7 @@ export default function Profile() {
         </Modal>
 
         <div className='stats-container'>
-          <Stat title={"Matches Played"} value={"5"} />
+          <Stat title={"Matches Played"} value={matchesPlayed} />
           <Stat title={"Win Rate"} value={"4.0"} />
           <Stat title={"Wins"} value={"4"} />
           <Stat title={"Loses"} value={"1"} />
