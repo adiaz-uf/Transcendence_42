@@ -9,38 +9,14 @@ from io import BytesIO
 import base64
 import qrcode
 
-from .models import Note, Tournament, Match, UserProfile
+from .models import Tournament, Match, UserProfile
 from .serializers import (
     UserSerializer,
-    NoteSerializer,
     TournamentSerializer,
     MatchSerializer,
     UserProfileUpdateSerializer,
 )
 
-class NoteListCreate(generics.ListCreateAPIView):
-    serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        return Note.objects.filter(author=user)
-
-    def perform_create(self, serializer):
-        if serializer.is_valid():
-            serializer.save(author=self.request.user)
-        else:
-            print(serializer.errors)
-
-class NoteDelete(generics.DestroyAPIView):
-    serializer_class = NoteSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        return Note.objects.filter(author=user)
-
-#class CreateUserView(generics.CreateAPIView):
 class CreateUserView(generics.ListCreateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserSerializer
@@ -54,8 +30,6 @@ class ProfileView(APIView):
         serializer = UserSerializer(user)  # Serializa los datos del usuario
         return Response(serializer.data)  # Devuelve los datos serializados
     
-
-
 class ProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 

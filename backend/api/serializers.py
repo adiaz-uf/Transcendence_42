@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserProfile, Note, Tournament, Match
+from .models import UserProfile, Tournament, Match
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,13 +22,6 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ["email", "username", "given_name", "surname"]
-
-
-class NoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Note
-        fields = ["id", "title", "content", "created_at", "author"]
-        extra_kwargs = {"author": {"read_only": True}}
 
 class TournamentSerializer(serializers.ModelSerializer):
     class Meta:
