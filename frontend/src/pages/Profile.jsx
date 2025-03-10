@@ -14,6 +14,9 @@ export default function Profile() {
   const [error, setError] = useState(null);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [matchesPlayed, setMatchesPlayed] = useState(0);
+  const [matchesWon, setMatchesWon] = useState(0);
+  const [matchesLosed, setMatchesLosed] = useState(0);
+  const [winRatio, setWinRatio] = useState(0);
 
   const [showModal, setShowModal] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
@@ -33,6 +36,25 @@ export default function Profile() {
     setTwoFACode('');
   };
 
+  useEffect(() => {
+    if (matchesPlayed > 0) {
+      // Calculamos el número de partidas perdidas
+      const calculatedMatchesLosed = matchesPlayed - matchesWon;
+      setMatchesLosed(calculatedMatchesLosed);
+  
+      if (calculatedMatchesLosed === 0) {
+        // Si no hay partidos perdidos, el win ratio será igual a matchesWon
+        setWinRatio(matchesWon > 0 ? matchesWon.toFixed(1) : "0.0");
+      } else {
+        // Si hay partidas perdidas, calculamos el win ratio
+        const calculatedWinRatio = matchesWon / calculatedMatchesLosed;
+        setWinRatio(calculatedWinRatio.toFixed(2)); // Limitar a 2 decimales
+      }
+    } else {
+      setWinRatio(0); // Si no hay partidos jugados, el win ratio es 0
+    }
+  }, [matchesPlayed, matchesWon]);  // Dependencias
+
   const fetchProfileData = async () => {
     try {
       const response = await axios.get('/api/user/profile/', {
@@ -51,6 +73,11 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setMatchesPlayed(matchesResponse.data.matches_played); 
+
+      const matchesWonResponse = await axios.get('/api/user/matches-won/', {
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+      });
+      setMatchesWon(matchesWonResponse.data.matches_won); 
 
       const twoFAResponse = await axios.get('/api/setup-2fa/', {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
@@ -240,9 +267,9 @@ export default function Profile() {
 
         <div className='stats-container'>
           <Stat title={"Matches Played"} value={matchesPlayed} />
-          <Stat title={"Win Rate"} value={"4.0"} />
-          <Stat title={"Wins"} value={"4"} />
-          <Stat title={"Loses"} value={"1"} />
+          <Stat title={"Wins"} value={matchesWon} />
+          <Stat title={"Loses"} value={matchesLosed} />
+          <Stat title={"Win Rate"} value={winRatio} />
           <Stat title={"stat"} value={"999"} />
           <Stat title={"stat"} value={"999"} />
           <Stat title={"stat"} value={"999"} />
