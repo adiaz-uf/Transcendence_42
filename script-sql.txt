@@ -1,10 +1,10 @@
 SQL script used to insert data in tables for testing user stats
 
-INSERT INTO "user" (username, first_name, last_name, email, password, is_superuser, is_staff, is_active, date_joined, is_2fa_enabled)
+INSERT INTO "user" (username, given_name, surname, email, password, is_superuser, is_staff, is_active, date_joined, is_2fa_enabled)
 VALUES 
-    ('juan1', 'Juan', 'Pérez', 'juan1@email.com', 'contraseña_segura', false, false, true, NOW(), false),
-    ('juan2', 'Carlos', 'López', 'juan2@email.com', 'contraseña_segura', false, false, true, NOW(), false),
-    ('juan3', 'Ana', 'Martínez', 'juan3@email.com', 'contraseña_segura', false, false, true, NOW(), false);
+    ('juan1', 'Juan', 'Pérez', 'juan1@email.com', '1', false, false, true, NOW(), false),
+    ('juan2', 'Carlos', 'López', 'juan2@email.com', '2', false, false, true, NOW(), false),
+    ('juan3', 'Ana', 'Martínez', 'juan3@email.com', '3', false, false, true, NOW(), false);
 
 -- 2. Insertar un torneo en la tabla "tournament" y obtener su id (id del torneo)
 WITH new_tournament AS (
