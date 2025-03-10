@@ -33,4 +33,7 @@ class MatchSerializer(serializers.ModelSerializer):
         model = Match
         fields = '__all__'
 
+class MatchesPlayedSerializer(serializers.Serializer):
+    matches_played = serializers.IntegerField()
+
         

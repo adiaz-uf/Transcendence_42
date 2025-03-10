@@ -1,0 +1,32 @@
+SQL script used to insert data in tables for testing user stats
+
+INSERT INTO "user" (username, first_name, last_name, email, password, is_superuser, is_staff, is_active, date_joined, is_2fa_enabled)
+VALUES 
+    ('juan1', 'Juan', 'Pérez', 'juan1@email.com', 'contraseña_segura', false, false, true, NOW(), false),
+    ('juan2', 'Carlos', 'López', 'juan2@email.com', 'contraseña_segura', false, false, true, NOW(), false),
+    ('juan3', 'Ana', 'Martínez', 'juan3@email.com', 'contraseña_segura', false, false, true, NOW(), false);
+
+-- 2. Insertar un torneo en la tabla "tournament" y obtener su id (id del torneo)
+WITH new_tournament AS (
+    INSERT INTO tournament (name, owner_id, created_at, date)
+    VALUES 
+        ('Torneo de Verano', 1, NOW(), NOW())
+    RETURNING id
+)
+-- 3. Insertar un partido en la tabla "match" usando el id del torneo recién insertado (id del partido)
+INSERT INTO match (date, tournament_id_id, team_left_id, team_right_id, left_score, right_score, is_multiplayer)
+SELECT NOW(), id, NULL, NULL, 5, 3, TRUE
+FROM new_tournament;
+
+-- 4. Insertar equipos en la tabla "team"
+-- Aquí primero debes insertar los equipos y hacer que apunten al partido
+INSERT INTO team (name, player1_id_id)
+VALUES 
+    ('Equipo A', 1),  -- Equipo A: jugadores 1 y 2, asignado al partido
+    ('Equipo B', 2);  -- Equipo B: jugadores 3 y 4, asignado al partido
+
+-- 5. Actualizar el partido con los equipos asignados (con ids de los equipos recién insertados)
+UPDATE match 
+SET team_left_id = (SELECT id FROM team WHERE name = 'Equipo A'),
+    team_right_id = (SELECT id FROM team WHERE name = 'Equipo B')
+WHERE id = (SELECT id FROM match WHERE tournament_id_id = 1 LIMIT 1);
