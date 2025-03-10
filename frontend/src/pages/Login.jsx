@@ -1,4 +1,4 @@
-import { Button, Form, Spinner } from 'react-bootstrap';
+import { Button, Form, Spinner, Image } from 'react-bootstrap';
 import { useState } from "react";
 import api from "../api";
 import '../styles/login.css'
@@ -79,11 +79,19 @@ export default function Login({route}) {
 					</Form.Group>
 				)}
 				<Button id='form-login-button' className='w-100' type='submit'>
-				{loading ? (
+					{loading ? (
 					<Spinner animation="border" size="sm" /> // Indicador de carga
-				) : (
-					'Login'
-				)}
+					) : (
+						'Login'
+					)}
+				</Button>
+				<Button id='form-login-button' className='signin42-button' type='button'>
+					{loading ? (
+					<Spinner animation="border" size="sm" /> // Indicador de carga
+					) : (
+						' Sign in with'
+						)}
+					<Image src="42_logo.svg" width={'10%'}></Image>
 				</Button>
 				<div className='login-register-container'>
 				<Form.FloatingLabel>¿Dont have an account?</Form.FloatingLabel>
