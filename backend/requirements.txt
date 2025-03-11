@@ -9,6 +9,7 @@ psycopg[binary]
 pytz
 sqlparse
 python-dotenv
+requests
 
 # 2FA
 django-otp
