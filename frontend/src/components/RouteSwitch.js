@@ -11,12 +11,12 @@ import ProtectedRoute from './ProtectedRoute'
 function Logout() {
     localStorage.clear()
     return <Navigate to="/login" />
-  }
+}
   
-  function RegisterAndLogout() {
-    localStorage.clear()
-    return <Register route='/api/user/register/'/>
-  }
+function RegisterAndLogout() {
+	localStorage.clear()
+	return <Register route='/api/user/register/'/>
+}
 
 export default function RouterSwitch() {
       return (
@@ -25,20 +25,21 @@ export default function RouterSwitch() {
                 <Route 
                     path ='/' 
                     element ={
-                    <ProtectedRoute>
-                        <Home/>
-                    </ProtectedRoute>
+                    	<ProtectedRoute>
+                    	    <Home/>
+                    	</ProtectedRoute>
                     }
                 />
-                <Route path ='/login' element ={<Login route='/api/token/'/>}/>
-                <Route path ='/logout' element ={<Logout/>}/>
+                <Route path="/login" element={<Login route="/api/token/" />} />
+                <Route path="/login/callback" element={<Login route="/api/token/" />} />
+		  		<Route path="/logout" element={<Logout />} />
                 <Route path ='/register' element ={<RegisterAndLogout/>}/>
-		  		      <Route path ='/setup-2fa' element={<Setup2FA />} />
+		  		<Route path ='/setup-2fa' element={<Setup2FA />} />
                 <Route path ='/home' element ={<ProtectedRoute><Home/></ProtectedRoute>}/>
                 <Route path ='/profile' element ={<Profile/>}/>
                 <Route path ='/alert' element ={<Alert/>}/>
                 <Route path ='*' element ={<NotFound/>}/>
             </Routes>
         </BrowserRouter>
-);
+	);
 }
