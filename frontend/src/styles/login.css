@@ -53,3 +53,14 @@
     padding-top: 0.3em;
     font-size: small;
 }
+
+.signin42-button {
+    background-color: #00babc !important; /* Custom background color */
+    border-color: #00babc !important;
+    margin-top: 1.4em;
+    display: flex !important;
+    justify-content: center;
+    color: white; /* Text color */
+    gap: 0.8em !important;
+    font-weight: 600 !important;
+}

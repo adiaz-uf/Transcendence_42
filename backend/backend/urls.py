@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from api.views import CreateUserView, ProfileView, LoginView, Setup2FAView, MatchesPlayedView
+from api.views import CreateUserView, ProfileView, LoginView, Setup2FAView, MatchesPlayedView, MatchesWonView
 from rest_framework_simplejwt.views import TokenRefreshView
 from backend.websocket_consumers import PongConsumer
 
@@ -15,4 +15,5 @@ urlpatterns = [
     path("api/", include("api.urls")),
     path("ws/game/", PongConsumer.as_asgi()),
     path('api/user/matches-played/', MatchesPlayedView.as_view(), name='matches-played'),
+    path('api/user/matches-won/', MatchesWonView.as_view(), name='matches-won'),
 ]
