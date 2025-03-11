@@ -1,17 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-
-class Note(models.Model):
-    title = models.CharField(max_length=100)
-    content = models.TextField()
-    create_at = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notes")
-
-    def __str__(self):
-        return self.title
       
 # Create your models here.
+
 class UserProfile(AbstractUser):
     given_name = models.CharField(max_length=35, null=True, blank=True)
     surname = models.CharField(max_length=35, null=True, blank=True)
@@ -20,6 +12,10 @@ class UserProfile(AbstractUser):
     totp_secret = models.CharField(max_length=64, blank=True, null=True)
     is_2fa_enabled = models.BooleanField(default=False)
 
+    first_name = None
+    last_name = None
+    class Meta:
+        db_table = 'user'
     def __str__(self):
         return self.username
 
@@ -31,6 +27,8 @@ class Tournament(models.Model):
     owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
     matches = models.ManyToManyField("Match", related_name="matches")
 
+    class Meta:
+        db_table = 'tournament'
     def __str__(self):
         return self.name
 
@@ -45,14 +43,19 @@ class Match(models.Model):
     right_score = models.PositiveIntegerField(default=0)
     is_multiplayer = models.BooleanField(default=False)
 
+    class Meta:
+        db_table = 'match'
+
     def __str__(self):
         return self.name
 
 class Team(models.Model):
     name = models.CharField(max_length=35)
-    match_id = models.ForeignKey(Match, on_delete=models.CASCADE)
     player1_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="player1_id")
     player2_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, related_name="player2_id")
+
+    class Meta:
+        db_table = 'team'
 
     def __str__(self):
         return self.name
@@ -66,5 +69,7 @@ class GoalStat(models.Model):
     ball_duration = models.DurationField()
     pos_y = models.DecimalField(max_digits=5, decimal_places=2)
 
+    class Meta:
+        db_table = 'goalstat'
     def __str__(self):
         return self.name

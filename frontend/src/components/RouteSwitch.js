@@ -33,7 +33,7 @@ export default function RouterSwitch() {
                 <Route path ='/login' element ={<Login route='/api/token/'/>}/>
                 <Route path ='/logout' element ={<Logout/>}/>
                 <Route path ='/register' element ={<RegisterAndLogout/>}/>
-		  		<Route path ='/setup-2fa' element={<Setup2FA />} />
+		  		      <Route path ='/setup-2fa' element={<Setup2FA />} />
                 <Route path ='/home' element ={<ProtectedRoute><Home/></ProtectedRoute>}/>
                 <Route path ='/profile' element ={<Profile/>}/>
                 <Route path ='/alert' element ={<Alert/>}/>

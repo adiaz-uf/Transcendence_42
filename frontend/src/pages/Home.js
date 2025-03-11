@@ -3,10 +3,13 @@ import { Image } from 'react-bootstrap';
 import NavBar from '../components/Navbar';
 import '../styles/App.css';
 import { joinGame, sendPlayerMove, listenForGameUpdates } from '../websocket';
+import GameApp from '../components/game/GameApp';
 
 function Home() {
   const [gameState, setGameState] = useState(null);
 
+
+  // Just for displaying purposes
   useEffect(() => {
     // Join game room when component mounts
     joinGame("Pong");
@@ -21,18 +24,17 @@ function Home() {
     };
   }, []);
 
-  // Handle key events for player movement
-  const handleKeyDown = (event) => {
-    sendPlayerMove(event.key);
-  };
-
+  // // Handle key events for player movement
+  // const handleKeyDown = (event) => {
+  //   sendPlayerMove(event.key);
+  // };
   return (
-    <div onKeyDown={handleKeyDown} tabIndex="0">
+    <div tabIndex="0">
       <NavBar />
       <div className='app-body'>
         <div className='pong-container'>
           <h1>Real-Time Pong</h1>
-          <Image src="ping-pong-table.jpg" width={'100%'} />
+            <GameApp/>
           <p>Game State: {gameState ? JSON.stringify(gameState) : "Waiting for game data..."}</p>
         </div>
       </div>
