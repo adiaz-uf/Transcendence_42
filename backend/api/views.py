@@ -109,6 +109,7 @@ class LoginView(APIView):
                 })
         return Response({'error': 'Identifiants invalides'}, status=401)
 
+
 class Setup2FAView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -156,3 +157,34 @@ class Setup2FAView(APIView):
                 user.save()
                 return Response({'message': '2FA successfully enabled'})
             return Response({'error': 'Invalid code for activation'}, status=400)
+
+
+class FTAuthCallbackView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        code = request.GET.get('code')
+        state = request.GET.get('state')
+        stored_state = localStorage.get('oauth_state')  # À synchroniser via frontend
+
+        if state != stored_state:
+            return JsonResponse({'error': 'Invalid state'}, status=400)
+
+        token_url = "https://api.intra.42.fr/oauth/token"
+        payload = {
+            'grant_type': 'authorization_code',
+            'client_id': settings.FT_CLIENT_ID,
+            'client_secret': settings.FT_CLIENT_SECRET,
+            'code': code,
+            'redirect_uri': settings.FT_REDIRECT_URI,
+        }
+        response = requests.post(token_url, data=payload)
+        token_data = response.json()
+        access_token = token_data['access_token']
+
+        user_info = requests.get("https://api.intra.42.fr/v2/me", headers={'Authorization': f'Bearer {access_token}'}).json()
+        user = get_or_create_user(user_info)
+        login(request, user)
+        refresh = RefreshToken.for_user(user)
+
+        return HttpResponseRedirect(f"http://localhost:3000/login/callback?access={refresh.access_token}")
