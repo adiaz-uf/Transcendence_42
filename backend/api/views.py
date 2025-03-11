@@ -1,5 +1,7 @@
-from django.contrib.auth import authenticate
+from django.conf import settings
+from django.contrib.auth import authenticate, login
 from django.db import connection
+from django.http import HttpResponseRedirect, JsonResponse
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -9,6 +11,7 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 from io import BytesIO
 import base64
 import qrcode
+import requests
 
 from .models import Tournament, Match, UserProfile
 from .serializers import (
@@ -186,17 +189,35 @@ class Setup2FAView(APIView):
             return Response({'error': 'Invalid code for activation'}, status=400)
 
 
+def get_or_create_user(user_data):
+    """Crée ou récupère un utilisateur à partir des données de 42."""
+    username = user_data['login']
+    email = user_data['email']
+    user, created = UserProfile.objects.get_or_create(
+        username=username,
+        defaults={
+            'email': email,
+            'given_name': user_data['displayname'].split()[0],
+            'surname': ' '.join(user_data['displayname'].split()[1:]) or '',
+        }
+    )
+    return user
+
+
 class FTAuthCallbackView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
         code = request.GET.get('code')
         state = request.GET.get('state')
-        stored_state = localStorage.get('oauth_state')  # À synchroniser via frontend
 
-        if state != stored_state:
-            return JsonResponse({'error': 'Invalid state'}, status=400)
+        if not code:
+            return JsonResponse({'error': 'No code provided'}, status=400)
 
+        if not state:
+            return JsonResponse({'error': 'Missing state parameter'}, status=400)
+
+        # Échange du code contre un access_token
         token_url = "https://api.intra.42.fr/oauth/token"
         payload = {
             'grant_type': 'authorization_code',
@@ -206,12 +227,27 @@ class FTAuthCallbackView(APIView):
             'redirect_uri': settings.FT_REDIRECT_URI,
         }
         response = requests.post(token_url, data=payload)
-        token_data = response.json()
-        access_token = token_data['access_token']
+        if response.status_code != 200:
+            return JsonResponse({'error': 'Failed to get access token'}, status=500)
 
-        user_info = requests.get("https://api.intra.42.fr/v2/me", headers={'Authorization': f'Bearer {access_token}'}).json()
-        user = get_or_create_user(user_info)
+        token_data = response.json()
+        access_token = token_data.get('access_token')
+
+        # Récupération des infos utilisateur
+        user_info_url = "https://api.intra.42.fr/v2/me"
+        headers = {'Authorization': f'Bearer {access_token}'}
+        user_response = requests.get(user_info_url, headers=headers)
+        if user_response.status_code != 200:
+            return JsonResponse({'error': 'Failed to get user info'}, status=500)
+
+        user_data = user_response.json()
+        user = get_or_create_user(user_data)
+
+        # Connexion de l'utilisateur
         login(request, user)
         refresh = RefreshToken.for_user(user)
 
-        return HttpResponseRedirect(f"http://localhost:3000/login/callback?access={refresh.access_token}")
+        # Redirection vers le frontend
+        return HttpResponseRedirect(
+            f"https://transcendence.local/login/callback?access={refresh.access_token}"
+        )
