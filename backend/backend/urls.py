@@ -1,6 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
-from api.views import CreateUserView, ProfileView, LoginView, Setup2FAView, MatchesPlayedView, MatchesWonView
+from api.views import (
+        CreateUserView,
+        ProfileView,
+        LoginView,
+        Setup2FAView,
+        MatchesPlayedView,
+        MatchesWonView,
+)
 from rest_framework_simplejwt.views import TokenRefreshView
 from backend.websocket_consumers import PongConsumer
 
