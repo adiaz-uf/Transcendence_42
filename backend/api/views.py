@@ -48,6 +48,12 @@ class CreateTournamentView(generics.CreateAPIView):
     queryset = Tournament.objects.all()
     permission_classes = [AllowAny]
 
+
+class CreateMatchView(generics.CreateAPIView):
+    serializer_class = MatchSerializer
+    queryset = Match.objects.all()
+    permission_classes = [AllowAny]
+
 class MatchesPlayedView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -63,21 +69,43 @@ class MatchesPlayedView(APIView):
             WHERE t1.player1_id_id = %s OR t1.player2_id_id = %s
             OR t2.player1_id_id = %s OR t2.player2_id_id = %s;
         """
+        # Ejecutar la consulta SQL con el ID del usuario
+        with connection.cursor() as cursor:
+            cursor.execute(query, [user.id, user.id, user.id, user.id])
+            result = cursor.fetchone()  # Esto devolverá un tuple con el resultado
+        
+        return Response({"matches_played": result[0]})
+
+class MatchesWonView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        # Definir la consulta SQL para contar los partidos ganados por el usuario
+        query = """
+            SELECT COUNT(*)
+            FROM match m
+            JOIN team t1 ON m.team_left_id = t1.id
+            JOIN team t2 ON m.team_right_id = t2.id
+            WHERE (
+                (t1.player1_id_id = %s OR t1.player2_id_id = %s)
+                AND m.left_score > m.right_score
+            ) 
+            OR
+            (
+                (t2.player1_id_id = %s OR t2.player2_id_id = %s)
+                AND m.right_score > m.left_score
+            );
+        """
         
         # Ejecutar la consulta SQL con el ID del usuario
         with connection.cursor() as cursor:
             cursor.execute(query, [user.id, user.id, user.id, user.id])
             result = cursor.fetchone()  # Esto devolverá un tuple con el resultado
         
-        # Devuelve el número de partidos jugados
-        return Response({"matches_played": result[0]})
-
-class CreateMatchView(generics.CreateAPIView):
-    serializer_class = MatchSerializer
-    queryset = Match.objects.all()
-    permission_classes = [AllowAny]
-
-# Create your views here.
+        # Devolver la cantidad de partidos ganados en formato JSON
+        return Response({"matches_won": result[0] if result[0] is not None else 0})
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
