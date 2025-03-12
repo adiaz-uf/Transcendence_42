@@ -72,10 +72,9 @@ class MatchesPlayedView(APIView):
             WHERE t1.player1_id_id = %s OR t1.player2_id_id = %s
             OR t2.player1_id_id = %s OR t2.player2_id_id = %s;
         """
-        # Ejecutar la consulta SQL con el ID del usuario
         with connection.cursor() as cursor:
             cursor.execute(query, [user.id, user.id, user.id, user.id])
-            result = cursor.fetchone()  # Esto devolverá un tuple con el resultado
+            result = cursor.fetchone()  
         
         return Response({"matches_played": result[0]})
 
@@ -101,13 +100,10 @@ class MatchesWonView(APIView):
                 AND m.right_score > m.left_score
             );
         """
-        
-        # Ejecutar la consulta SQL con el ID del usuario
         with connection.cursor() as cursor:
             cursor.execute(query, [user.id, user.id, user.id, user.id])
-            result = cursor.fetchone()  # Esto devolverá un tuple con el resultado
+            result = cursor.fetchone()
         
-        # Devolver la cantidad de partidos ganados en formato JSON
         return Response({"matches_won": result[0] if result[0] is not None else 0})
 
 class LoginView(APIView):
