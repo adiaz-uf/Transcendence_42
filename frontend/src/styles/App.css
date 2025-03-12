@@ -18,10 +18,18 @@
     text-decoration: none;
 }
 
+.user-link:hover {
+    color: #0062cc !important;
+}
+
 .logout-link {
     padding: 0.3em;
     text-decoration: none;
-    color: rgb(184, 9, 9) !important;
+    color: rgb(245, 4, 4) !important;
+}
+
+.logout-link:hover {
+    color: rgb(173, 2, 2) !important;
 }
 
 .container-404 {
