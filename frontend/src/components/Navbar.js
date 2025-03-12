@@ -29,14 +29,14 @@ export default function NavBar() {
                 <Navbar.Collapse id="responsive-navbar-bar">
                     <Nav className="me-auto">
                         <Nav.Link href="/">Home</Nav.Link>
-                        <Nav.Link href="/stats">Stats</Nav.Link>
+                        <Nav.Link href="/profile">Profile</Nav.Link>
                         <Nav.Link href="/tournament">Tournament</Nav.Link>
                     </Nav>
                     <Nav>
                         <Navbar.Text>
                             Signed in as: 
                             <a href="/profile" className="user-link"> {username}</a> 
-                            <a href="/logout" className="user-link"> Logout </a>
+                            <a href="/logout" className="logout-link"> Logout </a>
                         </Navbar.Text>
                     </Nav>
                 </Navbar.Collapse>
