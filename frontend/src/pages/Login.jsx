@@ -119,7 +119,7 @@ export default function Login({route}) {
 						</Button>
 						<Button
 							id='form-login-button'
-							className='signin42-button w-100 mt-3'
+							className='signin42-button w-100 mt-4'
 							type='button'
 							onClick={handle42Login}
 						>

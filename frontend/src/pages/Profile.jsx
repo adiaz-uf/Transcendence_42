@@ -150,7 +150,7 @@ export default function Profile() {
   }, []);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (error) return <div><NavBar></NavBar><div className='app-body'>{error}</div></div>;
 
   return (
     <>
