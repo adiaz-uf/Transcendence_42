@@ -5,6 +5,8 @@ import { ACCESS_TOKEN } from "../constants";
 import '../styles/profile.css';
 import NavBar from '../components/Navbar';
 import Stat from '../components/Stat';
+import EditProfileModal from '../components/EditProfileModal';
+import TwoFAModal from '../components/TwoFAModal';
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -150,7 +152,7 @@ export default function Profile() {
   }, []);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div><NavBar></NavBar><div className='app-body'>{error}</div></div>;
+/*   if (error) return <div><NavBar></NavBar><div className='app-body'>{error}</div></div>; */
 
   return (
     <>
@@ -159,111 +161,45 @@ export default function Profile() {
         <div className="profile-container">
           <div className="avatar">{getAvatarLetter(name)}</div>
           <div className="profile-info">
-
-			<div className="profile-details">
-			  <h1>Profile Details</h1>
-			  <h5><strong>Name:</strong> {name}</h5>
-			  <h5><strong>Email:</strong> {email}</h5>
-			  <h5><strong>Username:</strong> {username}</h5>
-			
-			  <div className="profile-buttons">
-			    <Button variant="primary" onClick={handleShowModal}>
-			      Change Data
-			    </Button>
-			    <Button variant={is2FAEnabled ? "danger" : "success"} onClick={handleSetup2FA}>
-			      {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
-			    </Button>
-			  </div>
-			</div>
-
+            <div className="profile-details">
+              <h1>Profile Details</h1>
+              <h5><strong>Name:</strong> {name}</h5>
+              <h5><strong>Email:</strong> {email}</h5>
+              <h5><strong>Username:</strong> {username}</h5>
+            
+              <div className="profile-buttons">
+                <Button variant="primary" onClick={handleShowModal}>
+                  Change Data
+                </Button>
+                <Button variant={is2FAEnabled ? "danger" : "success"} onClick={handleSetup2FA}>
+                  {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Modal pour modifier les données du profil */}
-        <Modal
-          show={showModal}
-          onHide={handleCloseModal}
-          dialogClassName="custom-modal"
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Edit Profile Data</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form onSubmit={handleChangeData}>
-              <Form.Group controlId="formName">
-                <Form.Label>Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  placeholder="Enter your name"
-                />
-              </Form.Group>
-              <Form.Group controlId="formEmail">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="Enter your email"
-                />
-              </Form.Group>
-              <Form.Group controlId="formUsername">
-                <Form.Label>Username</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  placeholder="Enter your username"
-                />
-              </Form.Group>
-              <Button variant="primary" type="submit" className="mt-3 w-100">
-                Save Changes
-              </Button>
-            </Form>
-          </Modal.Body>
-        </Modal>
-
-        {/* Modal pour activer/désactiver la 2FA */}
-        <Modal
-          show={show2FAModal}
-          onHide={handleClose2FAModal}
-          dialogClassName="custom-modal"
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>
-              {is2FAEnabled ? "Disable Two-Factor Authentication" : "Enable Two-Factor Authentication"}
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {!is2FAEnabled && qrCode && (
-              <>
-                <p>Scan this QR code with your authenticator app:</p>
-                <img src={qrCode} alt="2FA QR Code" className="qr-code" />
-                <p>Or enter this secret manually: <strong>{secret}</strong></p>
-              </>
-            )}
-            {is2FAEnabled && <p>Enter your 2FA code to disable it:</p>}
-            <Form onSubmit={handleToggle2FA}>
-              <Form.Group controlId="form2FACode">
-                <Form.Label>2FA Code</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={twoFACode}
-                  onChange={(e) => setTwoFACode(e.target.value)}
-                  placeholder="Enter the 6-digit code"
-                />
-              </Form.Group>
-              <Button 
-                variant={is2FAEnabled ? "danger" : "success"} 
-                type="submit" 
-                className="mt-3 w-100"
-              >
-                {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
-              </Button>
-            </Form>
-          </Modal.Body>
-        </Modal>
+        <EditProfileModal 
+          showModal={showModal} 
+          handleCloseModal={() => setShowModal(false)} 
+          newName={newName} 
+          setNewName={setNewName} 
+          newEmail={newEmail} 
+          setNewEmail={setNewEmail} 
+          newUsername={newUsername} 
+          setNewUsername={setNewUsername} 
+          handleChangeData={handleChangeData} 
+        />
+        <TwoFAModal 
+          show2FAModal={show2FAModal} 
+          handleClose2FAModal={() => setShow2FAModal(false)} 
+          is2FAEnabled={is2FAEnabled} 
+          qrCode={qrCode} 
+          secret={secret} 
+          twoFACode={twoFACode} 
+          setTwoFACode={setTwoFACode} 
+          handleToggle2FA={handleToggle2FA} 
+        />
 
         <div className='stats-container'>
           <Stat title={"Matches Played"} value={matchesPlayed} />
