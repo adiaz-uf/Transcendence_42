@@ -137,7 +137,7 @@ class LoginView(APIView):
 
 
 class Setup2FAView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # Gardé pour les cas normaux
 
     def get(self, request):
         user = request.user
@@ -159,31 +159,47 @@ class Setup2FAView(APIView):
         return Response({
             'qr_code': f'data:image/png;base64,{img_str}',
             'secret': base64.b32encode(device.bin_key).decode('utf-8'),
-            'is_2fa_enabled': user.is_2fa_enabled  # Added to inform the frontend
+            'is_2fa_enabled': user.is_2fa_enabled
         })
 
     def post(self, request):
         user = request.user
         code = request.data.get('code')
-        disable = request.data.get('disable', False)  # New parameter to disable
+        disable = request.data.get('disable', False)
+        temp_token = request.GET.get('temp_token')  # Récupérer le token temporaire depuis l'URL
+        #temp_token = request.headers.get('Authorization', '').replace('Bearer ', '')  # Récupérer depuis l’en-tête
 
         device = TOTPDevice.objects.filter(user=user, name='default').first()
         if not device:
             return Response({'error': 'No 2FA device found'}, status=400)
 
-        if disable:
+        if temp_token:  # Cas de vérification post-OAuth2
+            try:
+                token = RefreshToken(temp_token)
+                if not token.get('is_temp') or not token.get('oauth2'):
+                    return Response({'error': 'Invalid temporary token'}, status=400)
+                if device.verify_token(code):
+                    #login(request, user)  # Connecter l'utilisateur dans la session
+                    refresh = RefreshToken.for_user(user)
+                    return Response({
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                    })
+                return Response({'error': 'Invalid 2FA code'}, status=400)
+            except Exception as e:
+                return Response({'error': str(e)}, status=400)
+        elif disable:  # Désactivation de la 2FA
             if device.verify_token(code):
                 user.is_2fa_enabled = False
                 user.save()
                 return Response({'message': '2FA successfully disabled'})
             return Response({'error': 'Invalid code for deactivation'}, status=400)
-        else:
+        else:  # Activation de la 2FA
             if device.verify_token(code):
                 user.is_2fa_enabled = True
                 user.save()
                 return Response({'message': '2FA successfully enabled'})
             return Response({'error': 'Invalid code for activation'}, status=400)
-
 
 def get_or_create_user(user_data):
     """Crée ou récupère un utilisateur à partir des données de 42."""
@@ -239,11 +255,18 @@ class FTAuthCallbackView(APIView):
         user_data = user_response.json()
         user = get_or_create_user(user_data)
 
-        # Connexion de l'utilisateur
-        login(request, user)
-        refresh = RefreshToken.for_user(user)
-
-        # Redirection vers le frontend
-        return HttpResponseRedirect(
-            f"https://transcendence.local/login/callback?access={refresh.access_token}"
-        )
+        if user.is_2fa_enabled:
+            # Générer un token temporaire pour la vérification 2FA
+            temp_token = RefreshToken.for_user(user)
+            temp_token['is_temp'] = True  # Marquer comme temporaire
+            temp_token['oauth2'] = True  # Indiquer que c'est une connexion OAuth2
+            return HttpResponseRedirect(
+                f"https://transcendence.local/setup-2fa?temp_token={str(temp_token.access_token)}"
+            )
+        else:
+            # Connexion directe sans 2FA
+            #login(request, user)
+            refresh = RefreshToken.for_user(user)
+            return HttpResponseRedirect(
+                f"https://transcendence.local/login/callback?access={refresh.access_token}&refresh={str(refresh)}"
+            )
