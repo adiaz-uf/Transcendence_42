@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Image } from 'react-bootstrap';
 import NavBar from '../components/Navbar';
 import '../styles/App.css';
 import { joinGame, sendPlayerMove, listenForGameUpdates } from '../websocket';
