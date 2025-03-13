@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from "react";
+import { Button } from "react-bootstrap";
 
 const Gameplay = ({ 
   gameState, 
@@ -94,8 +95,8 @@ const Gameplay = ({
   return (
     <div className="gameplay-container">
       <div className="game-header">
-        <button onClick={returnToMenu}>Back to Menu</button>
-        <span>Game Mode: {gameMode}</span>
+        <Button className='m-4' onClick={returnToMenu}>Back to Menu</Button>
+        <span className='m-4'>Game Mode: {gameMode}</span>
       </div>
       <canvas 
         ref={canvasRef} 

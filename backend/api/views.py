@@ -199,7 +199,6 @@ def get_or_create_user(user_data):
     )
     return user
 
-
 class FTAuthCallbackView(APIView):
     permission_classes = [AllowAny]
 

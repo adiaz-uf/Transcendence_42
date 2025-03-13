@@ -3,7 +3,7 @@ import Menu from "./Menu";
 
 import { joinGame, sendPlayerMove, listenForGameUpdates } from '../../websocket';
 import Gameplay from "./Gameplay";
-
+import InvitePlayer from "./InvitePlayerModal";
 
 // Función que setea la funcion a ejecutar cuando se recibe un mensaje del fd cliente
 export const StateLinkerGameWebSocket = (setGameState) => {
@@ -27,7 +27,7 @@ export const handlePlayerMove = (key) => {
 // Componente Padre, guarda estado de selecion de juego y conexion websocket
 const GameApp = () => {
   const [gameMode, setGameMode] = useState(null); 
-
+  const [showModal, setShowModal] = useState(false);
   const [gameState, setGameState] = useState({
     gameRunning: false,
     gameMode: 0,
@@ -40,6 +40,7 @@ const GameApp = () => {
 
   // Función que se ejecutara el comp hijo ´Menu´ y hara lanzar una partida y cambiar la UI
   const handleGameModeSelect = (mode) => {
+    setShowModal(true);
     setGameMode(mode);
     startGame(mode);
     StateLinkerGameWebSocket(setGameState);
@@ -48,10 +49,19 @@ const GameApp = () => {
     setGameMode(null);
   };
 
+  const handleCloseModal = () => setShowModal(false);
+
   return (
+
     <div className="game-container">
+      <InvitePlayer
+        showModal={showModal} 
+        handleCloseModal={() => setShowModal(false)} 
+      />
       {gameMode === null ? (
-        <Menu onGameModeSelect={handleGameModeSelect} />
+        <div> 
+          <Menu onGameModeSelect={handleGameModeSelect} />
+        </div>
       ) : (
         <Gameplay 
           gameState={gameState} 
