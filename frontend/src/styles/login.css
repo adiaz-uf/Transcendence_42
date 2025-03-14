@@ -1,12 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Honk&display=swap');
+
 .login-container {
     display: grid;
     place-content: center;
     text-align: center;
     min-height: 100vh;
-    gap: 2em;
+    gap: 1em;
+    padding: 1em;
 }
 .header {
-    font-size: 3em;
+    font-size: 4em;
+    font-family: "Honk", sans-serif;
 }
 
 .login-wrapper {
