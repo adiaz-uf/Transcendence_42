@@ -195,10 +195,10 @@ def get_or_create_user(user_data):
             'email': email,
             'given_name': user_data['displayname'].split()[0],
             'surname': ' '.join(user_data['displayname'].split()[1:]) or '',
+            'is_42user': True,
         }
     )
     return user
-
 
 class FTAuthCallbackView(APIView):
     permission_classes = [AllowAny]

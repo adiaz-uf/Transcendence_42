@@ -7,7 +7,7 @@ import Menu from "./Menu";
 // Componente Padre, guarda estado de selecion de juego y conexion websocket
 const GameApp = () => {
   const [gameMode, setGameMode] = useState(null); 
-
+  const [showModal, setShowModal] = useState(false);
   const [gameState, setGameState] = useState({
     game_active: false,
     // Estado Jugadores
@@ -87,7 +87,10 @@ const GameApp = () => {
     }
   };
 
+  const handleCloseModal = () => setShowModal(false);
+
   return (
+
     <div className="game-container">
       {gameMode === null ? 
       (<Menu onGameModeSelect={InitGame}/>) :
