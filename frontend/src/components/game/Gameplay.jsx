@@ -187,5 +187,3 @@ const Gameplay = ({ gameState, InitGame }) => {
 };
 
 export default Gameplay;
-
-\
