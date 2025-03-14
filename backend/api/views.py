@@ -167,7 +167,6 @@ class Setup2FAView(APIView):
         code = request.data.get('code')
         disable = request.data.get('disable', False)
         temp_token = request.GET.get('temp_token')  # Récupérer le token temporaire depuis l'URL
-        #temp_token = request.headers.get('Authorization', '').replace('Bearer ', '')  # Récupérer depuis l’en-tête
 
         device = TOTPDevice.objects.filter(user=user, name='default').first()
         if not device:
@@ -179,7 +178,6 @@ class Setup2FAView(APIView):
                 if not token.get('is_temp') or not token.get('oauth2'):
                     return Response({'error': 'Invalid temporary token'}, status=400)
                 if device.verify_token(code):
-                    #login(request, user)  # Connecter l'utilisateur dans la session
                     refresh = RefreshToken.for_user(user)
                     return Response({
                         'refresh': str(refresh),
@@ -265,7 +263,6 @@ class FTAuthCallbackView(APIView):
             )
         else:
             # Connexion directe sans 2FA
-            #login(request, user)
             refresh = RefreshToken.for_user(user)
             return HttpResponseRedirect(
                 f"https://transcendence.local/login/callback?access={refresh.access_token}&refresh={str(refresh)}"
