@@ -1,42 +1,95 @@
+import json
+import math
+import random
+
 class PongGame:
-    MAX_SCORE = 10
+    def __init__(self, width=800, height=400):
+        self.width = width
+        self.height = height
 
-    def __init__(self):
-        self.game_active = True
-        self.ball = {"x": 50, "y": 50, "vx": 5, "vy": 5}
-        self.paddles = {"player1": 40, "player2": 40}
-        self.scores = {"player1": 0, "player2": 0}
+        self.reset_game()
 
-    def update(self):
-        if not self.game_active:
-            return
+    def get_gameState(self):
+        return self.__dict__
 
-        self.ball["x"] += self.ball["vx"]
-        self.ball["y"] += self.ball["vy"]
+    def reset_game(self):
+        # Estado Jugadores
+        self.jugadores = {
+            'izq': {
+                'x': 10,
+                'y': self.height / 2 - 50,
+                'width': 10,
+                'height': 100,
+                'speed': 5,
+                'score': 0
+            }, 
+            'der': {
+                'x': self.width - 20,
+                'y': self.height / 2 - 50,
+                'width': 10,
+                'height': 100,
+                'speed': 5,
+                'score': 0
+            }
+        }
 
-        if self.ball["y"] <= 0 or self.ball["y"] >= 100:
-            self.ball["vy"] *= -1
+        # Estado Pelota
+        self.pelota = {
+            'x': self.width / 2,
+            'y': self.height / 2,
+            'radio': 5,
+            'dx': random.choice([-4, 4]),
+            'dy': random.choice([-4, 4])
+        }
+        # Main Game loop
+        self.game_active = False
 
-        if self.ball["x"] <= 5 and abs(self.paddles["player1"] - self.ball["y"]) < 10:
-            self.ball["vx"] *= -1
-        if self.ball["x"] >= 95 and abs(self.paddles["player2"] - self.ball["y"]) < 10:
-            self.ball["vx"] *= -1
-
-        if self.ball["x"] <= 0:
-            self.scores["player2"] += 1
-            self.reset_ball()
-        elif self.ball["x"] >= 100:
-            self.scores["player1"] += 1
-            self.reset_ball()
+    def mover_jugadores(self, side, direction):
+        jugador = self.jugadores[side]
         
-        if self.scores["player1"] >= self.MAX_SCORE or self.scores["player2"] >= self.MAX_SCORE:
-            self.game_active = False  # Arrêt du jeu
-            print(f"Game Over! Winner: {'Player 1' if self.scores['player1'] >= self.MAX_SCORE else 'Player 2'}")
+        if direction == 'up':
+            jugador['y'] = max(0, jugador['y'] - jugador['speed'])
 
-    def reset_ball(self):
-        self.game_activdde = False
-        self.ball = {"x": 50, "y": 50, "vx": 5, "vy": 5}
+        elif direction == 'down':
+            jugador['y'] = min(self.height - jugador['height'], jugador['y'] + jugador['speed'])
 
-    def start_game(self):
-        if self.scores["player1"] < self.MAX_SCORE and self.scores["player2"] < self.MAX_SCORE:
-            self.game_active = True 
+    def update_pelota(self):
+
+        #bola
+        self.pelota['x'] += self.pelota['dx']
+        self.pelota['y'] += self.pelota['dy']
+
+        #colision vertical
+        if (self.pelota['y'] <= 0 or 
+            self.pelota['y'] >= self.height):
+            self.pelota['dy'] *= -1
+
+        #Colision jugadores
+        for side, paddle in self.jugadores.items():
+            if self.check_pelota_paddle_collision(paddle):
+                self.pelota['dx'] *= -1.1  # subir un poquito de velocidad
+                break
+
+        #Puntos
+        if self.pelota['x'] <= 0:
+            self.jugadores['der']['score'] += 1
+            self.reset_pelota('der')
+        elif self.pelota['x'] >= self.width:
+            self.jugadores['izq']['score'] += 1
+            self.reset_pelota('izq')
+
+    def check_pelota_paddle_collision(self, paddle):
+        return (
+            (self.pelota['x'] >= paddle['x']) and 
+            (self.pelota['x'] <= paddle['x'] + paddle['width']) and
+            (self.pelota['y'] >= paddle['y']) and 
+            (self.pelota['y'] <= paddle['y'] + paddle['height'])
+        )
+
+    def reset_pelota(self, scoring_side):
+        self.pelota['x'] = self.width / 2
+        self.pelota['y'] = self.height / 2
+        self.pelota['dx'] = 4 if scoring_side == 'left' else -4
+        self.pelota['dy'] = random.choice([-4, 4])
+
+
