@@ -5,6 +5,7 @@ import { ACCESS_TOKEN } from "../constants";
 import '../styles/profile.css';
 import NavBar from '../components/Navbar';
 import Stat from '../components/Stat';
+import Alert from '../components/Alert';
 import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
 
@@ -15,6 +16,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [is42user, setIs42user] = useState(false);
   const [matchesPlayed, setMatchesPlayed] = useState(0);
   const [matchesWon, setMatchesWon] = useState(0);
   const [matchesLosed, setMatchesLosed] = useState(0);
@@ -62,13 +64,14 @@ export default function Profile() {
       const response = await axios.get('/api/user/profile/', {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-      const { username, email, given_name, surname } = response.data;
+      const { username, email, given_name, surname, is_42user } = response.data;
       setUsername(username);
       setEmail(email);
       setName(`${given_name} ${surname}`);
       setNewName(`${given_name} ${surname}`);
       setNewEmail(email);
       setNewUsername(username);
+      setIs42user(is_42user);
 
       // Number of matches played by user
       const matchesResponse = await axios.get('/api/user/matches-played/', {
@@ -171,9 +174,11 @@ export default function Profile() {
                 <Button variant="primary" onClick={handleShowModal}>
                   Change Data
                 </Button>
+                {!is42user && (   
                 <Button variant={is2FAEnabled ? "danger" : "success"} onClick={handleSetup2FA}>
                   {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
                 </Button>
+                )}
               </div>
             </div>
           </div>
