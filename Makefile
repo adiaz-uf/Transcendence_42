@@ -27,7 +27,7 @@ logs:  ## Show real-time logs from containers
 	$(DOCKER_COMPOSE) logs -f
 
 clean:  ## Remove all Docker containers and volumes related to the project
-	$(DOCKER_COMPOSE) down -v
+	$(DOCKER_COMPOSE) down -v --timeout 2
 
 shell:  ## Open an interactive shell in the backend (Django) container
 	$(DOCKER_COMPOSE) exec backend sh
