@@ -22,7 +22,13 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ["email", "username", "given_name", "surname"]
+        fields = ["email", "username", "given_name", "surname", "password"]
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        # Si la contraseña es proporcionada, la actualizamos
+        if password:
+            instance.set_password(password)
+        return super().update(instance, validated_data)
 
 class TournamentSerializer(serializers.ModelSerializer):
     class Meta:

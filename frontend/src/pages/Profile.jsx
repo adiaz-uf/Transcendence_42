@@ -105,6 +105,9 @@ export default function Profile() {
       email: newEmail,
       username: newUsername,
     };
+    if (newPassword) {
+      updatedData.password = newPassword;
+    }
     try {
       const response = await axios.patch('/api/user/profile/update/', updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
@@ -112,7 +115,7 @@ export default function Profile() {
       setName(`${response.data.given_name} ${response.data.surname}`);
       setEmail(response.data.email);
       setUsername(response.data.username);
-      setPassword(response.data.password);
+      setPassword(newPassword);
       handleCloseModal();
     } catch (error) {
       console.error("Error updating profile:", error);

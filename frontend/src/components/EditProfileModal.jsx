@@ -38,12 +38,12 @@ export default function EditProfileModal({ showModal, handleCloseModal, newName,
             />
           </Form.Group>
           <Form.Group controlId="formUsername">
-            <Form.Label>Password</Form.Label>
+            <Form.Label>New Password (blank for the old)</Form.Label>
             <Form.Control
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Enter new password"
             />
           </Form.Group>
           <Button variant="primary" type="submit" className="mt-3 w-100">
