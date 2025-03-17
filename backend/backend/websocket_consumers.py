@@ -1,19 +1,18 @@
 import asyncio
 import json
-from copy import deepcopy
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .game_manager import game_manager
 from .game import PongGame
+from .game_manager import game_manager
+from copy import deepcopy
 
 class PongConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.player_id = self.scope["client"][1]  # Unique ID for each player
         self.game_id = game_manager.add_player_to_game(self.player_id)
         self.game = PongGame()
-
         await self.accept()
         await self.send(json.dumps({"message": "Connected", "game_id": self.game_id}))
-
+    
         asyncio.create_task(self.game_loop())
 
     async def disconnect(self, close_code):
@@ -22,32 +21,33 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        if "move" in data:
-            game_manager.update_paddle(self.game_id, self.player_id, data["move"])
+        print("Received from client:", data)
+        # id in data['userId']
+        if "izq" in data.get('update', {}):
+            self.game.mover_jugadores("izq", data["update"]['izq'])
+            await self.send(json.dumps(
+                {"jugadores": {'izq':self.game.jugadores['izq']}}))
+            
+        if "der" in data.get('update', {}):
+            self.game.mover_jugadores("der", data["update"]['der'])   
+            await self.send(json.dumps(
+                {"jugadores": {'der':self.game.jugadores['der']}}))
+ 
+              
+        # if "move" in data:
+        #     game_manager.update_paddle(self.game_id, self.player_id, data["move"])
+
+    #async def parse_action(self, client_message):
+        
+        
+    async def sendResponse(self, message):
+        await self.send(json.dumps(message))
 
     async def game_loop(self):
-        self.previous_state = None
+        while self.game.game_active:
+        
+            self.game.update_pelota()
 
-        while True:
-            if self.game.game_active:
-                self.game.update()
-            else:
-                await asyncio.sleep(1)  # Wait 1 second before restarting
-                self.game.start_game()
-
-            current_state = deepcopy({
-                "ball": self.game.ball,
-                "paddles": self.game.paddles,
-                "scores": self.game.scores
-            })
-
-            if current_state != self.previous_state:
-                await self.send(json.dumps({
-                    "type": "gameUpdate",
-                    "ball": self.game.ball,
-                    "paddles": self.game.paddles,
-                    "scores": self.game.scores
-                }))
-                self.previous_state = current_state
+            await self.send(json.dumps({"pelota":self.game.pelota}))
 
             await asyncio.sleep(0.06)  # 60ms delay for smooth updates
