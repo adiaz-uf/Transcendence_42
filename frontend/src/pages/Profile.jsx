@@ -13,6 +13,7 @@ export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
@@ -31,6 +32,7 @@ export default function Profile() {
   const [newName, setNewName] = useState(name);
   const [newEmail, setNewEmail] = useState(email);
   const [newUsername, setNewUsername] = useState(username);
+  const [newPassword, setNewPassword] = useState('');
 
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -110,6 +112,7 @@ export default function Profile() {
       setName(`${response.data.given_name} ${response.data.surname}`);
       setEmail(response.data.email);
       setUsername(response.data.username);
+      setPassword(response.data.password);
       handleCloseModal();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -194,6 +197,8 @@ export default function Profile() {
           newUsername={newUsername} 
           setNewUsername={setNewUsername} 
           handleChangeData={handleChangeData} 
+          setNewPassword={setNewPassword}
+          newPassword={newPassword}
         />
         <TwoFAModal 
           show2FAModal={show2FAModal} 
