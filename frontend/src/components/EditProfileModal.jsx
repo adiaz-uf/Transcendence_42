@@ -1,7 +1,8 @@
 import React from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 
-export default function EditProfileModal({ showModal, handleCloseModal, newName, setNewName, newEmail, setNewEmail, newUsername, setNewUsername, handleChangeData }) {
+export default function EditProfileModal({ showModal, handleCloseModal, newName, setNewName, 
+  newEmail, setNewEmail, newUsername, newPassword, setNewPassword, setNewUsername, handleChangeData }) {
   return (
     <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal">
       <Modal.Header closeButton>
@@ -34,6 +35,15 @@ export default function EditProfileModal({ showModal, handleCloseModal, newName,
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
               placeholder="Enter your username"
+            />
+          </Form.Group>
+          <Form.Group controlId="formUsername">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Enter your password"
             />
           </Form.Group>
           <Button variant="primary" type="submit" className="mt-3 w-100">
