@@ -23,19 +23,18 @@ import webSocketClient from "../websocket";
 //   },
 // }));
 
-const PlayOrStopBtn = (InitGame) => {
+//TODO: Upgrade to a play or stop game but not closing conection by returning to menu
+const ReturnToMenu = ({InitGame}) => {
 
   const handleClick = () => {
     if (webSocketClient.socket?.readyState === WebSocket.OPEN) {
       InitGame(null)
-    } else {
-      InitGame("local")
     }
   };
 
   return (
     <button onClick={handleClick}>
-      {webSocketClient.socket?.readyState === WebSocket.OPEN ? "Stop" : "Play"}
+      Menu
     </button>
   );
 };
@@ -49,7 +48,7 @@ const Gameplay = ({ gameState, InitGame }) => {
   const [pressedKeysPlayerOne, setPressedKeysPlayerOne] = useState(null);
   const [pressedKeysSecondPlayer, setPressedKeysSecondPlayer] = useState(null);
 
-    // Key event handlers
+  // Key event handlers
   const handleKeyDownPlayerOne = (e) => {
     if (e.key === "w" || e.key === "s") {
       setPressedKeysPlayerOne(e.key);
@@ -76,13 +75,13 @@ const Gameplay = ({ gameState, InitGame }) => {
 
   const sendPlayerMovesPlayerOne = () => {
     if (pressedKeysPlayerOne) {
-      webSocketClient.sendPlayerMove({ izq: pressedKeysPlayerOne === "w" ? "up" : "down" });
+      webSocketClient.sendPlayerMove({'izq': pressedKeysPlayerOne === "w" ? "up" : "down"});
     }
   };
 
   const sendPlayerMovesSecondPlayer = () => {
     if (pressedKeysSecondPlayer) {
-      webSocketClient.sendPlayerMove({ der: pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down" });
+      webSocketClient.sendPlayerMove({'der': pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down"});
     }
   };
 
@@ -178,7 +177,7 @@ const Gameplay = ({ gameState, InitGame }) => {
   return (
     <div className="gameplay-container">
       <div className="game-header">
-        <PlayOrStopBtn InitGame={InitGame}/>
+        <ReturnToMenu InitGame={InitGame}/>
       </div>
       <canvas ref={canvasRef} className="game-canvas" />
       <p>Game State: {gameState ? JSON.stringify(gameState) : "Waiting for game data..."}</p>
@@ -187,5 +186,3 @@ const Gameplay = ({ gameState, InitGame }) => {
 };
 
 export default Gameplay;
-
-\

@@ -56,7 +56,7 @@ class WebSocketManager {
         if (this.socket) {
             this.socket.removeEventListener("open", this.connect);
             this.socket.removeEventListener("message", this.gameUpdateCallback);
-            this.socket.removeEventListener("close", this.handleReconnect);
+            //this.socket.removeEventListener("close", this.handleReconnect);
             this.socket.close();
             this.socket = null;
         }
@@ -81,8 +81,12 @@ class WebSocketManager {
         }
     }
 
-    sendPlayerMove(update) {
-        this.sendMessage({ update, userId: this.userId });
+    //webSocketClient.sendPlayerMove({ 'data': {'izq': pressedKeysPlayerOne === "w" ? "up" : "down"} });
+
+    sendPlayerMove(data) {
+        let update = {'type':'update', 'data':data,'userId': this.userId}
+        console.log(update)
+        this.sendMessage(update);
     }
 
     listenForGameUpdates(callback) {
