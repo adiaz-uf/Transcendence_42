@@ -42,7 +42,7 @@ class PongGame:
             'dy': random.choice([-4, 4])
         }
         # Main Game loop
-        self.game_active = False
+        self.game_active = True
 
     def mover_jugadores(self, side, direction):
         jugador = self.jugadores[side]
