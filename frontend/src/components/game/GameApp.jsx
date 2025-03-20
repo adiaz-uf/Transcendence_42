@@ -4,10 +4,13 @@ import webSocketClient from "../websocket";
 
 import Menu from "./Menu";
 
+import InvitePlayer from "./InvitePlayerModal";
+
+
 // Componente Padre, guarda estado de selecion de juego y conexion websocket
 const GameApp = () => {
   const [gameMode, setGameMode] = useState(null); 
-
+  const [showModal, setShowModal] = useState(false);
   const [gameState, setGameState] = useState({
     game_active: false,
     // Estado Jugadores
@@ -39,7 +42,7 @@ const GameApp = () => {
     }
   });
 
-    //Función que setea la funcion a ejecutar cuando se recibe un mensaje del fd cliente
+  //Función que setea la funcion a ejecutar cuando se recibe un mensaje del fd cliente
   const StateLinkerGameWebSocket = useCallback((setGameState) => {
     webSocketClient.listenForGameUpdates((gameUpdate) => {
       console.log("Received game update:", gameUpdate);
@@ -88,6 +91,7 @@ const GameApp = () => {
   };
 
   return (
+
     <div className="game-container">
       {gameMode === null ? 
       (<Menu onGameModeSelect={InitGame}/>) :
