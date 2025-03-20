@@ -1,28 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import webSocketClient from "../websocket";
 
-
-// setGameState((prevState) => ({
-//   ...prevState,
-//   ...gameUpdate,
-//   jugadores: {
-//     ...prevState.jugadores,
-//     ...gameUpdate.jugadores, // Merge jugadores if updated
-//     izq: {
-//       ...prevState.jugadores.izq,
-//       ...(gameUpdate.jugadores?.izq || {}), // Merge izq if updated
-//     },
-//     der: {
-//       ...prevState.jugadores.der,
-//       ...(gameUpdate.jugadores?.der || {}), // Merge der if updated
-//     },
-//   },
-//   pelota: {
-//     ...prevState.pelota,
-//     ...(gameUpdate.pelota || {}), // Merge pelota if updated
-//   },
-// }));
-
 //TODO: Upgrade to a play or stop game but not closing conection by returning to menu
 const ReturnToMenu = ({InitGame}) => {
 
@@ -43,69 +21,70 @@ const Gameplay = ({ gameState, InitGame }) => {
   // html ref for canvas
   const canvasRef = useRef(null);
   const GameFrameRef = useRef(null);
+  const PlayerOneFrameRef = useRef(null);
+  const SecondPlayerFrameRef = useRef(null);
+
 
   // Key stroke for each player
   const [pressedKeysPlayerOne, setPressedKeysPlayerOne] = useState(null);
   const [pressedKeysSecondPlayer, setPressedKeysSecondPlayer] = useState(null);
 
   // Key event handlers
-  const handleKeyDownPlayerOne = (e) => {
+  const handleKeyDownPlayers = (e) => {
     if (e.key === "w" || e.key === "s") {
       setPressedKeysPlayerOne(e.key);
     }
-  };
-
-  const handleKeyDownSecondPlayer = (e) => {
-    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    else if (e.key === "ArrowUp" || e.key === "ArrowDown"){
       setPressedKeysSecondPlayer(e.key);
     }
   };
-
-  const handleKeyUpPlayerOne = (e) => {
+  const handleKeyUpPlayers = (e) => {
     if (e.key === "w" || e.key === "s") {
       setPressedKeysPlayerOne(null);
     }
+    else if (e.key === "ArrowUp" || e.key === "ArrowDown"){
+      setPressedKeysSecondPlayer(null);}
   };
-
-  const handleKeyUpSecondPlayer = (e) => {
-    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-      setPressedKeysSecondPlayer(null);
-    }
-  };
-
+  // What to do for when key of player one is pressed
   const sendPlayerMovesPlayerOne = () => {
     if (pressedKeysPlayerOne) {
-      webSocketClient.sendPlayerMove({'izq': pressedKeysPlayerOne === "w" ? "up" : "down"});
+      webSocketClient.sendPlayerMove({
+        izq: pressedKeysPlayerOne === "w" ? "up" : "down",
+      });
     }
+    PlayerOneFrameRef.current = requestAnimationFrame(sendPlayerMovesPlayerOne);
   };
-
+  // What to do for when key of player 2 is pressed
   const sendPlayerMovesSecondPlayer = () => {
     if (pressedKeysSecondPlayer) {
-      webSocketClient.sendPlayerMove({'der': pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down"});
+      webSocketClient.sendPlayerMove({
+        der: pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down",
+      });
     }
+    SecondPlayerFrameRef.current = requestAnimationFrame(sendPlayerMovesSecondPlayer);
   };
+  
+  // Reload frame when key is pressed and clean when destroyed
+  useEffect(() => {
+    if (pressedKeysPlayerOne) {
+      PlayerOneFrameRef.current = requestAnimationFrame(sendPlayerMovesPlayerOne);
+    } else {
+      cancelAnimationFrame(PlayerOneFrameRef.current);}
+    return () => {
+      cancelAnimationFrame(PlayerOneFrameRef.current);
+    };
+  }, [pressedKeysPlayerOne]);
 
-  useEffect( () =>{
-    sendPlayerMovesSecondPlayer()
-
-  }, [pressedKeysSecondPlayer]); 
-
-  useEffect( () =>{
-
-    sendPlayerMovesPlayerOne()
-  }, [pressedKeysPlayerOne]); 
-
-  // Send movement to the server
-  // const KeyLoop = () => {
-  //   if (pressedKeysPlayerOne) {
-  //     webSocketClient.sendPlayerMove({ izq: pressedKeysPlayerOne === "w" ? "up" : "down" });
-  //   }
-  //   if (pressedKeysSecondPlayer) {
-  //     webSocketClient.sendPlayerMove({ der: pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down" });
-  //   }
-  //   PlayerFrameRef.current = requestAnimationFrame(KeyLoop);
-  // };
-
+  useEffect(() => {
+    if (pressedKeysSecondPlayer) {
+      SecondPlayerFrameRef.current = requestAnimationFrame(sendPlayerMovesSecondPlayer);
+    } else {
+      cancelAnimationFrame(SecondPlayerFrameRef.current);
+    }
+    return () => {
+      cancelAnimationFrame(SecondPlayerFrameRef.current);
+    };
+  }, [pressedKeysSecondPlayer]);
 
   // Canvas initialization
   useEffect(() => {
@@ -115,28 +94,65 @@ const Gameplay = ({ gameState, InitGame }) => {
       canvas.height = 400;
     }
 
-    window.addEventListener("keydown", handleKeyDownPlayerOne);
-    window.addEventListener("keydown", handleKeyDownSecondPlayer);
-    window.addEventListener("keyup", handleKeyUpPlayerOne);
-    window.addEventListener("keyup", handleKeyUpSecondPlayer);
+    // add event function handlers for key presses
+    window.addEventListener("keydown", handleKeyDownPlayers);
+    window.addEventListener("keyup", handleKeyUpPlayers);
 
-    //PlayerFrameRef.current = requestAnimationFrame(KeyLoop);
     // Cleanup on unmount or when dependencies change
     return () => {
-      window.removeEventListener("keydown", handleKeyDownPlayerOne);
-      window.removeEventListener("keydown", handleKeyDownSecondPlayer);
-      window.removeEventListener("keyup", handleKeyUpPlayerOne);
-      window.removeEventListener("keyup", handleKeyUpSecondPlayer);
+      window.removeEventListener("keydown", handleKeyDownPlayers);
+      window.removeEventListener("keyup", handleKeyUpPlayers);
     };
   }, []);
-  
+
   // Handle game drawing
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
 
+    const renderPlayerOne = (ctx) => {
+      if (gameState && gameState.jugadores && gameState.jugadores.izq) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(
+          gameState.jugadores.izq.x,
+          gameState.jugadores.izq.y,
+          10,
+          100
+        );
+      }
+    };
+    
+    const renderPlayerTwo = (ctx) => {
+      if (gameState && gameState.jugadores && gameState.jugadores.der) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(
+          gameState.jugadores.der.x,
+          gameState.jugadores.der.y,
+          10,
+          100
+        );
+      }
+    };
+
+    // const drawBall = (ctx) => {
+    //   if (gameState && gameState.pelota) {
+    //     ctx.beginPath();
+    //     ctx.arc(gameState.pelota.x, gameState.pelota.y, 5, 0, Math.PI * 2);
+    //     ctx.fill();
+    //   }
+    // }
+
+    // const drawScores = (ctx) => {
+    //   if (gameState && gameState.jugadores) {
+    //     ctx.font = "24px Arial";
+    //     ctx.fillText(`${gameState.jugadores.izq.score || 0}`, canvas.width / 4, 50);
+    //     ctx.fillText(`${gameState.jugadores.der.score || 0}`, (3 * canvas.width) / 4, 50);
+    //   }
+    // }
+
     const render = () => {
+      // board
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -149,18 +165,14 @@ const Gameplay = ({ gameState, InitGame }) => {
       ctx.lineTo(canvas.width / 2, canvas.height);
       ctx.stroke();
 
-      // Only render if gameState exists
-      if (gameState && gameState.jugadores && gameState.pelota) {
-        // Draw paddles and ball
-        ctx.fillStyle = "white";
-        ctx.fillRect(gameState.jugadores.izq.x, gameState.jugadores.izq.y, 10, 100);
-        ctx.fillRect(gameState.jugadores.der.x, gameState.jugadores.der.y, 10, 100);
+      renderPlayerOne(ctx);
+      renderPlayerTwo(ctx);
 
+      if (gameState && gameState.jugadores && gameState.pelota) {
         ctx.beginPath();
         ctx.arc(gameState.pelota.x, gameState.pelota.y, 5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Draw scores
         ctx.font = "24px Arial";
         ctx.fillText(`${gameState.jugadores.izq.score || 0}`, canvas.width / 4, 50);
         ctx.fillText(`${gameState.jugadores.der.score || 0}`, (3 * canvas.width) / 4, 50);
