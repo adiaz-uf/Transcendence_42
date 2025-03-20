@@ -7,21 +7,24 @@
   padding: 2em;
   padding-left: 3em;
   padding-right: 3em;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
 }
 
 .profile-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  gap: 2em; /* Ajusta el espacio entre avatar y los datos */
+  gap: 2em;
   margin-bottom: 1em;
 }
 
 .profile-info {
   display: flex;
-  flex-direction: row; /* Pone los elementos en fila (avatar + detalles) */
+  flex-direction: row;
   align-items: center;
   gap: 2em;
   flex-wrap: wrap;
@@ -31,7 +34,7 @@
   width: 4em;
   height: 4em;
   border-radius: 50%;
-  background-color: #0062cc; /* Color de fondo del avatar */
+  background-color: #0062cc;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -68,6 +71,7 @@
 
 .profile-buttons {
 	display: flex;
+  flex-wrap: wrap;
 	gap: 1rem;
 	justify-content: center;
 	margin-top: 1rem;

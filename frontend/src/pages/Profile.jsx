@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import { ACCESS_TOKEN } from "../constants"; 
 import '../styles/profile.css';
