@@ -5,10 +5,12 @@
     place-content: center;
     text-align: center;
     min-height: 100vh;
-    gap: 1em;
+    gap: 2em;
     padding: 1em;
 }
 .header {
+    font-size: 4em;
+    font-family: "Honk", sans-serif;
     font-size: 4em;
     font-family: "Honk", sans-serif;
 }

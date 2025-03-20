@@ -20,7 +20,6 @@ urlpatterns = [
     path("api/setup-2fa/", Setup2FAView.as_view(), name="setup-2fa"),
     path("api-auth/", include("rest_framework.urls")),
     path("api/", include("api.urls")),
-    path("ws/game/", PongConsumer.as_asgi()),
     path('api/user/matches-played/', MatchesPlayedView.as_view(), name='matches-played'),
     path('api/user/matches-won/', MatchesWonView.as_view(), name='matches-won'),
 ]
