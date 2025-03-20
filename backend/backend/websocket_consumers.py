@@ -24,7 +24,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         game_manager.remove_player(self.player_id)
-
+        print(f"CLIENT[{self.player_id}] game-id[{self.game_id}]:Disconnected")
         if hasattr(self, 'game_task') and not self.game_task.done():
             self.game_task.cancel()
         await self.close()
@@ -64,9 +64,10 @@ class PongConsumer(AsyncWebsocketConsumer):
         print(f"[{self.game_id}] - LOOP STARTED - ", self.game.game_active)
         
         while self.game.game_active:
-            print(f"[{self.game_id}] - gameloop")
             self.game.update_pelota()
 
             await self.send(json.dumps({"pelota":self.game.pelota}))
 
             await asyncio.sleep(0.06)  # 60ms delay for smooth updates
+        print(f"[{self.game_id}] - LOOP ENDED - ", self.game.game_active)
+
