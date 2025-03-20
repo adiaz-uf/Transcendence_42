@@ -174,12 +174,11 @@ const Gameplay = ({ gameState, InitGame }) => {
 
   // <PlayOrStopBtn/>
   //<button onClick={() => {setGameMode(null)}}>Return to menu </button>
+  //<span className='m-4'>Game Mode: {gameMode}</span>
   return (
     <div className="gameplay-container">
       <div className="game-header">
         <ReturnToMenu InitGame={InitGame}/>
-        <Button className='m-4' onClick={returnToMenu}>Back to Menu</Button>
-        <span className='m-4'>Game Mode: {gameMode}</span>
       </div>
       <canvas ref={canvasRef} className="game-canvas" />
       <p>Game State: {gameState ? JSON.stringify(gameState) : "Waiting for game data..."}</p>
