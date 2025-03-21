@@ -95,7 +95,7 @@ class WebSocketManager {
 }
 
 // Initialize WebSocketManager
-const webSocketClient = new WebSocketManager(`wss://${window.location.hostname}/ws/game/`);
+const webSocketClient = new WebSocketManager(`wss://${window.location.host}/ws/game/`);
 
 // export const connect = () => webSocketClient.connect();
 

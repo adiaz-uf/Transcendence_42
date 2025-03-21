@@ -9,9 +9,13 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from io import BytesIO
+import json
 import base64
 import qrcode
 import requests
+import logging
+
+logger = logging.getLogger(__name__)
 
 from .models import Tournament, Match, UserProfile
 from .serializers import (
@@ -213,6 +217,10 @@ class FTAuthCallbackView(APIView):
         if not state:
             return JsonResponse({'error': 'Missing state parameter'}, status=400)
 
+        state_data = json.loads(state)
+        redirect_uri = state_data.get('redirect_uri')
+        logger.info(f"Retrieved redirect_uri from state: {redirect_uri}")
+
         # Échange du code contre un access_token
         token_url = "https://api.intra.42.fr/oauth/token"
         payload = {
@@ -220,11 +228,14 @@ class FTAuthCallbackView(APIView):
             'client_id': settings.FT_CLIENT_ID,
             'client_secret': settings.FT_CLIENT_SECRET,
             'code': code,
-            'redirect_uri': settings.FT_REDIRECT_URI,
+            'redirect_uri': redirect_uri,
         }
+
         response = requests.post(token_url, data=payload)
         if response.status_code != 200:
-            return JsonResponse({'error': 'Failed to get access token'}, status=500)
+            logger.error(f"Token request failed: {response.status_code} - {response.text}")
+            logger.info(f"Sent payload: {payload}")
+            return JsonResponse({'error': 'Failed to get access token', 'details': response.text}, status=500)
 
         token_data = response.json()
         access_token = token_data.get('access_token')
@@ -244,6 +255,7 @@ class FTAuthCallbackView(APIView):
         refresh = RefreshToken.for_user(user)
 
         # Redirection vers le frontend
-        return HttpResponseRedirect(
-            f"https://transcendence.local/login/callback?access={refresh.access_token}"
-        )
+        callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
+        redirect_url = f"{callback_uri}?access={refresh.access_token}"
+        logger.info(f"Redirecting to: {redirect_url}")
+        return HttpResponseRedirect(redirect_url)
