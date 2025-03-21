@@ -45,15 +45,22 @@ export default function Login({route}) {
     };
 	
 	const handle42Login = () => {
-        const clientId = process.env.REACT_APP_FT_CLIENT_ID;
+		const clientId = process.env.REACT_APP_FT_CLIENT_ID;
+		const redirectUri = `${window.location.origin}/api/auth/42/callback`; 
+		console.log("redirectUri: ", redirectUri);
 
-		console.log("REACT_APP_FT_CLIENT_ID:", clientId);
+		const state = JSON.stringify({
+			random: Math.random().toString(36).substring(2), 
+			redirect_uri: redirectUri 
+		});
+		localStorage.setItem("oauth_state", state);
+		console.log("state:", state);
 
-        const redirectUri = encodeURIComponent(`https://${window.location.hostname}/api/auth/42/callback`);
-        const state = Math.random().toString(36).substring(2);
-        localStorage.setItem("oauth_state", state);
-        const authUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=public&state=${state}`;
-        window.location.href = authUrl;
+		const encodedRedirectUri = encodeURIComponent(redirectUri);
+		const authUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodedRedirectUri}&response_type=code&scope=public&state=${state}`;
+		console.log("authUrl complète:", authUrl);
+
+		window.location.href = authUrl;
     };
 
     // Gestion du callback depuis 42
