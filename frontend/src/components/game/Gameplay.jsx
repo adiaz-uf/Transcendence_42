@@ -90,8 +90,8 @@ const Gameplay = ({ gameState, InitGame }) => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
-      canvas.width = 800;
-      canvas.height = 400;
+      canvas.width = 900;
+      canvas.height = 700;
     }
 
     // add event function handlers for key presses
@@ -117,8 +117,8 @@ const Gameplay = ({ gameState, InitGame }) => {
         ctx.fillRect(
           gameState.jugadores.izq.x,
           gameState.jugadores.izq.y,
-          10,
-          100
+          15,
+          115
         );
       }
     };
@@ -129,8 +129,8 @@ const Gameplay = ({ gameState, InitGame }) => {
         ctx.fillRect(
           gameState.jugadores.der.x,
           gameState.jugadores.der.y,
-          10,
-          100
+          15,
+          115
         );
       }
     };
@@ -187,13 +187,13 @@ const Gameplay = ({ gameState, InitGame }) => {
   // <PlayOrStopBtn/>
   //<button onClick={() => {setGameMode(null)}}>Return to menu </button>
   //<span className='m-4'>Game Mode: {gameMode}</span>
+  //<p>Game State: {gameState ? JSON.stringify(gameState) : "Waiting for game data..."}</p>
   return (
     <div className="gameplay-container">
       <div className="game-header">
         <ReturnToMenu InitGame={InitGame}/>
       </div>
       <canvas ref={canvasRef} className="game-canvas" />
-      <p>Game State: {gameState ? JSON.stringify(gameState) : "Waiting for game data..."}</p>
     </div>
   );
 };

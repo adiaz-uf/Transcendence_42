@@ -3,10 +3,10 @@ import math
 import random
 
 class PongGame:
-    def __init__(self, width=800, height=400):
+    def __init__(self, width=900, height=700):
         self.width = width
         self.height = height
-
+        self.speed_pelota = 11
         self.reset_game()
 
     def get_gameState(self):
@@ -18,16 +18,16 @@ class PongGame:
             'izq': {
                 'x': 10,
                 'y': self.height / 2 - 50,
-                'width': 10,
-                'height': 100,
+                'width': 15,
+                'height': 115,
                 'speed': 5,
                 'score': 0
             }, 
             'der': {
                 'x': self.width - 20,
                 'y': self.height / 2 - 50,
-                'width': 10,
-                'height': 100,
+                'width': 15,
+                'height': 115,
                 'speed': 5,
                 'score': 0
             }
@@ -38,8 +38,8 @@ class PongGame:
             'x': self.width / 2,
             'y': self.height / 2,
             'radio': 5,
-            'dx': random.choice([-4, 4]),
-            'dy': random.choice([-4, 4])
+            'dx': random.choice([-(self.speed_pelota), (self.speed_pelota)]),
+            'dy': random.choice([-(self.speed_pelota), (self.speed_pelota)])
         }
         # Main Game loop
         self.game_active = True
@@ -89,7 +89,7 @@ class PongGame:
     def reset_pelota(self, scoring_side):
         self.pelota['x'] = self.width / 2
         self.pelota['y'] = self.height / 2
-        self.pelota['dx'] = 4 if scoring_side == 'left' else -4
-        self.pelota['dy'] = random.choice([-4, 4])
+        self.pelota['dx'] = (self.speed_pelota) if scoring_side == 'left' else -(self.speed_pelota)
+        self.pelota['dy'] = random.choice([-(self.speed_pelota), (self.speed_pelota)])
 
 
