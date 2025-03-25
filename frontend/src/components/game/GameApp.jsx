@@ -12,22 +12,22 @@ const GameApp = () => {
   const [gameMode, setGameMode] = useState(null); 
   const [showModal, setShowModal] = useState(false);
   const [gameState, setGameState] = useState({
-    game_active: false,
+    game_active: true,
     // Estado Jugadores
     jugadores: {
         'izq': {
             'x': 10,
             'y': 150,
-            'width': 10,
-            'height': 100,
+            'width': 15,
+            'height': 115,
             'speed': 5,
             'score': 0
         },
         'der': {
-            'x': 780,
+            'x': 880,
             'y': 150,
-            'width': 10,
-            'height': 100,
+            'width': 15,
+            'height': 115,
             'speed': 5,
             'score': 0
         }
@@ -37,8 +37,8 @@ const GameApp = () => {
         'x': 400,
         'y': 200,
         'radio': 5,
-        'dx': 4,
-        'dy': -4
+        'dx': 11,
+        'dy': -11
     }
   });
 
