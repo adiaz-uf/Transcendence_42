@@ -66,10 +66,10 @@ const Gameplay = ({ gameState, InitGame }) => {
   
   // Reload frame when key is pressed and clean when destroyed
   useEffect(() => {
-    if (pressedKeysPlayerOne) {
+    /* if (pressedKeysPlayerOne) { */
       PlayerOneFrameRef.current = requestAnimationFrame(sendPlayerMovesPlayerOne);
-    } else {
-      cancelAnimationFrame(PlayerOneFrameRef.current);}
+/*     } else {
+      cancelAnimationFrame(PlayerOneFrameRef.current);} */
     return () => {
       cancelAnimationFrame(PlayerOneFrameRef.current);
     };
@@ -104,6 +104,28 @@ const Gameplay = ({ gameState, InitGame }) => {
       window.removeEventListener("keyup", handleKeyUpPlayers);
     };
   }, []);
+
+  useEffect(() => {
+    // Escucha de eventos de WebSocket para goles
+    webSocketClient.socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      // Cuando se recibe el mensaje de un gol
+      if (data.type === "goal") {
+        const updatedGameState = { ...gameState };
+        updatedGameState.jugadores.izq.score = data.izq_score;  // Actualiza puntaje de la izquierda
+        updatedGameState.jugadores.der.score = data.der_score;  // Actualiza puntaje de la derecha
+        InitGame(updatedGameState);  // Actualiza el estado del juego
+      }
+    };
+
+    return () => {
+      // Cleanup cuando el componente se desmonte
+      if (webSocketClient.socket) {
+        webSocketClient.socket.onmessage = null;
+      }
+    };
+  }, [gameState, InitGame]);
 
   // Handle game drawing
   useEffect(() => {
