@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserProfile, Tournament, Match, GoalStat
+from .models import UserProfile, Tournament, Match, UserStat
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,7 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
         )       #This data is then stored in a user and returned, this def is created in CustomUserManager
         return user
 
-# Segunda representaci'on de la info del usuario para otro endpoint
+# Secondary Representation of UserProfile 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
@@ -38,7 +38,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         username = validated_data.pop('username', None)
         password = validated_data.pop('password', None)
 
-        # Si la contraseña es proporcionada, la actualizamos
+        # If password, we modify it
         if password:
             instance.set_password(password)
         if username:
@@ -58,16 +58,16 @@ class TournamentSerializer(serializers.ModelSerializer):
         model = Tournament
         fields = '__all__'
 
-# explicitamente los miembros 
+# Match Serializer
 class MatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
         fields = '__all__'
 
 # Goal Statistics Serializer
-class GoalStatSerializer(serializers.ModelSerializer):
+class UserStatSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GoalStat
+        model = UserStat
         fields = '__all__'
 
         

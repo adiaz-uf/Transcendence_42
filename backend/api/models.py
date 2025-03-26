@@ -9,6 +9,8 @@ class UserProfile(AbstractUser): # AbstractUser has fields password
     email = models.EmailField(unique=True)
     username = models.CharField(unique=True, max_length=64)
     last_active = models.DateTimeField(null=True, blank=True)
+    first_name = None
+    last_name = None
 
     # 2FA Security
     totp_secret = models.CharField(max_length=64, blank=True, null=True)
@@ -57,7 +59,7 @@ class Tournament(models.Model):
 
 
 # Stats of the User
-class GoalStat(models.Model):
+class UserStat(models.Model):
     user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     matches_played = models.DecimalField(max_digits=5, decimal_places=0)
     max_score_goals = models.PositiveIntegerField()
@@ -65,7 +67,18 @@ class GoalStat(models.Model):
     win_rate = models.DecimalField(max_digits=3, decimal_places=3)
     
     class Meta:
-        db_table = 'goalstat'
+        db_table = 'UserStat'
 
     def __str__(self):
         return self.name
+
+class GoalStat(models.Model):
+    user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    match_id = models.ForeignKey(Match, on_delete=models.CASCADE)
+    ball_duration = models.DurationField()
+    pos_y = models.DecimalField(max_digits=5, decimal_places=2)
+
+    class Meta:
+        db_table = 'goalstat'
+    def __str__(self):
+        return self.name    
