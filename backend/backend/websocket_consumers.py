@@ -39,8 +39,6 @@ class PongConsumer(AsyncWebsocketConsumer):
         else:
             print(f"Unknown message type: {message_type}")
 
-
-
     async def handle_update(self, data):
         update = data.get("data", {})
         if "izq" in update:
@@ -52,7 +50,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def handle_game_active(self, data):
         print("set game_active to ", data.get("game_active", False) )
-
         self.game.game_active = data.get("game_active", False)
 
 

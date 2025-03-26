@@ -1,31 +1,54 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+import uuid
       
-# Create your models here.
+# Main User Info for auth!
+class UserProfile(AbstractUser): # AbstractUser has fields password
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True)
+    username = models.CharField(unique=True, max_length=64)
+    last_active = models.DateTimeField(null=True, blank=True)
 
-class UserProfile(AbstractUser):
-    given_name = models.CharField(max_length=35, null=True, blank=True)
-    surname = models.CharField(max_length=35, null=True, blank=True)
-   
-    # 2FA
+    # 2FA Security
     totp_secret = models.CharField(max_length=64, blank=True, null=True)
     is_2fa_enabled = models.BooleanField(default=False)
     is_42user = models.BooleanField(default=False)
-    first_name = None
-    last_name = None
+
+    # Matches
+    localmatches = models.ManyToManyField("Match", related_name="local_players")
+    onlinematches = models.ManyToManyField("Match", related_name="online_players")
+
     class Meta:
         db_table = 'user'
+        
     def __str__(self):
         return self.username
+    
+#match Info
+class Match(models.Model):
+    date = models.DateTimeField(auto_now_add=True)
+    match_duration = models.DurationField()
+    #tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=True)
+    player_left = models.ForeignKey("UserProfile", on_delete=models.CASCADE, related_name="player_left", null=True)
+    player_right = models.ForeignKey("UserProfile", on_delete=models.CASCADE, related_name="player_right", null=True)
+    left_score = models.PositiveIntegerField(default=0)
+    right_score = models.PositiveIntegerField(default=0)
+    is_multiplayer = models.BooleanField(default=False)
 
+    class Meta:
+        db_table = 'match'
+        
+    def __str__(self):
+        return self.name
 
+#Tournament Info
 class Tournament(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=35)
     created_at = models.DateTimeField(editable=False, null=True)
     owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
-    matches = models.ManyToManyField("Match", related_name="matches")
+    matches = models.ManyToManyField("Match")
 
     class Meta:
         db_table = 'tournament'
@@ -33,43 +56,16 @@ class Tournament(models.Model):
         return self.name
 
 
-# can a match not be linked to a tournament
-class Match(models.Model):
-    date = models.DateTimeField(auto_now_add=True)
-    tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=True)
-    team_left = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_left", null=True)
-    team_right = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_right", null=True)
-    left_score = models.PositiveIntegerField(default=0)
-    right_score = models.PositiveIntegerField(default=0)
-    is_multiplayer = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'match'
-
-    def __str__(self):
-        return self.name
-
-class Team(models.Model):
-    name = models.CharField(max_length=35)
-    player1_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="player1_id")
-    player2_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, related_name="player2_id")
-
-    class Meta:
-        db_table = 'team'
-
-    def __str__(self):
-        return self.name
-
-
-# not sure if ball_duration actually calculates the live ball duration
+# Stats of the User
 class GoalStat(models.Model):
     user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    match_id = models.ForeignKey(Match, on_delete=models.CASCADE)
-    hit_corners = models.PositiveIntegerField()
-    ball_duration = models.DurationField()
-    pos_y = models.DecimalField(max_digits=5, decimal_places=2)
-
+    matches_played = models.DecimalField(max_digits=5, decimal_places=0)
+    max_score_goals = models.PositiveIntegerField()
+    time_played = models.DecimalField(max_digits=5, decimal_places=3)
+    win_rate = models.DecimalField(max_digits=3, decimal_places=3)
+    
     class Meta:
         db_table = 'goalstat'
+
     def __str__(self):
         return self.name
