@@ -10,7 +10,7 @@
     max-width: 800px; /* Match the canvas width */
     margin: 0 auto; /* Center the container */
     overflow: hidden; /* Prevent content overflow */
-  }
+}
   
 .game-canvas {
     display: block;
@@ -25,11 +25,6 @@ box-sizing: border-box;
 }
 
 .game-canvas {
-margin: 0;
-padding: 0;
-}
-
-p {
 margin: 0;
 padding: 0;
 }

@@ -6,7 +6,7 @@ class PongGame:
     def __init__(self, width=800, height=400):
         self.width = width
         self.height = height
-
+        self.max_score = 5  # Score maximum pour gagner
         self.reset_game()
 
     def get_gameState(self):
@@ -49,11 +49,14 @@ class PongGame:
         
         if direction == 'up':
             jugador['y'] = max(0, jugador['y'] - jugador['speed'])
-
         elif direction == 'down':
             jugador['y'] = min(self.height - jugador['height'], jugador['y'] + jugador['speed'])
 
     def update_pelota(self):
+        # Vérifier si le jeu est terminé
+        if self.jugadores['izq']['score'] >= self.max_score or self.jugadores['der']['score'] >= self.max_score:
+            self.game_active = False
+            return
 
         #bola
         self.pelota['x'] += self.pelota['dx']
@@ -91,5 +94,3 @@ class PongGame:
         self.pelota['y'] = self.height / 2
         self.pelota['dx'] = 4 if scoring_side == 'left' else -4
         self.pelota['dy'] = random.choice([-4, 4])
-
-

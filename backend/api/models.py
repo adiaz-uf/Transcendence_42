@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-      
+
 # Create your models here.
 
 class UserProfile(AbstractUser):
@@ -14,62 +14,40 @@ class UserProfile(AbstractUser):
     is_42user = models.BooleanField(default=False)
     first_name = None
     last_name = None
+
     class Meta:
         db_table = 'user'
+
     def __str__(self):
         return self.username
 
 
 class Tournament(models.Model):
-    date = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=35)
-    created_at = models.DateTimeField(editable=False, null=True)
-    owner = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
-    matches = models.ManyToManyField("Match", related_name="matches")
-
-    class Meta:
-        db_table = 'tournament'
-    def __str__(self):
-        return self.name
-
-
-# can a match not be linked to a tournament
-class Match(models.Model):
-    date = models.DateTimeField(auto_now_add=True)
-    tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=True)
-    team_left = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_left", null=True)
-    team_right = models.ForeignKey("Team", on_delete=models.CASCADE, related_name="matches_as_right", null=True)
-    left_score = models.PositiveIntegerField(default=0)
-    right_score = models.PositiveIntegerField(default=0)
-    is_multiplayer = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'match'
-
-    def __str__(self):
-        return self.name
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class Team(models.Model):
-    name = models.CharField(max_length=35)
-    player1_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name="player1_id")
-    player2_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True, related_name="player2_id")
+    name = models.CharField(max_length=100)
+    tournament = models.ForeignKey(Tournament, related_name='teams', on_delete=models.CASCADE)
+    player1_id = models.IntegerField()
+    player2_id = models.IntegerField(null=True, blank=True)
 
-    class Meta:
-        db_table = 'team'
+class Match(models.Model):
+    tournament = models.ForeignKey(Tournament, related_name='matches', on_delete=models.CASCADE)
+    team_left = models.ForeignKey(Team, related_name='left_matches', on_delete=models.CASCADE)
+    team_right = models.ForeignKey(Team, related_name='right_matches', on_delete=models.CASCADE)
+    winner = models.ForeignKey(Team, null=True, blank=True, on_delete=models.SET_NULL)
 
-    def __str__(self):
-        return self.name
 
-
-# not sure if ball_duration actually calculates the live ball duration
 class GoalStat(models.Model):
-    user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    match_id = models.ForeignKey(Match, on_delete=models.CASCADE)
+    user_id = models.ForeignKey('UserProfile', on_delete=models.CASCADE)
+    match_id = models.ForeignKey('Match', on_delete=models.CASCADE)
     hit_corners = models.PositiveIntegerField()
     ball_duration = models.DurationField()
     pos_y = models.DecimalField(max_digits=5, decimal_places=2)
 
     class Meta:
         db_table = 'goalstat'
+
     def __str__(self):
-        return self.name
+        return f"GoalStat for Match {self.match_id.id} (User {self.user_id.username})"

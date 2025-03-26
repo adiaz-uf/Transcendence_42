@@ -1,79 +1,71 @@
 import React, { useRef, useState, useEffect } from "react";
-import webSocketClient from "../websocket";
 
-//TODO: Upgrade to a play or stop game but not closing conection by returning to menu
-const ReturnToMenu = ({InitGame}) => {
-
-  const handleClick = () => {
-    if (webSocketClient.socket?.readyState === WebSocket.OPEN) {
-      InitGame(null)
-    }
-  };
-
-  return (
-    <button onClick={handleClick}>
-      Menu
-    </button>
-  );
-};
-
-const Gameplay = ({ gameState, InitGame }) => {
-  // html ref for canvas
+const Gameplay = ({ gameState, InitGame, matchId, tournamentId, webSocketClient, gameMode }) => {
   const canvasRef = useRef(null);
   const GameFrameRef = useRef(null);
   const PlayerOneFrameRef = useRef(null);
   const SecondPlayerFrameRef = useRef(null);
-
-
-  // Key stroke for each player
   const [pressedKeysPlayerOne, setPressedKeysPlayerOne] = useState(null);
   const [pressedKeysSecondPlayer, setPressedKeysSecondPlayer] = useState(null);
+  const [gameEnded, setGameEnded] = useState(false);
 
-  // Key event handlers
+  // Gestion des touches
   const handleKeyDownPlayers = (e) => {
+    console.log("Key down:", e.key);
     if (e.key === "w" || e.key === "s") {
       setPressedKeysPlayerOne(e.key);
     }
-    else if (e.key === "ArrowUp" || e.key === "ArrowDown"){
-      setPressedKeysSecondPlayer(e.key);
+    if (gameMode === "local" || (gameMode === "remote" && webSocketClient)) {
+      if (e.key === "o" || e.key === "l") {
+        setPressedKeysSecondPlayer(e.key);
+      }
     }
   };
+
   const handleKeyUpPlayers = (e) => {
+    console.log("Key up:", e.key);
     if (e.key === "w" || e.key === "s") {
       setPressedKeysPlayerOne(null);
     }
-    else if (e.key === "ArrowUp" || e.key === "ArrowDown"){
-      setPressedKeysSecondPlayer(null);}
+    if (gameMode === "local" || (gameMode === "remote" && webSocketClient)) {
+      if (e.key === "o" || e.key === "l") {
+        setPressedKeysSecondPlayer(null);
+      }
+    }
   };
-  // What to do for when key of player one is pressed
+
+  // Envoi des mouvements des joueurs
   const sendPlayerMovesPlayerOne = () => {
-    if (pressedKeysPlayerOne) {
+    if (pressedKeysPlayerOne && webSocketClient) {
+      console.log("Sending move for player 1:", pressedKeysPlayerOne);
       webSocketClient.sendPlayerMove({
         izq: pressedKeysPlayerOne === "w" ? "up" : "down",
       });
     }
     PlayerOneFrameRef.current = requestAnimationFrame(sendPlayerMovesPlayerOne);
   };
-  // What to do for when key of player 2 is pressed
+
   const sendPlayerMovesSecondPlayer = () => {
-    if (pressedKeysSecondPlayer) {
+    if (pressedKeysSecondPlayer && webSocketClient) {
+      console.log("Sending move for player 2:", pressedKeysSecondPlayer);
       webSocketClient.sendPlayerMove({
-        der: pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down",
+        der: pressedKeysSecondPlayer === "o" ? "up" : "down",
       });
     }
     SecondPlayerFrameRef.current = requestAnimationFrame(sendPlayerMovesSecondPlayer);
   };
-  
-  // Reload frame when key is pressed and clean when destroyed
+
+  // Gestion des frames pour les mouvements
   useEffect(() => {
     if (pressedKeysPlayerOne) {
       PlayerOneFrameRef.current = requestAnimationFrame(sendPlayerMovesPlayerOne);
     } else {
-      cancelAnimationFrame(PlayerOneFrameRef.current);}
+      cancelAnimationFrame(PlayerOneFrameRef.current);
+    }
     return () => {
       cancelAnimationFrame(PlayerOneFrameRef.current);
     };
-  }, [pressedKeysPlayerOne]);
+  }, [pressedKeysPlayerOne, webSocketClient]);
 
   useEffect(() => {
     if (pressedKeysSecondPlayer) {
@@ -84,9 +76,9 @@ const Gameplay = ({ gameState, InitGame }) => {
     return () => {
       cancelAnimationFrame(SecondPlayerFrameRef.current);
     };
-  }, [pressedKeysSecondPlayer]);
+  }, [pressedKeysSecondPlayer, webSocketClient]);
 
-  // Canvas initialization
+  // Initialisation du canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas) {
@@ -94,65 +86,23 @@ const Gameplay = ({ gameState, InitGame }) => {
       canvas.height = 400;
     }
 
-    // add event function handlers for key presses
     window.addEventListener("keydown", handleKeyDownPlayers);
     window.addEventListener("keyup", handleKeyUpPlayers);
 
-    // Cleanup on unmount or when dependencies change
     return () => {
       window.removeEventListener("keydown", handleKeyDownPlayers);
       window.removeEventListener("keyup", handleKeyUpPlayers);
     };
-  }, []);
+  }, [webSocketClient, gameMode]);
 
-  // Handle game drawing
+  // Rendu du jeu
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
 
-    const renderPlayerOne = (ctx) => {
-      if (gameState && gameState.jugadores && gameState.jugadores.izq) {
-        ctx.fillStyle = "white";
-        ctx.fillRect(
-          gameState.jugadores.izq.x,
-          gameState.jugadores.izq.y,
-          10,
-          100
-        );
-      }
-    };
-    
-    const renderPlayerTwo = (ctx) => {
-      if (gameState && gameState.jugadores && gameState.jugadores.der) {
-        ctx.fillStyle = "white";
-        ctx.fillRect(
-          gameState.jugadores.der.x,
-          gameState.jugadores.der.y,
-          10,
-          100
-        );
-      }
-    };
-
-    // const drawBall = (ctx) => {
-    //   if (gameState && gameState.pelota) {
-    //     ctx.beginPath();
-    //     ctx.arc(gameState.pelota.x, gameState.pelota.y, 5, 0, Math.PI * 2);
-    //     ctx.fill();
-    //   }
-    // }
-
-    // const drawScores = (ctx) => {
-    //   if (gameState && gameState.jugadores) {
-    //     ctx.font = "24px Arial";
-    //     ctx.fillText(`${gameState.jugadores.izq.score || 0}`, canvas.width / 4, 50);
-    //     ctx.fillText(`${gameState.jugadores.der.score || 0}`, (3 * canvas.width) / 4, 50);
-    //   }
-    // }
-
     const render = () => {
-      // board
+      // Board
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -164,36 +114,88 @@ const Gameplay = ({ gameState, InitGame }) => {
       ctx.moveTo(canvas.width / 2, 0);
       ctx.lineTo(canvas.width / 2, canvas.height);
       ctx.stroke();
+      ctx.setLineDash([]);
 
-      renderPlayerOne(ctx);
-      renderPlayerTwo(ctx);
+      // Vérifier si le jeu est actif
+      if (gameMode === "remote" && (!gameState || !gameState.game_active)) {
+        ctx.fillStyle = "white";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Waiting for second player...", canvas.width / 2, canvas.height / 2);
+        GameFrameRef.current = requestAnimationFrame(render);
+        return;
+      }
 
-      if (gameState && gameState.jugadores && gameState.pelota) {
-        ctx.beginPath();
-        ctx.arc(gameState.pelota.x, gameState.pelota.y, 5, 0, Math.PI * 2);
-        ctx.fill();
+      // Check if game has ended
+      if (gameState && gameState.game_active === false) {
+        setGameEnded(true);
+        ctx.fillStyle = "white";
+        ctx.font = "30px Arial";
+        ctx.textAlign = "center";
+        ctx.fillText("Game Over!", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.fillText(
+          `Final Score: ${gameState.jugadores.izq.score} - ${gameState.jugadores.der.score}`,
+          canvas.width / 2,
+          canvas.height / 2 + 20
+        );
+        return;
+      }
 
+      // Render players and ball if gameState exists
+      if (gameState && gameState.jugadores) {
+        console.log("Rendering game state with jugadores:", gameState);
+
+        // Player 1 (left)
+        ctx.fillStyle = "white";
+        ctx.fillRect(
+          gameState.jugadores.izq.x,
+          gameState.jugadores.izq.y,
+          10,
+          100
+        );
+
+        // Player 2 (right)
+        ctx.fillRect(
+          gameState.jugadores.der.x,
+          gameState.jugadores.der.y,
+          10,
+          100
+        );
+
+        // Ball
+        if (gameState.pelota) {
+          ctx.beginPath();
+          ctx.arc(gameState.pelota.x, gameState.pelota.y, 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Scores
         ctx.font = "24px Arial";
         ctx.fillText(`${gameState.jugadores.izq.score || 0}`, canvas.width / 4, 50);
         ctx.fillText(`${gameState.jugadores.der.score || 0}`, (3 * canvas.width) / 4, 50);
+      } else {
+        console.log("No jugadores in game state:", gameState);
       }
 
+      GameFrameRef.current = requestAnimationFrame(render);
     };
 
     GameFrameRef.current = requestAnimationFrame(render);
     return () => cancelAnimationFrame(GameFrameRef.current);
-  }, [gameState]);
+  }, [gameState, gameMode]);
 
-  // <PlayOrStopBtn/>
-  //<button onClick={() => {setGameMode(null)}}>Return to menu </button>
-  //<span className='m-4'>Game Mode: {gameMode}</span>
   return (
     <div className="gameplay-container">
-      <div className="game-header">
-        <ReturnToMenu InitGame={InitGame}/>
-      </div>
+      <button onClick={() => InitGame(null)} disabled={gameEnded}>
+        Menu
+      </button>
       <canvas ref={canvasRef} className="game-canvas" />
       <p>Game State: {gameState ? JSON.stringify(gameState) : "Waiting for game data..."}</p>
+      {gameEnded && (
+        <div>
+          <p>Game has ended! Click "Menu" to return.</p>
+        </div>
+      )}
     </div>
   );
 };

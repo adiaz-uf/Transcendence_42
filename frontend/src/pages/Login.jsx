@@ -58,7 +58,7 @@ export default function Login({route}) {
 
 		const encodedRedirectUri = encodeURIComponent(redirectUri);
 		const authUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodedRedirectUri}&response_type=code&scope=public&state=${state}`;
-		console.log("authUrl complète:", authUrl);
+		console.log("authUrl full:", authUrl);
 
 		window.location.href = authUrl;
     };

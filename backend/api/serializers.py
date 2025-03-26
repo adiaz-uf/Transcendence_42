@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserProfile, Tournament, Match
+from .models import UserProfile, Tournament, Match, Team
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,17 +30,22 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         return super().update(instance, validated_data)
 
-class TournamentSerializer(serializers.ModelSerializer):
+class TeamSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Tournament
-        fields = '__all__'
+        model = Team
+        fields = ['id', 'name', 'player1_id', 'player2_id']
 
 class MatchSerializer(serializers.ModelSerializer):
+    team_left = TeamSerializer()
+    team_right = TeamSerializer()
     class Meta:
         model = Match
-        fields = '__all__'
+        fields = ['id', 'team_left', 'team_right', 'winner']
 
-class MatchesPlayedSerializer(serializers.Serializer):
-    matches_played = serializers.IntegerField()
+class TournamentSerializer(serializers.ModelSerializer):
+    teams = TeamSerializer(many=True, read_only=True)
+    class Meta:
+        model = Tournament
+        fields = ['id', 'name', 'teams']
 
         

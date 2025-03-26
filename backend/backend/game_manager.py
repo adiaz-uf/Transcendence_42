@@ -1,47 +1,56 @@
 import uuid
+from .game import PongGame
 
 class GameManager:
     def __init__(self):
-        self.games = {}  # List active games
-        self.players = {}  # Add a player to a game
+        self.games = {}  # Dictionnaire pour stocker les joueurs par game_id
+        self.players = {}  # Associer un joueur à un game_id
+        self.game_instances = {}  # Stocker les instances de PongGame par game_id
+        self.game_modes = {}  # Stocker le mode de jeu par game_id
 
-    def create_game(self):
-        game_id = str(uuid.uuid4())
-        self.games[game_id] = {
-            "players": [],
-            "ball": {"x": 50, "y": 50, "vx": 5, "vy": 5},
-            "paddles": {"player1": 40, "player2": 40},
-            "scores": {"player1": 0, "player2": 0}
-        }
+    def add_player_to_game(self, player_id, game_id, game_mode="remote"):
+        # Stocker le mode de jeu
+        if game_id not in self.game_modes:
+            self.game_modes[game_id] = game_mode
+
+        # En mode local, un seul joueur est nécessaire
+        if self.game_modes[game_id] == "local":
+            if game_id not in self.games:
+                self.games[game_id] = []
+                self.game_instances[game_id] = PongGame()
+            if player_id not in self.games[game_id]:
+                self.games[game_id].append(player_id)
+                self.players[player_id] = game_id
+            return game_id
+
+        # En mode remote, limiter à 2 joueurs
+        if game_id in self.games and len(self.games[game_id]) >= 2:
+            return None  # Retourner None si le jeu est déjà plein
+
+        if game_id not in self.games:
+            self.games[game_id] = []
+            self.game_instances[game_id] = PongGame()
+
+        if player_id not in self.games[game_id]:
+            self.games[game_id].append(player_id)
+            self.players[player_id] = game_id
         return game_id
 
-    def add_player_to_game(self, player_id):
-        for game_id, game in self.games.items():
-            if len(game["players"]) < 2:
-                game["players"].append(player_id)
-                self.players[player_id] = game_id
-                return game_id
-
-        new_game_id = self.create_game()
-        self.games[new_game_id]["players"].append(player_id)
-        self.players[player_id] = new_game_id
-        return new_game_id
-
-    def remove_player(self, player_id):
-        if player_id in self.players:
-            game_id = self.players[player_id]
-            self.games[game_id]["players"].remove(player_id)
+    def remove_player(self, player_id, game_id):
+        if player_id in self.players and game_id in self.games:
+            self.games[game_id].remove(player_id)
             del self.players[player_id]
-
-            if len(self.games[game_id]["players"]) == 0:
+            if len(self.games[game_id]) == 0:
                 del self.games[game_id]
+                del self.game_instances[game_id]
+                if game_id in self.game_modes:
+                    del self.game_modes[game_id]
+        return self.games.get(game_id, [])
 
-    def update_paddle(self, game_id, player_id, move):
-        if game_id in self.games:
-            player = "player1" if self.games[game_id]["players"][0] == player_id else "player2"
-            if move == "up":
-                self.games[game_id]["paddles"][player] = max(0, self.games[game_id]["paddles"][player] - 5)
-            elif move == "down":
-                self.games[game_id]["paddles"][player] = min(100, self.games[game_id]["paddles"][player] + 5)
+    def get_game_instance(self, game_id):
+        return self.game_instances.get(game_id)
+
+    def get_game_mode(self, game_id):
+        return self.game_modes.get(game_id, "remote")
 
 game_manager = GameManager()
