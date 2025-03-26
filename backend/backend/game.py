@@ -6,7 +6,8 @@ class PongGame:
     def __init__(self, width=900, height=700):
         self.width = width
         self.height = height
-        self.speed_pelota = 11
+        self.speed_pelota = 12
+        self.max_score = 10
         self.reset_game()
 
     def get_gameState(self):
@@ -72,11 +73,11 @@ class PongGame:
 
         #Puntos
         if self.pelota['x'] <= 0:
-            self.jugadores['der']['score'] += 1
-            self.reset_pelota('der')
-        elif self.pelota['x'] >= self.width:
             self.jugadores['izq']['score'] += 1
             self.reset_pelota('izq')
+        elif self.pelota['x'] >= self.width:
+            self.jugadores['der']['score'] += 1
+            self.reset_pelota('der')
 
     def check_pelota_paddle_collision(self, paddle):
         return (
@@ -89,7 +90,11 @@ class PongGame:
     def reset_pelota(self, scoring_side):
         self.pelota['x'] = self.width / 2
         self.pelota['y'] = self.height / 2
-        self.pelota['dx'] = (self.speed_pelota) if scoring_side == 'left' else -(self.speed_pelota)
+        self.pelota['dx'] = (self.speed_pelota) if scoring_side == 'izq' else -(self.speed_pelota)
         self.pelota['dy'] = random.choice([-(self.speed_pelota), (self.speed_pelota)])
 
 
+    def endGame(self):
+        if self.jugadores['izq']['score'] == self.max_score or self.jugadores['der']['score'] == self.max_score:
+            self.game_active = False
+        
