@@ -15,7 +15,7 @@ services:
       - django-admin:/app/staticfiles
     ports:
       - "${BACKEND_PORT}:8000"
-    command: sh -c "/app/init.sh"
+        #command: sh -c "/app/init.sh"
     networks:
       - transcendence_net
 
@@ -66,10 +66,7 @@ services:
       - transcendence_net
 
   nginx:
-    build: 
-      context: ./nginx 
-      dockerfile: Dockerfile
-      
+    image: nginx:latest
     container_name: pong_nginx
     restart: always
     depends_on:
