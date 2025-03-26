@@ -6,7 +6,7 @@ class PongGame:
     def __init__(self, width=900, height=700):
         self.width = width
         self.height = height
-        self.speed_pelota = 12
+        self.speed_pelota = 3
         self.max_score = 10
         self.reset_game()
 
