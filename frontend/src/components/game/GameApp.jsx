@@ -25,9 +25,9 @@ const GameApp = () => {
   const [showModal, setShowModal] = useState(false);
   const [gameState, setGameState] = useState({
     game_active: true,
-    // Estado Jugadores
-    jugadores: {
-        'izq': {
+    // Estado players
+    players: {
+        'left': {
             'x': 10,
             'y': 150,
             'width': 15,
@@ -35,7 +35,7 @@ const GameApp = () => {
             'speed': 5,
             'score': 0
         },
-        'der': {
+        'right': {
             'x': 880,
             'y': 150,
             'width': 15,
@@ -44,13 +44,13 @@ const GameApp = () => {
             'score': 0
         }
     },
-    // Estado Pelota
-    pelota: {
+    // Estado ball
+    ball: {
         'x': 400,
         'y': 200,
         'radio': 5,
-        'dx': 11,
-        'dy': -11
+        'rx': 11,
+        'ry': -11
     }
   });
 
@@ -61,21 +61,21 @@ const GameApp = () => {
       setGameState((prevState) => ({
         ...prevState,
         ...gameUpdate,
-        jugadores: {
-          ...prevState.jugadores,
-          ...gameUpdate.jugadores, // Merge jugadores if updated
-          izq: {
-            ...prevState.jugadores.izq,
-            ...(gameUpdate.jugadores?.izq || {}), // Merge izq if updated
+        players: {
+          ...prevState.players,
+          ...gameUpdate.players, // Merge players if updated
+          left: {
+            ...prevState.players.left,
+            ...(gameUpdate.players?.left || {}), // Merge left if updated
           },
-          der: {
-            ...prevState.jugadores.der,
-            ...(gameUpdate.jugadores?.der || {}), // Merge der if updated
+          right: {
+            ...prevState.players.right,
+            ...(gameUpdate.players?.right || {}), // Merge right if updated
           },
         },
-        pelota: {
-          ...prevState.pelota,
-          ...(gameUpdate.pelota || {}), // Merge pelota if updated
+        ball: {
+          ...prevState.ball,
+          ...(gameUpdate.ball || {}), // Merge ball if updated
         },
       }));
     });
@@ -94,7 +94,7 @@ const GameApp = () => {
       webSocketClient.close()
     } else {
 
-      await createLocalMatch()
+    //   await createLocalMatch()
       webSocketClient.connect()
       StateLinkerGameWebSocket(setGameState)
     }
