@@ -168,7 +168,8 @@ const Gameplay = ({ gameState, InitGame }) => {
       renderPlayerOne(ctx);
       renderPlayerTwo(ctx);
 
-      if (gameState && gameState.jugadores && gameState.pelota) {
+      if (gameState && gameState.pelota) {
+        console.log("AAAAAAAAAAAAAAAAAAAAA", gameState, gameState.pelota);
         ctx.beginPath();
         ctx.arc(gameState.pelota.x, gameState.pelota.y, 5, 0, Math.PI * 2);
         ctx.fill();
