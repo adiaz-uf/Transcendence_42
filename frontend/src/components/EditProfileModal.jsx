@@ -28,7 +28,7 @@ export default function EditProfileModal({ showModal, handleCloseModal,
               placeholder="Enter your username"
             />
           </Form.Group>
-          <Form.Group controlId="formUsername">
+          <Form.Group controlId="formPassword" >
             <Form.Label>New Password (blank for the old)</Form.Label>
             <Form.Control
               type="password"
