@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import webSocketClient from "../websocket";
+import webSocketClient from "./websocket";
 
 //TODO: Upgrade to a play or stop game but not closing conection by returning to menu
 const ReturnToMenu = ({InitGame}) => {
