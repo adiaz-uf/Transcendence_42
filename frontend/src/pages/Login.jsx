@@ -6,8 +6,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 
-/*{ handleSubmit, ...props }*/
-export default function Login({route}) {
+export default function Login() {
 
 	const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -24,7 +23,7 @@ export default function Login({route}) {
         try {
 			if (username === "" || password === "")
 				throw new Error("Please enter all the fields");
-            const res = await api.post(route, { 
+            const res = await api.post("/api/user/login/", { 
 				username,
 				password,
 				...(requires2FA && { code })
@@ -74,7 +73,12 @@ export default function Login({route}) {
             })
             .then(response => {
                 const username = response.data.username; 
-                localStorage.setItem("username", username); 
+                //localStorage.setItem("user_id", username);
+				// localStorage.setItem("auth", JSON.stringify({
+				// 	access_token: response.access_token,
+				// 	refresh_token: response.refresh_token,
+				// 	user: response.user
+				// }));
                 navigate("/");
             })
             .catch(error => {
@@ -84,71 +88,70 @@ export default function Login({route}) {
         }
     }, [location, navigate]);
 
-
     return (
-		<div className='login-container'>
-			<h1 className='header'>Welcome to pong!</h1>
-			<h1 className='header'>Login to play</h1>
-			<div className='login-wrapper'>
-				<div className='login-form-container'>
-					<Form onSubmit={handleSubmit}>
-						<Form.Group id='username' className='mb-4'>
-							<Form.Control
-								type='text'
-								value={username}
-								name='Username'
-								placeholder='Username'
-								onChange={(e) => setUsername(e.target.value)}
-							/>
-						</Form.Group>
-						<Form.Group id='password' className='mb-4'>
-							<Form.Control
-								type='password'
-								value={password}
-								name='Password'
-								placeholder='Password'
-								onChange={(e) => setPassword(e.target.value)}
-							/>
-						</Form.Group>
-						{requires2FA && (
-							<Form.Group id='code' className='mb-4'>
+			<div className='login-container'>
+				<h1 className='header'>Welcome to pong!</h1>
+				<h1 className='header'>Login to play</h1>
+				<div className='login-wrapper'>
+					<div className='login-form-container'>
+						<Form onSubmit={handleSubmit}>
+							<Form.Group id='username' className='mb-4'>
 								<Form.Control
 									type='text'
-									value={code}
-									name='Code'
-									placeholder='2FA Code'
-									onChange={(e) => setCode(e.target.value)}
+									value={username}
+									name='Username'
+									placeholder='Username'
+									onChange={(e) => setUsername(e.target.value)}
 								/>
 							</Form.Group>
-						)}
-						<Button id='form-login-button' className='w-100' type='submit'>
-							{loading ? <Spinner animation="border" size="sm" /> : 'Login'}
-						</Button>
-						<Button
-							id='form-login-button'
-							className='signin42-button w-100 mt-4'
-							type='button'
-							onClick={handle42Login}
-						>
-							{loading ? (
-								<Spinner animation="border" size="sm" />
-							) : (
-								<>
-									Sign in with <Image src="42_logo.svg" width={'10%'} />
-								</>
+							<Form.Group id='password' className='mb-4'>
+								<Form.Control
+									type='password'
+									value={password}
+									name='Password'
+									placeholder='Password'
+									onChange={(e) => setPassword(e.target.value)}
+								/>
+							</Form.Group>
+							{requires2FA && (
+								<Form.Group id='code' className='mb-4'>
+									<Form.Control
+										type='text'
+										value={code}
+										name='Code'
+										placeholder='2FA Code'
+										onChange={(e) => setCode(e.target.value)}
+									/>
+								</Form.Group>
 							)}
-						</Button>
-						<div className='login-register-container'>
-							<Form.FloatingLabel>Dont have an account?</Form.FloatingLabel>
-							<Link to="/register" className='w-50'>
-								<Button id='form-login-button' className='w-100'>
-									Register
-								</Button>
-                			</Link>
-						</div>
-					</Form>
+							<Button id='form-login-button' className='w-100' type='submit'>
+								{loading ? <Spinner animation="border" size="sm" /> : 'Login'}
+							</Button>
+							<Button
+								id='form-login-button'
+								className='signin42-button w-100 mt-4'
+								type='button'
+								onClick={handle42Login}
+							>
+								{loading ? (
+									<Spinner animation="border" size="sm" />
+								) : (
+									<>
+										Sign in with <Image src="42_logo.svg" width={'10%'} />
+									</>
+								)}
+							</Button>
+							<div className='login-register-container'>
+								<Form.FloatingLabel>Dont have an account?</Form.FloatingLabel>
+								<Link to="/register" className='w-50'>
+									<Button id='form-login-button' className='w-100'>
+										Register
+									</Button>
+								</Link>
+							</div>
+						</Form>
+					</div>
 				</div>
 			</div>
-		</div>
     );
 }
