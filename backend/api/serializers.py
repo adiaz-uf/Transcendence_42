@@ -6,13 +6,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = UserProfile
 #These are all the fields which will be serialized when accepting and/or returning a user
         fields = [ 
-            "id"
+            "id",
             "email", 
             "username", 
             "last_active",
             "password",
-            "localmatches",
-            "onlinematches",
             "is_42user",
             "is_2fa_enabled",
             "totp_secret"]
@@ -40,12 +38,12 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
         # Si la contraseña es proporcionada, la actualizamos
         if password:
-            instance.set_password(password)
+            self.password = password
         if username:
-            instance.set_username(username)
+            self.username = username
         if email:
-            instance.set_email(email)
-        return super().update(instance, validated_data)
+            self.email = email
+        #return super.update
 
 # Tournament Serializer with nested relationships
 class TournamentSerializer(serializers.ModelSerializer):

@@ -5,13 +5,13 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import *
 
 urlpatterns = [
-    path("user/login/", LoginView.as_view(), name='login'),
-    path("user/register/", CreateUserView.as_view(), name='register'),
-    path("user/profile/", ProfileView.as_view(), name='profile'),
-    path("user/refresh/", TokenRefreshView.as_view(), name='refresh'),
+    path('user/login/', LoginView.as_view(), name='login'),
+    path('user/register/', CreateUserView.as_view(), name='register'),
+    path('user/profile/', ProfileView.as_view(), name='profile'),
+    path('user/refresh/', TokenRefreshView.as_view(), name='refresh'),
 
-    path("setup-2fa/", Setup2FAView.as_view(), name='setup2fa'),
-    path("auth/42/callback/", FTAuthCallbackView.as_view(), name='ft_callback'),
+    path('setup-2fa/', Setup2FAView.as_view(), name='setup2fa'),
+    path('auth/42/callback/', FTAuthCallbackView.as_view(), name='ft_callback'),
 
     # Matches
     path('matches/local/', MatchCreationView.as_view(), name='match-list'),
@@ -29,8 +29,8 @@ urlpatterns = [
 
     # path('user/matches-played/', MatchesPlayedView.as_view(), name='matches-played'),
     # path('user/matches-won/', MatchesWonView.as_view(), name='matches-won'),
-    # path("tournament/", CreateTournamentView.as_view(), name="tournament"),
-    # path("match/", CreateMatchView.as_view(), name="match")
+    # path('tournament/', CreateTournamentView.as_view(), name='tournament'),
+    # path('match/', CreateMatchView.as_view(), name='match')
 ]
 
 
