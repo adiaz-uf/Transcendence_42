@@ -1,5 +1,10 @@
 from rest_framework import serializers
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth import get_user_model
 from .models import UserProfile, Tournament, Match, GoalStat
+
+CurrentUser = get_user_model()
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,22 +33,36 @@ class UserSerializer(serializers.ModelSerializer):
 # Segunda representaci'on de la info del usuario para otro endpoint
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserProfile
+        model = CurrentUser
         fields = ["email", "username", "password"]
+        extra_kwargs = {
+            "password": {"write_only": True, "required": False},  # Password shouldn't be readable
+            "email": {"required": False},
+            "username": {"required": False},
+        }
+
+    def validate_password(self, value):
+        """Ensure password is strong enough (optional)."""
+        if len(value) < 8:
+            raise serializers.ValidationError("Password must be at least 8 characters long.")
+        return value
 
     def update(self, instance, validated_data):
-        email = validated_data.pop('email', None)
-        username = validated_data.pop('username', None)
-        password = validated_data.pop('password', None)
+        """Update user profile details safely."""
+        
+        # Update fields if provided
+        if "email" in validated_data:
+            instance.email = validated_data["email"]
 
-        # Si la contraseña es proporcionada, la actualizamos
-        if password:
-            self.password = password
-        if username:
-            self.username = username
-        if email:
-            self.email = email
-        #return super.update
+        if "username" in validated_data:
+            instance.username = validated_data["username"]
+
+        if "password" in validated_data:
+            instance.password = make_password(validated_data["password"])  # Hash the password
+        
+        instance.save()  # Save the updated instance
+        return instance
+
 
 # Tournament Serializer with nested relationships
 class TournamentSerializer(serializers.ModelSerializer):

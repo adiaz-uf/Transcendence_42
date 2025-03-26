@@ -3,7 +3,10 @@ from django.contrib.auth import authenticate, login
 from django.db import connection
 from django.http import HttpResponseRedirect, JsonResponse
 from rest_framework import generics, status
+
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -85,7 +88,8 @@ class CreateUserView(generics.CreateAPIView):
 #   model: UserProfile 
 #   serializer: UserProfileUpdateSerializer
 class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]  # Asegura que el usuario esté autenticado
+    authentication_classes = [JWTAuthentication]  # Ensures JWT is used
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user  # Obtiene el usuario autenticado
@@ -128,15 +132,13 @@ class LoginView(generics.CreateAPIView):
                     return Response({'error': 'Code 2FA invalide'}, status=400)
                 return Response({'message': 'Code 2FA requis'}, status=206)
             else:
-                login(request, user)    
+                login(request, user)
                 refresh = RefreshToken.for_user(user)
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
                 })
         return Response({'error': 'Identifiants invalides'}, status=401)
-
-
 
 #------------------------------------MAtches views -----------------------------------------
 
