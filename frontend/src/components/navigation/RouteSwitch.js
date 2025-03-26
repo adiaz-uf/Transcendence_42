@@ -23,8 +23,9 @@ export default function RouterSwitch() {
         <BrowserRouter>
             <Routes>
 					<Route path ='/' element ={ <Home/> }/>
-					<Route path="/login" element={<Login/>} />
+					<Route path="/login" element={<Login route='/api/user/login/' />} />
 					<Route path ='/register' element ={<RegisterAndLogout/>}/>
+		  			<Route path="/login/callback" element={<Login route='/api/user/login/' />} />
 					<Route path="/logout" element={<Logout />} />
 					<Route path ='/setup-2fa' element={<Setup2FA />} />
 					<Route path ='/profile' element ={<Profile/>}/>

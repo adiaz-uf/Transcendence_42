@@ -133,7 +133,6 @@ class LoginView(generics.CreateAPIView):
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
-                    'id': str(id),
                 })
         return Response({'error': 'Identifiants invalides'}, status=401)
 
