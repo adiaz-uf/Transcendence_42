@@ -65,7 +65,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         
         while self.game.game_active:
             self.game.update_pelota()
-
+            self.game.endGame()
             await self.send(json.dumps({"pelota":self.game.pelota}))
 
             await asyncio.sleep(0.06)  # 60ms delay for smooth updates
