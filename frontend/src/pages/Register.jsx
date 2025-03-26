@@ -87,7 +87,7 @@ export default function Register({route}) {
                                     onChange={(e) => setRepeatPassword(e.target.value)}
                                 />
                             </Form.Group>
-                            <Button id='form-login-button' className='mt-3 w-100' type='submit'>
+                            <Button className='mt-3 w-100' type='submit'>
                                 {loading ? (
                                     <>
                                         <Spinner animation="border" size="sm" />
