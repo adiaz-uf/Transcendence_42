@@ -3,11 +3,12 @@ import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import { ACCESS_TOKEN } from "../constants"; 
 import '../styles/profile.css';
-import NavBar from '../components/Navbar';
+import NavBar from '../components/navigation/Navbar';
 import Stat from '../components/Stat';
 import Alert from '../components/Alert';
 import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
+
 
 export default function Profile() {
   const [name, setName] = useState('');

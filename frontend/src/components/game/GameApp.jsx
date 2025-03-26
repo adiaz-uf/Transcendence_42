@@ -1,11 +1,23 @@
 import React, { useCallback, useEffect, useState} from "react";
 import Gameplay from "./Gameplay";
-import webSocketClient from "../websocket";
-
+import webSocketClient from "./websocket";
+import api from "../../api";
 import Menu from "./Menu";
-
 import InvitePlayer from "./InvitePlayerModal";
 
+const createLocalMatch = async () => {
+  const token = localStorage.getItem("access_token");
+  try {
+      const response = await api.post(
+          "/matches/local/",
+          { headers: { Authorization: `Bearer ${token}` } }
+      );
+      console.log(response.data)
+      return response.data;
+  } catch (error) {
+      console.error("Match creation failed:", error);
+  }
+};
 
 // Componente Padre, guarda estado de selecion de juego y conexion websocket
 const GameApp = () => {
@@ -69,7 +81,7 @@ const GameApp = () => {
     });
   });
 
-  const InitGame = (mode) => {
+  const InitGame = async(mode) => {
 
     setGameMode(mode);
     if (mode === null)
@@ -81,19 +93,14 @@ const GameApp = () => {
       webSocketClient.sendMessage({'type':'game_active', 'game_active':false})
       webSocketClient.close()
     } else {
-      // setGameState(prevState => ({
-      //   ...prevState,
-      //   game_active: true,
-      // }));
+
+      await createLocalMatch()
       webSocketClient.connect()
       StateLinkerGameWebSocket(setGameState)
     }
   };
 
-  const handleCloseModal = () => setShowModal(false);
-
   return (
-
     <div className="game-container">
       {gameMode === null ? 
       (<Menu onGameModeSelect={InitGame}/>) :
