@@ -188,7 +188,6 @@ class Setup2FAView(APIView):
                 return Response({'message': '2FA successfully enabled'})
             return Response({'error': 'Invalid code for activation'}, status=400)
 
-
 def get_or_create_user(user_data):
     """Crée ou récupère un utilisateur à partir des données de 42."""
     username = user_data['login']
@@ -259,3 +258,14 @@ class FTAuthCallbackView(APIView):
         redirect_url = f"{callback_uri}?access={refresh.access_token}"
         logger.info(f"Redirecting to: {redirect_url}")
         return HttpResponseRedirect(redirect_url)
+
+class CheckUsernameView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, username, format=None):
+        try:
+            # Verifica si el usuario existe en la base de datos
+            user = UserProfile.objects.get(username=username)
+            return Response({"exists": True}, status=status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            return Response({"exists": False}, status=status.HTTP_404_NOT_FOUND)

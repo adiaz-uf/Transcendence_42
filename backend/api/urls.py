@@ -6,4 +6,5 @@ urlpatterns = [
     path("tournament/", views.CreateTournamentView.as_view(), name="tournament"),
     path("match/", views.CreateMatchView.as_view(), name="match"),
     path("auth/42/callback/", views.FTAuthCallbackView.as_view(), name="ft_callback"),
+     path("check_username/<str:username>/", views.CheckUsernameView.as_view(), name="check_username"),
 ]
