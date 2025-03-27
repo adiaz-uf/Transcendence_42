@@ -87,6 +87,8 @@ class CreateUserView(generics.CreateAPIView):
 # UPDATE Profile VIEW:  for modifying account
 #   model: UserProfile 
 #   serializer: UserProfileUpdateSerializer
+
+
 class ProfileView(APIView):
     authentication_classes = [JWTAuthentication]  # Ensures JWT is used
     permission_classes = [IsAuthenticated]
@@ -96,7 +98,7 @@ class ProfileView(APIView):
         serializer = UserSerializer(user)  # Serialize user object
         return Response(serializer.data)  # Get serialized user object
 
-    def post(self, request):
+    def patch(self, request):
         user = request.user
         serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)
         
@@ -104,7 +106,7 @@ class ProfileView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        
 # LOGIN VIEW: for logging into the account
 #   model: UserProfile 
 #   serializer: Userserializer
