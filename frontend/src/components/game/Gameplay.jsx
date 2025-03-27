@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import webSocketClient from "../websocket";
+import webSocketClient from "./websocket";
 
 //TODO: Upgrade to a play or stop game but not closing conection by returning to menu
 const ReturnToMenu = ({InitGame}) => {
@@ -139,8 +139,8 @@ const Gameplay = ({ gameState, InitGame }) => {
         ctx.fillRect(
           gameState.jugadores.izq.x,
           gameState.jugadores.izq.y,
-          15,
-          115
+          gameState.jugadores.izq.width,
+          gameState.jugadores.izq.height,
         );
       }
     };
@@ -151,27 +151,11 @@ const Gameplay = ({ gameState, InitGame }) => {
         ctx.fillRect(
           gameState.jugadores.der.x,
           gameState.jugadores.der.y,
-          15,
-          115
+          gameState.jugadores.der.width,
+          gameState.jugadores.der.height,
         );
       }
     };
-
-    // const drawBall = (ctx) => {
-    //   if (gameState && gameState.pelota) {
-    //     ctx.beginPath();
-    //     ctx.arc(gameState.pelota.x, gameState.pelota.y, 5, 0, Math.PI * 2);
-    //     ctx.fill();
-    //   }
-    // }
-
-    // const drawScores = (ctx) => {
-    //   if (gameState && gameState.jugadores) {
-    //     ctx.font = "24px Arial";
-    //     ctx.fillText(`${gameState.jugadores.izq.score || 0}`, canvas.width / 4, 50);
-    //     ctx.fillText(`${gameState.jugadores.der.score || 0}`, (3 * canvas.width) / 4, 50);
-    //   }
-    // }
 
     const render = () => {
       // board
@@ -193,7 +177,7 @@ const Gameplay = ({ gameState, InitGame }) => {
       if (gameState && gameState.pelota) {
         console.log("AAAAAAAAAAAAAAAAAAAAA", gameState, gameState.pelota);
         ctx.beginPath();
-        ctx.arc(gameState.pelota.x, gameState.pelota.y, 5, 0, Math.PI * 2);
+        ctx.arc(gameState.pelota.x, gameState.pelota.y, gameState.pelota.radio, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.font = "24px Arial";

@@ -12,10 +12,10 @@ services:
     depends_on:
       - db
     volumes:
-      - ./backend/static:/app/backend/static
+      - django-admin:/app/staticfiles
     ports:
       - "${BACKEND_PORT}:8000"
-    command: sh -c "/app/init.sh"
+        #command: sh -c "/app/init.sh"
     networks:
       - transcendence_net
 
@@ -78,13 +78,14 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/ssl/certs
-      - ./backend/static:/app/backend/static
+      - django-admin:/app/staticfiles
     networks:
       - transcendence_net
 
 volumes:
   pgdata:
   pgadmin_data:
+  django-admin:
 
 networks:
   transcendence_net:

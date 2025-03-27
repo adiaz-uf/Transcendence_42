@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import RouteSwitch from "./components/RouteSwitch"
+import RouteSwitch from "./components/navigation/RouteSwitch"
 import './index.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 

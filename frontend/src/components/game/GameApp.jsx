@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import Gameplay from "./Gameplay";
-import webSocketClient from "../websocket";
+import webSocketClient from "./websocket";
+import api from "../../api";
 import Menu from "./Menu";
 import InvitePlayer from "./InvitePlayerModal";
 import Login from "../../pages/Login";  // Asegúrate de importar el componente Login

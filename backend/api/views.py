@@ -9,6 +9,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from io import BytesIO
+from django.shortcuts import get_object_or_404
+import json
 import json
 import base64
 import qrcode
@@ -17,19 +19,71 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# DB TABLES
+from .models import (
+    Tournament, 
+    Match, 
+    UserProfile,
+    GoalStat)
+
+# TABLES SERIALIZERS
+import logging
+
+logger = logging.getLogger(__name__)
+
 from .models import Tournament, Match, UserProfile
 from .serializers import (
     UserSerializer,
+    UserProfileUpdateSerializer,
+
     TournamentSerializer,
     MatchSerializer,
-    UserProfileUpdateSerializer,
+    GoalStatSerializer,
 )
 
-class CreateUserView(generics.ListCreateAPIView):
-    queryset = UserProfile.objects.all()
+
+#CLASS BASED VIEWS: (Remember List)
+# CreateAPIView (POST only)
+# ListAPIView (GET only)
+# RetrieveAPIView (GET single object)
+# UpdateAPIView (PUT/PATCH only)
+# DestroyAPIView (DELETE only)
+# ListCreateAPIView (GET + POST)
+# RetrieveUpdateAPIView (GET + PUT/PATCH)
+# RetrieveDestroyAPIView (GET + DELETE)
+# RetrieveUpdateDestroyAPIView (GET + PUT/PATCH + DELETE)
+# ViewSets (for automatic URL routing): ViewSet, ModelViewSet, ReadOnlyModelViewSet
+
+#Main diff between this confusing 3 requests.
+# Method | Purpose	                  Updates Existing?	 Creates New?	Replaces Entire Object?	Partial Update?
+# POST	 | Create a new resource	        ❌ No	    ✅ Yes	        ❌ No	            ❌ No
+# PUT	 | Fully update/replace a resource	✅ Yes	    ✅ Yes (if ID not required)✅ Yes	    ❌ No
+# PATCH	 | Partially update a resource 	    ✅ Yes	    ❌ No	        ❌ No	            ✅ Yes
+
+#    For more info about Objects in Django, i recomnend
+# python3 manage.py shell
+# from rest_framework import generics, serializers, permissions, authentication, views
+
+# print(dir(generics))  # Lists all generic views
+# print(dir(serializers))  # Lists all serializer classes
+# print(dir(permissions))  # Lists all permission classes
+# print(dir(authentication))  # Lists authentication classes
+# print(dir(views))  # Lists APIView and related base classes
+
+
+
+#------------------------------ USER VIEWS (with output serializers from model) --------------------------
+
+# REGISTER VIEW: for registering process
+#   model: UserProfile 
+#   serializer: Userserializer
+class CreateUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
+# UPDATE Profile VIEW:  for modifying account
+#   model: UserProfile 
+#   serializer: UserProfileUpdateSerializer
 class ProfileView(APIView):
     permission_classes = [IsAuthenticated]  # Asegura que el usuario esté autenticado
 
@@ -37,11 +91,8 @@ class ProfileView(APIView):
         user = request.user  # Obtiene el usuario autenticado
         serializer = UserSerializer(user)  # Serializa los datos del usuario
         return Response(serializer.data)  # Devuelve los datos serializados
-    
-class ProfileUpdateView(APIView):
-    permission_classes = [IsAuthenticated]
 
-    def patch(self, request):
+    def post(self, request):
         user = request.user
         serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)
         
@@ -50,74 +101,17 @@ class ProfileUpdateView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CreateTournamentView(generics.CreateAPIView):
-    serializer_class = TournamentSerializer
-    queryset = Tournament.objects.all()
-    permission_classes = [AllowAny]
-
-
-class CreateMatchView(generics.CreateAPIView):
-    serializer_class = MatchSerializer
-    queryset = Match.objects.all()
-    permission_classes = [AllowAny]
-
-class MatchesPlayedView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-
-        # Definir la consulta SQL
-        query = """
-            SELECT COUNT(*)
-            FROM match m
-            JOIN team t1 ON m.team_left_id = t1.id
-            JOIN team t2 ON m.team_right_id = t2.id
-            WHERE t1.player1_id_id = %s OR t1.player2_id_id = %s
-            OR t2.player1_id_id = %s OR t2.player2_id_id = %s;
-        """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [user.id, user.id, user.id, user.id])
-            result = cursor.fetchone()  
-        
-        return Response({"matches_played": result[0]})
-
-class MatchesWonView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-
-        # Definir la consulta SQL para contar los partidos ganados por el usuario
-        query = """
-            SELECT COUNT(*)
-            FROM match m
-            JOIN team t1 ON m.team_left_id = t1.id
-            JOIN team t2 ON m.team_right_id = t2.id
-            WHERE (
-                (t1.player1_id_id = %s OR t1.player2_id_id = %s)
-                AND m.left_score > m.right_score
-            ) 
-            OR
-            (
-                (t2.player1_id_id = %s OR t2.player2_id_id = %s)
-                AND m.right_score > m.left_score
-            );
-        """
-        with connection.cursor() as cursor:
-            cursor.execute(query, [user.id, user.id, user.id, user.id])
-            result = cursor.fetchone()
-        
-        return Response({"matches_won": result[0] if result[0] is not None else 0})
-
-class LoginView(APIView):
+# LOGIN VIEW: for logging into the account
+#   model: UserProfile 
+#   serializer: Userserializer
+class LoginView(generics.CreateAPIView):
+    serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(request, username=username, password=password)
-
         if user is not None:
             if user.is_2fa_enabled:
                 code = request.data.get('code')
@@ -125,20 +119,160 @@ class LoginView(APIView):
                     device = TOTPDevice.objects.filter(user=user, name='default').first()
                     if device and device.verify_token(code):
                         refresh = RefreshToken.for_user(user)
+                        login(request, user)
                         return Response({
                             'refresh': str(refresh),
                             'access': str(refresh.access_token),
+                            'id': str(id),
                         })
                     return Response({'error': 'Code 2FA invalide'}, status=400)
                 return Response({'message': 'Code 2FA requis'}, status=206)
             else:
+                login(request, user)    
                 refresh = RefreshToken.for_user(user)
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
+                    'id': str(id),
                 })
         return Response({'error': 'Identifiants invalides'}, status=401)
 
+
+
+#------------------------------------MAtches views -----------------------------------------
+
+# CreateAPIView (POST only)
+# ListAPIView (GET only)
+# RetrieveAPIView (GET single object)
+# UpdateAPIView (PUT/PATCH only)
+# DestroyAPIView (DELETE only)
+# ListCreateAPIView (GET + POST)
+# RetrieveUpdateAPIView (GET + PUT/PATCH)
+# RetrieveDestroyAPIView (GET + DELETE)
+# RetrieveUpdateDestroyAPIView (GET + PUT/PATCH + DELETE)
+
+class MatchCreationView(generics.CreateAPIView):
+    serializer_class = MatchSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        """
+        Override perform_create to set the match host (player_left).
+        """
+        # Save the match
+        serializer.save(player_left=None,
+                        player_right=None,
+                        match_duration=0, 
+                        left_score=0,
+                        right_score=0)
+
+class MatchScoreUpdateView(generics.UpdateAPIView):
+    """
+    Updates only the match score.
+    """
+    queryset = Match.objects.all() # Allow to use primary key on Url
+    serializer_class = MatchSerializer
+
+    def update(self, request, *args, **kwargs):
+        """
+        Override update method to restrict updates to only scores.
+        """
+        match = self.get_object()  # Fetch the match instance
+        data = request.data  # Get request data
+
+        # Allow updating only score fields
+        match.left_score = data.get("left_score", match.left_score)
+        match.right_score = data.get("right_score", match.right_score)
+        match.save()
+
+        return Response(
+            {"message": "Scores updated successfully!", "match": MatchSerializer(match).data},
+            status=status.HTTP_200_OK
+        )
+    
+class UserMatchListView(generics.ListAPIView):
+    serializer_class = MatchSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Returns all matches linked to the authenticated user.
+        """
+        return Match.objects.filter(
+            player_left=self.request.user
+        ) | Match.objects.filter(
+            player_right=self.request.user
+        )
+
+    
+# class MatchesPlayedView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+
+#         # Definir la consulta SQL
+#         query = """
+#             SELECT COUNT(*)
+#             FROM match m
+#             JOIN team t1 ON m.team_left_id = t1.id
+#             JOIN team t2 ON m.team_right_id = t2.id
+#             WHERE t1.player1_id_id = %s OR t1.player2_id_id = %s
+#             OR t2.player1_id_id = %s OR t2.player2_id_id = %s;
+#         """
+#         with connection.cursor() as cursor:
+#             cursor.execute(query, [user.id, user.id, user.id, user.id])
+#             result = cursor.fetchone()  
+        
+#         return Response({"matches_played": result[0]})
+
+# class MatchesWonView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+
+#         # Definir la consulta SQL para contar los partidos ganados por el usuario
+#         query = """
+#             SELECT COUNT(*)
+#             FROM match m
+#             JOIN team t1 ON m.team_left_id = t1.id
+#             JOIN team t2 ON m.team_right_id = t2.id
+#             WHERE (
+#                 (t1.player1_id_id = %s OR t1.player2_id_id = %s)
+#                 AND m.left_score > m.right_score
+#             ) 
+#             OR
+#             (
+#                 (t2.player1_id_id = %s OR t2.player2_id_id = %s)
+#                 AND m.right_score > m.left_score
+#             );
+#         """
+#         with connection.cursor() as cursor:
+#             cursor.execute(query, [user.id, user.id, user.id, user.id])
+#             result = cursor.fetchone()
+        
+#         return Response({"matches_won": result[0] if result[0] is not None else 0})
+
+# ---------------------------------------------- Tournaments --------------------------------------------------------------
+
+
+
+class CreateTournamentView(generics.CreateAPIView):
+    serializer_class = TournamentSerializer
+    queryset = Tournament.objects.all()
+    permission_classes = [AllowAny]
+
+class CreateMatchView(generics.CreateAPIView):
+    serializer_class = MatchSerializer
+    queryset = Match.objects.all()
+    permission_classes = [AllowAny]
+
+
+# ---------------------------------------------- Stats --------------------------------------------------------------
+
+
+# ---------------------------------------------- 2FA --------------------------------------------------------------
 
 class Setup2FAView(APIView):
     permission_classes = [IsAuthenticated]
@@ -188,16 +322,22 @@ class Setup2FAView(APIView):
                 return Response({'message': '2FA successfully enabled'})
             return Response({'error': 'Invalid code for activation'}, status=400)
 
+
+
+
+
+# ---------------------------------------------- 42 api for auth --------------------------------------------------------------
+
+
 def get_or_create_user(user_data):
     """Crée ou récupère un utilisateur à partir des données de 42."""
+    print("Received user_data from 42: ", user_data)
     username = user_data['login']
     email = user_data['email']
     user, created = UserProfile.objects.get_or_create(
         username=username,
         defaults={
             'email': email,
-            'given_name': user_data['displayname'].split()[0],
-            'surname': ' '.join(user_data['displayname'].split()[1:]) or '',
             'is_42user': True,
         }
     )

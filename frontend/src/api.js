@@ -4,7 +4,12 @@ import { ACCESS_TOKEN } from "./constants";
 /* const apiUrl = "/choreo-apis/awbo/backend/rest-api-be2/v1.0"; */
 
 const api = axios.create({
-  baseURL: `${window.location.origin}`,
+  baseURL:`${window.location.origin}`,
+  timeout: 500, 
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
+  }
 });
 
 api.interceptors.request.use(
