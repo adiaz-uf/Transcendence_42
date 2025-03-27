@@ -27,7 +27,7 @@ from .models import (
     Tournament, 
     Match, 
     UserProfile,
-    GoalStat)
+    UserStat)
 
 # TABLES SERIALIZERS
 import logging
@@ -41,7 +41,7 @@ from .serializers import (
 
     TournamentSerializer,
     MatchSerializer,
-    GoalStatSerializer,
+    UserStatSerializer,
 )
 
 
@@ -92,9 +92,9 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user  # Obtiene el usuario autenticado
-        serializer = UserSerializer(user)  # Serializa los datos del usuario
-        return Response(serializer.data)  # Devuelve los datos serializados
+        user = request.user  # Get the authentified user
+        serializer = UserSerializer(user)  # Serialize user object
+        return Response(serializer.data)  # Get serialized user object
 
     def post(self, request):
         user = request.user
@@ -331,7 +331,7 @@ class Setup2FAView(APIView):
 
 
 def get_or_create_user(user_data):
-    """Crée ou récupère un utilisateur à partir des données de 42."""
+    """Create or get a user from 42 database."""
     print("Received user_data from 42: ", user_data)
     username = user_data['login']
     email = user_data['email']
@@ -361,7 +361,6 @@ class FTAuthCallbackView(APIView):
         redirect_uri = state_data.get('redirect_uri')
         logger.info(f"Retrieved redirect_uri from state: {redirect_uri}")
 
-        # Échange du code contre un access_token
         token_url = "https://api.intra.42.fr/oauth/token"
         payload = {
             'grant_type': 'authorization_code',
@@ -380,7 +379,7 @@ class FTAuthCallbackView(APIView):
         token_data = response.json()
         access_token = token_data.get('access_token')
 
-        # Récupération des infos utilisateur
+        # Get user info
         user_info_url = "https://api.intra.42.fr/v2/me"
         headers = {'Authorization': f'Bearer {access_token}'}
         user_response = requests.get(user_info_url, headers=headers)
@@ -390,11 +389,11 @@ class FTAuthCallbackView(APIView):
         user_data = user_response.json()
         user = get_or_create_user(user_data)
 
-        # Connexion de l'utilisateur
+        # Connect user
         login(request, user)
         refresh = RefreshToken.for_user(user)
 
-        # Redirection vers le frontend
+        # Redirect to frontend
         callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
         redirect_url = f"{callback_uri}?access={refresh.access_token}"
         logger.info(f"Redirecting to: {redirect_url}")

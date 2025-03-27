@@ -3,6 +3,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from .models import UserProfile, Tournament, Match, GoalStat
 
+
 CurrentUser = get_user_model()
 
 
@@ -30,7 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
         )       #This data is then stored in a user and returned, this def is created in CustomUserManager
         return user
 
-# Segunda representaci'on de la info del usuario para otro endpoint
+# Secondary Representation of UserProfile 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CurrentUser
@@ -75,16 +76,16 @@ class TournamentSerializer(serializers.ModelSerializer):
         model = Tournament
         fields = '__all__'
 
-# explicitamente los miembros 
+# Match Serializer
 class MatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
         fields = '__all__'
 
 # Goal Statistics Serializer
-class GoalStatSerializer(serializers.ModelSerializer):
+class UserStatSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GoalStat
+        model = UserStat
         fields = '__all__'
 
         
