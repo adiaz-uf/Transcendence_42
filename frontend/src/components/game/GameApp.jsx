@@ -8,9 +8,8 @@ import Login from "../../pages/Login";  // Asegúrate de importar el componente 
 
 // Componente Padre, guarda estado de selección de juego y conexión websocket
 const GameApp = () => {
-  const [gameMode, setGameMode] = useState(null);
+  const [gameMode, setGameMode] = useState(null); // Guardará el modo seleccionado (local o online)
   const [showModal, setShowModal] = useState(false); // Controla el estado del modal
-  const [selectedMode, setSelectedMode] = useState(null); // Guardará el modo seleccionado (local o online)
   const [showLogin, setShowLogin] = useState(false); // Controla la visibilidad del Login
   const [gameState, setGameState] = useState({
     game_active: true,
@@ -82,17 +81,17 @@ const GameApp = () => {
 
   const handleCloseModal = () => {
     setShowModal(false); // Cierra el modal
-    InitGame(selectedMode); // Inicia el juego con el modo seleccionado
+    InitGame(gameMode); // Inicia el juego con el modo seleccionado
   };
 
   const handleGameModeSelect = (mode) => {
-    setSelectedMode(mode); // Guarda el modo seleccionado (local o online)
+    setGameMode(mode); // Guarda el modo seleccionado (local o online)
     setShowModal(true); // Muestra el modal
   };
 
   const handleLoginSuccess = () => {
     setShowLogin(false); // Oculta el login después de un inicio de sesión exitoso
-    InitGame(selectedMode); // Inicia el juego después del login
+    InitGame(gameMode); // Inicia el juego después del login
   };
 
   return (
@@ -107,7 +106,7 @@ const GameApp = () => {
       <InvitePlayer 
         showModal={showModal} 
         handleCloseModal={handleCloseModal}
-        gameMode={selectedMode} // Pasa el modo de juego al modal
+        gameMode={gameMode} // Pasa el modo de juego al modal
         setShowLogin={setShowLogin} // Pasa la función para mostrar el login
       />
 
