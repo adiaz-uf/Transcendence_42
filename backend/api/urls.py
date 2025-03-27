@@ -5,6 +5,10 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from .views import *
 
 urlpatterns = [
+    path("tournament/", CreateTournamentView.as_view(), name="tournament"),
+    path("match/", CreateMatchView.as_view(), name="match"),
+    path("auth/42/callback/", FTAuthCallbackView.as_view(), name="ft_callback"),
+    path("check_username/<str:username>/", CheckUsernameView.as_view(), name="check_username"),
     path("user/login/", LoginView.as_view(), name='login'),
     path("user/register/", CreateUserView.as_view(), name='register'),
     path("user/profile/", ProfileView.as_view(), name='profile'),

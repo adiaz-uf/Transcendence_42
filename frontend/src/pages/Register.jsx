@@ -11,6 +11,8 @@ export default function Register({route}) {
     const [password, setPassword] = useState("");
 	const [repeatpassword, setRepeatPassword] = useState("");
 	const [email, setEmail] = useState("");
+	const [given_name, setGivenName] = useState("");
+	const [surname, setSurname] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -18,13 +20,11 @@ export default function Register({route}) {
         setLoading(true);
         e.preventDefault();
         try {
-            if (username === "" || email === "" || password === "" || repeatpassword === "")
+            if (username === "" || email === "" || given_name === "" || surname === "" || password === "" || repeatpassword === "")
                 throw new Error("Please enter all the fields");
             if (password !== repeatpassword)
                 throw new Error("Passwords must be the same!");
-            
-            await api.post(route, { username, password, email });
-            
+            await api.post(route, { username, password, email, given_name, surname });
             navigate("/login");
         } catch (error) {
             alert(error.response?.data?.detail || error.message);
@@ -62,9 +62,29 @@ export default function Register({route}) {
                                     placeholder='Username'
                                     onChange={(e) => setUsername(e.target.value)}
                                 />
-                            </Form.Group>   
+                            </Form.Group>
+                            <Form.Group id='given_name' className='mb-3 w-100'>
+                                <Form.Label>Given Name</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    value={given_name}
+                                    name='given_name'
+                                    placeholder='Given Name'
+                                    onChange={(e) => setGivenName(e.target.value)}
+                                />
+                            </Form.Group>
                         </div>
                         <div className='register-register-container'>
+                            <Form.Group id='surname' className='mb-3 w-100'>
+                                <Form.Label>Surname</Form.Label>
+                                <Form.Control
+                                    type='text'
+                                    value={surname}
+                                    name='surname'
+                                    placeholder='Surname'
+                                    onChange={(e) => setSurname(e.target.value)}
+                                />
+                            </Form.Group>
                             <Form.Group id='newpassword' className='mb-3 w-100'>
                                 <Form.Label>New Password</Form.Label>
                                 <Form.Control

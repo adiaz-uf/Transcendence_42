@@ -1,4 +1,4 @@
-FROM python:3.13-alpine
+FROM python:3.10-alpine
 
 RUN apk add --no-cache postgresql-client netcat-openbsd
 

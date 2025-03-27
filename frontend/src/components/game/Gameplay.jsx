@@ -49,7 +49,7 @@ const Gameplay = ({ gameState, InitGame }) => {
   const sendPlayerMovesPlayerOne = () => {
     if (pressedKeysPlayerOne) {
       webSocketClient.sendPlayerMove({
-        izq: pressedKeysPlayerOne === "w" ? "up" : "down",
+        left: pressedKeysPlayerOne === "w" ? "up" : "down",
       });
     }
     PlayerOneFrameRef.current = requestAnimationFrame(sendPlayerMovesPlayerOne);
@@ -58,7 +58,7 @@ const Gameplay = ({ gameState, InitGame }) => {
   const sendPlayerMovesSecondPlayer = () => {
     if (pressedKeysSecondPlayer) {
       webSocketClient.sendPlayerMove({
-        der: pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down",
+        right: pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down",
       });
     }
     SecondPlayerFrameRef.current = requestAnimationFrame(sendPlayerMovesSecondPlayer);
@@ -105,27 +105,27 @@ const Gameplay = ({ gameState, InitGame }) => {
     };
   }, []);
 
-  useEffect(() => {
-    // Escucha de eventos de WebSocket para goles
-    webSocketClient.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
+//   useEffect(() => {
+//     // Escucha de eventos de WebSocket para goles
+//     webSocketClient.socket.onmessage = (event) => {
+//       const data = JSON.parse(event.data);
 
-      // Cuando se recibe el mensaje de un gol
-      if (data.type === "goal") {
-        const updatedGameState = { ...gameState };
-        updatedGameState.jugadores.izq.score = data.izq_score;  // Actualiza puntaje de la izquierda
-        updatedGameState.jugadores.der.score = data.der_score;  // Actualiza puntaje de la derecha
-        InitGame(updatedGameState);  // Actualiza el estado del juego
-      }
-    };
+//       // Cuando se recibe el mensaje de un gol
+//       if (data.type === "goal") {
+//         const updatedGameState = { ...gameState };
+//         updatedGameState.players.left.score = data.left_score;  // Actualiza puntaje de la leftuierda
+//         updatedGameState.players.right.score = data.der_score;  // Actualiza puntaje de la derecha
+//         InitGame(updatedGameState);  // Actualiza el estado del juego
+//       }
+//     };
 
-    return () => {
-      // Cleanup cuando el componente se desmonte
-      if (webSocketClient.socket) {
-        webSocketClient.socket.onmessage = null;
-      }
-    };
-  }, [gameState, InitGame]);
+//     return () => {
+//       // Cleanup cuando el componente se desmonte
+//       if (webSocketClient.socket) {
+//         webSocketClient.socket.onmessage = null;
+//       }
+//     };
+//   }, [gameState, InitGame]);
 
   // Handle game drawing
   useEffect(() => {
@@ -134,25 +134,25 @@ const Gameplay = ({ gameState, InitGame }) => {
     const ctx = canvas.getContext("2d");
 
     const renderPlayerOne = (ctx) => {
-      if (gameState && gameState.jugadores && gameState.jugadores.izq) {
+      if (gameState && gameState.players && gameState.players.left) {
         ctx.fillStyle = "white";
         ctx.fillRect(
-          gameState.jugadores.izq.x,
-          gameState.jugadores.izq.y,
-          gameState.jugadores.izq.width,
-          gameState.jugadores.izq.height,
+          gameState.players.left.x,
+          gameState.players.left.y,
+          gameState.players.left.width,
+          gameState.players.left.height,
         );
       }
     };
     
     const renderPlayerTwo = (ctx) => {
-      if (gameState && gameState.jugadores && gameState.jugadores.der) {
+      if (gameState && gameState.players && gameState.players.right) {
         ctx.fillStyle = "white";
         ctx.fillRect(
-          gameState.jugadores.der.x,
-          gameState.jugadores.der.y,
-          gameState.jugadores.der.width,
-          gameState.jugadores.der.height,
+          gameState.players.right.x,
+          gameState.players.right.y,
+          gameState.players.right.width,
+          gameState.players.right.height,
         );
       }
     };
@@ -174,15 +174,14 @@ const Gameplay = ({ gameState, InitGame }) => {
       renderPlayerOne(ctx);
       renderPlayerTwo(ctx);
 
-      if (gameState && gameState.pelota) {
-        console.log("AAAAAAAAAAAAAAAAAAAAA", gameState, gameState.pelota);
+      if (gameState && gameState.ball) {
         ctx.beginPath();
-        ctx.arc(gameState.pelota.x, gameState.pelota.y, gameState.pelota.radio, 0, Math.PI * 2);
+        ctx.arc(gameState.ball.x, gameState.ball.y, gameState.ball.radio, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.font = "24px Arial";
-        ctx.fillText(`${gameState.jugadores.izq.score || 0}`, canvas.width / 4, 50);
-        ctx.fillText(`${gameState.jugadores.der.score || 0}`, (3 * canvas.width) / 4, 50);
+        ctx.fillText(`${gameState.players.right.score || 0}`, canvas.width / 4, 50);
+        ctx.fillText(`${gameState.players.left.score || 0}`, (3 * canvas.width) / 4, 50);
       }
 
     };

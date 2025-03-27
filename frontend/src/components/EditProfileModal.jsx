@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 
-export default function EditProfileModal({ showModal, handleCloseModal, newName, setNewName, 
+export default function EditProfileModal({ showModal, handleCloseModal,
   newEmail, setNewEmail, newUsername, newPassword, setNewPassword, setNewUsername, handleChangeData }) {
   return (
     <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal">
@@ -10,15 +10,6 @@ export default function EditProfileModal({ showModal, handleCloseModal, newName,
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleChangeData}>
-          <Form.Group controlId="formName">
-            <Form.Label>Name</Form.Label>
-            <Form.Control
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="Enter your name"
-            />
-          </Form.Group>
           <Form.Group controlId="formEmail">
             <Form.Label>Email</Form.Label>
             <Form.Control
