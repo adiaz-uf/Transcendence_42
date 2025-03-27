@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
-import axios from 'axios';
+import api from '../api';
 import { ACCESS_TOKEN } from "../constants"; 
 import '../styles/profile.css';
 import NavBar from '../components/navigation/Navbar';
@@ -28,7 +28,7 @@ export default function Profile() {
   const [qrCode, setQrCode] = useState('');
   const [secret, setSecret] = useState('');
   const [twoFACode, setTwoFACode] = useState('');
-
+  setNewUsername
   const [newName, setNewName] = useState(name);
   const [newEmail, setNewEmail] = useState(email);
   const [newUsername, setNewUsername] = useState(username);
@@ -63,7 +63,7 @@ export default function Profile() {
 
   const fetchProfileData = async () => {
     try {
-      const response = await axios.get('/api/user/profile/', {
+      const response = await api.get('/api/user/profile/', {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       const { username, email, given_name, surname, is_42user } = response.data;
@@ -74,19 +74,19 @@ export default function Profile() {
       setNewEmail(email);
       setNewUsername(username);
       setIs42user(is_42user);
-      
+      localStorage.setItem("username", username);
       //    // Number of matches played by user
-      //    const matchesResponse = await axios.get('/api/user/matches-played/', {
+      //    const matchesResponse = await api.get('/api/user/matches-played/', {
         //      headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
         //    });
 //    setMatchesPlayed(matchesResponse.data.matches_played); 
 //
-//    const matchesWonResponse = await axios.get('/api/user/matches-won/', {
+//    const matchesWonResponse = await api.get('/api/user/matches-won/', {
   //      headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
   //    });
   //    setMatchesWon(matchesWonResponse.data.matches_won); 
   //
-  const twoFAResponse = await axios.get('/api/setup-2fa/', {
+  const twoFAResponse = await api.get('/api/setup-2fa/', {
     headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
     });
     setIs2FAEnabled(twoFAResponse.data.is_2fa_enabled);
@@ -109,7 +109,7 @@ export default function Profile() {
       updatedData.password = newPassword;
     }
     try {
-      const response = await axios.patch('/api/user/profile/update/', updatedData, {
+      const response = await api.patch('/api/user/profile/', updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setName(`${response.data.given_name} ${response.data.surname}`);
@@ -125,7 +125,7 @@ export default function Profile() {
 
   const handleSetup2FA = async () => {
     try {
-      const response = await axios.get('/api/setup-2fa/', {
+      const response = await api.get('/api/setup-2fa/', {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setQrCode(response.data.qr_code);
@@ -142,7 +142,7 @@ export default function Profile() {
     e.preventDefault();
     try {
       const payload = is2FAEnabled ? { code: twoFACode, disable: true } : { code: twoFACode };
-      const response = await axios.post('/api/setup-2fa/', payload, {
+      const response = await api.post('/api/setup-2fa/', payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       alert(response.data.message);
