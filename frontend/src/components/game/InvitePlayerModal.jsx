@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Form, Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { ACCESS_TOKEN } from "../../constants"; 
@@ -7,6 +8,7 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode, setShowLogin }) =
   const [newUsername, setNewUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isInviting, setIsInviting] = useState(false);
+  const navigate = useNavigate();
 
   const handleUsernameInvite = async (e) => {
     e.preventDefault();
@@ -36,7 +38,7 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode, setShowLogin }) =
             
             if (gameMode === "local") {
                 setShowLogin(true); // Show the login if the game mode is local
-                handleCloseModal(); // Close the modal after sending the invitation
+                handleCloseModal(); // Close the modal after sending the invitatio
             } else {
                 // Here goes the logic to invite the user (e.g., send message to the server)
             }
