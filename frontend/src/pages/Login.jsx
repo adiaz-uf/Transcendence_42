@@ -4,7 +4,7 @@ import api from "../api";
 import '../styles/login.css'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-
+import MessageBox from '../components/MessageBox';
 
 export default function Login({route}) {
 
@@ -15,14 +15,20 @@ export default function Login({route}) {
 	const [requires2FA, setRequires2FA] = useState(false);
     const navigate = useNavigate();
 	const location = useLocation();
+	const [message, setMessage] = useState(null);
+    const [messageType, setMessageType] = useState('info');
 
 	const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
 
         try {
-			if (username === "" || password === "")
-				throw new Error("Please enter all the fields");
+			if (username === "" || password === ""){
+				setMessageType('info');
+				setMessage("Please enter all the fields");
+				return;
+			}
+
             const res = await api.post(route, { 
 				username,
 				password,
@@ -37,7 +43,8 @@ export default function Login({route}) {
 				navigate("/");
 			}
 		} catch (error) {
-            alert(error.response?.data?.error || error.message);
+			setMessage(error.response?.data?.message || 'Login failed');
+            setMessageType('error');
         } finally {
             setLoading(false)
         }
@@ -145,6 +152,13 @@ export default function Login({route}) {
 								</Link>
 							</div>
 						</Form>
+					{message && (
+					<MessageBox 
+						message={message}
+						type={messageType}
+						onClose={() => setMessage(null)}
+					/>
+					)}
 					</div>
 				</div>
 			</div>
