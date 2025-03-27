@@ -6,7 +6,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 
-export default function Login() {
+export default function Login({route}) {
 
 	const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -23,7 +23,7 @@ export default function Login() {
         try {
 			if (username === "" || password === "")
 				throw new Error("Please enter all the fields");
-            const res = await api.post("/api/user/login/", { 
+            const res = await api.post(route, { 
 				username,
 				password,
 				...(requires2FA && { code })
@@ -57,7 +57,7 @@ export default function Login() {
 
 		const encodedRedirectUri = encodeURIComponent(redirectUri);
 		const authUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodedRedirectUri}&response_type=code&scope=public&state=${state}`;
-		console.log("authUrl complète:", authUrl);
+		console.log("authUrl full:", authUrl);
 
 		window.location.href = authUrl;
     };
@@ -73,20 +73,16 @@ export default function Login() {
             })
             .then(response => {
                 const username = response.data.username; 
-                //localStorage.setItem("user_id", username);
-				// localStorage.setItem("auth", JSON.stringify({
-				// 	access_token: response.access_token,
-				// 	refresh_token: response.refresh_token,
-				// 	user: response.user
-				// }));
+                localStorage.setItem("username", username); 
                 navigate("/");
             })
             .catch(error => {
-                console.error("Erreur lors de la récupération du profil :", error);
+                console.error("Error with profile qwery :", error);
                 navigate("/login"); 
             });
         }
     }, [location, navigate]);
+
 
     return (
 			<div className='login-container'>

@@ -1,18 +1,22 @@
 from rest_framework import serializers
-from .models import UserProfile, Tournament, Match, UserStat
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth import get_user_model
+from .models import UserProfile, Tournament, Match, GoalStat
+
+
+CurrentUser = get_user_model()
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
 #These are all the fields which will be serialized when accepting and/or returning a user
         fields = [ 
-            "id"
+            "id",
             "email", 
             "username", 
             "last_active",
             "password",
-            "localmatches",
-            "onlinematches",
             "is_42user",
             "is_2fa_enabled",
             "totp_secret"]
@@ -30,22 +34,36 @@ class UserSerializer(serializers.ModelSerializer):
 # Secondary Representation of UserProfile 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserProfile
+        model = CurrentUser
         fields = ["email", "username", "password"]
+        extra_kwargs = {
+            "password": {"write_only": True, "required": False},  # Password shouldn't be readable
+            "email": {"required": False},
+            "username": {"required": False},
+        }
+
+    def validate_password(self, value):
+        """Ensure password is strong enough (optional)."""
+        if len(value) < 8:
+            raise serializers.ValidationError("Password must be at least 8 characters long.")
+        return value
 
     def update(self, instance, validated_data):
-        email = validated_data.pop('email', None)
-        username = validated_data.pop('username', None)
-        password = validated_data.pop('password', None)
+        """Update user profile details safely."""
+        
+        # Update fields if provided
+        if "email" in validated_data:
+            instance.email = validated_data["email"]
 
-        # If password, we modify it
-        if password:
-            instance.set_password(password)
-        if username:
-            instance.set_username(username)
-        if email:
-            instance.set_email(email)
-        return super().update(instance, validated_data)
+        if "username" in validated_data:
+            instance.username = validated_data["username"]
+
+        if "password" in validated_data:
+            instance.password = make_password(validated_data["password"])  # Hash the password
+        
+        instance.save()  # Save the updated instance
+        return instance
+
 
 # Tournament Serializer with nested relationships
 class TournamentSerializer(serializers.ModelSerializer):
