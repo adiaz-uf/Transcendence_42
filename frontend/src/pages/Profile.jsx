@@ -3,11 +3,12 @@ import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import { ACCESS_TOKEN } from "../constants"; 
 import '../styles/profile.css';
-import NavBar from '../components/Navbar';
+import NavBar from '../components/navigation/Navbar';
 import Stat from '../components/Stat';
 import Alert from '../components/Alert';
 import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
+
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -109,7 +110,7 @@ export default function Profile() {
       updatedData.password = newPassword;
     }
     try {
-      const response = await axios.patch('/api/user/profile/update/', updatedData, {
+      const response = await axios.patch('/api/user/profile/', updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setName(`${response.data.given_name} ${response.data.surname}`);
@@ -177,9 +178,11 @@ export default function Profile() {
               <h5><strong>Username:</strong> {username}</h5>
             
               <div className="profile-buttons">
+              {!is42user && ( 
                 <Button variant="primary" onClick={handleShowModal}>
                   Change Data
                 </Button>
+                )}
                 {!is42user && (   
                 <Button variant={is2FAEnabled ? "danger" : "success"} onClick={handleSetup2FA}>
                   {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
