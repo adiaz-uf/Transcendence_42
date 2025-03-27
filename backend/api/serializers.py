@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
-from .models import UserProfile, Tournament, Match, GoalStat
+from .models import UserProfile, Tournament, Match, GoalStat, UserStat
 
 
 CurrentUser = get_user_model()
