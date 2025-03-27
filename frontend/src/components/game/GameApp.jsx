@@ -14,30 +14,32 @@ const GameApp = () => {
   const [showLogin, setShowLogin] = useState(false); // Controla la visibilidad del Login
   const [gameState, setGameState] = useState({
     game_active: true,
-    jugadores: {
-      izq: {
-        x: 10,
-        y: 150,
-        width: 15,
-        height: 115,
-        speed: 5,
-        score: 0
-      },
-      der: {
-        x: 880,
-        y: 150,
-        width: 15,
-        height: 115,
-        speed: 5,
-        score: 0
-      }
+    // Estado players
+    players: {
+        'left': {
+            'x': 10,
+            'y': 150,
+            'width': 15,
+            'height': 115,
+            'speed': 5,
+            'score': 0
+        },
+        'right': {
+            'x': 880,
+            'y': 150,
+            'width': 15,
+            'height': 115,
+            'speed': 5,
+            'score': 0
+        }
     },
-    pelota: {
-      x: 400,
-      y: 200,
-      radio: 5,
-      dx: 11,
-      dy: -11
+    // Estado ball
+    ball: {
+        'x': 400,
+        'y': 200,
+        'radio': 5,
+        'rx': 11,
+        'ry': -11
     }
   });
 
@@ -47,21 +49,21 @@ const GameApp = () => {
       setGameState((prevState) => ({
         ...prevState,
         ...gameUpdate,
-        jugadores: {
-          ...prevState.jugadores,
-          ...gameUpdate.jugadores,
-          izq: {
-            ...prevState.jugadores.izq,
-            ...(gameUpdate.jugadores?.izq || {}),
+        players: {
+          ...prevState.players,
+          ...gameUpdate.players, // Merge players if updated
+          left: {
+            ...prevState.players.left,
+            ...(gameUpdate.players?.left || {}), // Merge left if updated
           },
-          der: {
-            ...prevState.jugadores.der,
-            ...(gameUpdate.jugadores?.der || {}),
+          right: {
+            ...prevState.players.right,
+            ...(gameUpdate.players?.right || {}), // Merge right if updated
           },
         },
         pelota: {
           ...prevState.pelota,
-          ...(gameUpdate.pelota || {}),
+          ...(gameUpdate.pelota || {}), // Merge pelota if updated
         },
       }));
     });

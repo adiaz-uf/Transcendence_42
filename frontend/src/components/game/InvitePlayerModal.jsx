@@ -16,36 +16,36 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode, setShowLogin }) =
     try {
         setIsInviting(true);
 
-        // Obtén el token JWT del almacenamiento local
+        // Get the JWT token from local storage
         const token = localStorage.getItem(ACCESS_TOKEN); 
 
         if (!token) {
-            setErrorMessage('No tienes sesión iniciada.');
+            setErrorMessage('You are not logged in.');
             return;
         }
 
-        // Llama a la API de Django para verificar si el nombre de usuario existe
+        // Call the Django API to check if the username exists
         const response = await axios.get(`/api/check_username/${newUsername}/`, {
             headers: {
-                Authorization: `Bearer ${token}`,  // Incluye el token JWT en el encabezado
+                Authorization: `Bearer ${token}`,  // Include the JWT token in the header
             },
         });
 
         if (response.data.exists) {
-            console.log('Usuario encontrado. Enviando invitación...');
+            console.log('User found. Sending invitation...');
             
             if (gameMode === "local") {
-                setShowLogin(true); // Muestra el login si el juego es local
-                handleCloseModal(); // Cierra el modal después de la invitación
+                setShowLogin(true); // Show the login if the game mode is local
+                handleCloseModal(); // Close the modal after sending the invitation
             } else {
-                // Aquí va la lógica para invitar al usuario (por ejemplo, enviar mensaje al servidor)
+                // Here goes the logic to invite the user (e.g., send message to the server)
             }
         }
     } catch (error) {
         if (error.response && error.response.status === 404) {
-            setErrorMessage('El nombre de usuario no existe.');
+            setErrorMessage('The username does not exist.');
         } else {
-            setErrorMessage('Hubo un error al verificar el usuario.');
+            setErrorMessage('There was an error checking the username.');
         }
     } finally {
         setIsInviting(false);

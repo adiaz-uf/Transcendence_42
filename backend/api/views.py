@@ -3,7 +3,10 @@ from django.contrib.auth import authenticate, login
 from django.db import connection
 from django.http import HttpResponseRedirect, JsonResponse
 from rest_framework import generics, status
+
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -24,7 +27,7 @@ from .models import (
     Tournament, 
     Match, 
     UserProfile,
-    GoalStat)
+    UserStat)
 
 # TABLES SERIALIZERS
 import logging
@@ -38,7 +41,7 @@ from .serializers import (
 
     TournamentSerializer,
     MatchSerializer,
-    GoalStatSerializer,
+    UserStatSerializer,
 )
 
 
@@ -84,15 +87,18 @@ class CreateUserView(generics.CreateAPIView):
 # UPDATE Profile VIEW:  for modifying account
 #   model: UserProfile 
 #   serializer: UserProfileUpdateSerializer
+
+
 class ProfileView(APIView):
-    permission_classes = [IsAuthenticated]  # Asegura que el usuario esté autenticado
+    authentication_classes = [JWTAuthentication]  # Ensures JWT is used
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user  # Obtiene el usuario autenticado
-        serializer = UserSerializer(user)  # Serializa los datos del usuario
-        return Response(serializer.data)  # Devuelve los datos serializados
+        user = request.user  # Get the authentified user
+        serializer = UserSerializer(user)  # Serialize user object
+        return Response(serializer.data)  # Get serialized user object
 
-    def post(self, request):
+    def patch(self, request):
         user = request.user
         serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)
         
@@ -100,7 +106,7 @@ class ProfileView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        
 # LOGIN VIEW: for logging into the account
 #   model: UserProfile 
 #   serializer: Userserializer
@@ -128,16 +134,13 @@ class LoginView(generics.CreateAPIView):
                     return Response({'error': 'Code 2FA invalide'}, status=400)
                 return Response({'message': 'Code 2FA requis'}, status=206)
             else:
-                login(request, user)    
+                login(request, user)
                 refresh = RefreshToken.for_user(user)
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
-                    'id': str(id),
                 })
         return Response({'error': 'Identifiants invalides'}, status=401)
-
-
 
 #------------------------------------MAtches views -----------------------------------------
 
@@ -330,7 +333,7 @@ class Setup2FAView(APIView):
 
 
 def get_or_create_user(user_data):
-    """Crée ou récupère un utilisateur à partir des données de 42."""
+    """Create or get a user from 42 database."""
     print("Received user_data from 42: ", user_data)
     username = user_data['login']
     email = user_data['email']
@@ -339,6 +342,8 @@ def get_or_create_user(user_data):
         defaults={
             'email': email,
             'is_42user': True,
+            'given_name': user_data['displayname'].split()[0],
+            'surname': ' '.join(user_data['displayname'].split()[1:]) or '',
         }
     )
     return user
@@ -360,7 +365,6 @@ class FTAuthCallbackView(APIView):
         redirect_uri = state_data.get('redirect_uri')
         logger.info(f"Retrieved redirect_uri from state: {redirect_uri}")
 
-        # Échange du code contre un access_token
         token_url = "https://api.intra.42.fr/oauth/token"
         payload = {
             'grant_type': 'authorization_code',
@@ -379,7 +383,7 @@ class FTAuthCallbackView(APIView):
         token_data = response.json()
         access_token = token_data.get('access_token')
 
-        # Récupération des infos utilisateur
+        # Get user info
         user_info_url = "https://api.intra.42.fr/v2/me"
         headers = {'Authorization': f'Bearer {access_token}'}
         user_response = requests.get(user_info_url, headers=headers)
@@ -389,11 +393,11 @@ class FTAuthCallbackView(APIView):
         user_data = user_response.json()
         user = get_or_create_user(user_data)
 
-        # Connexion de l'utilisateur
+        # Connect user
         login(request, user)
         refresh = RefreshToken.for_user(user)
 
-        # Redirection vers le frontend
+        # Redirect to frontend
         callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
         redirect_url = f"{callback_uri}?access={refresh.access_token}"
         logger.info(f"Redirecting to: {redirect_url}")
