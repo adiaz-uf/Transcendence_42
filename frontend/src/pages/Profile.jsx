@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
-import api from '../api';
+import axios from 'axios';
 import { ACCESS_TOKEN } from "../constants"; 
 import '../styles/profile.css';
 import NavBar from '../components/navigation/Navbar';
@@ -8,7 +8,6 @@ import Stat from '../components/Stat';
 import Alert from '../components/Alert';
 import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
-
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -30,6 +29,7 @@ export default function Profile() {
   const [secret, setSecret] = useState('');
   const [twoFACode, setTwoFACode] = useState('');
 
+  const [newName, setNewName] = useState(name);
   const [newEmail, setNewEmail] = useState(email);
   const [newUsername, setNewUsername] = useState(username);
   const [newPassword, setNewPassword] = useState('');
@@ -63,59 +63,59 @@ export default function Profile() {
 
   const fetchProfileData = async () => {
     try {
-      const response = await api.get('/api/user/profile/', {
+      const response = await axios.get('/api/user/profile/', {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-      console.log("GET - /api/user/profile/ returned:", response.data)
-      const { id,
-        email, 
-        username, 
-        last_active,
-        password,
-        is_42user,
-        is_2fa_enabled,
-        totp_secret} = response.data;
+      const { username, email, given_name, surname, is_42user } = response.data;
       setUsername(username);
       setEmail(email);
+      setName(`${given_name} ${surname}`);
+      setNewName(`${given_name} ${surname}`);
+      setNewEmail(email);
+      setNewUsername(username);
       setIs42user(is_42user);
-      setIs2FAEnabled(is_2fa_enabled);
-      setLoading(false);
-
-      // // Number of matches played by user
-      // const matchesResponse = await api.get('/api/user/matches-played/', {
-      //   headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      // });
-      // setMatchesPlayed(matchesResponse.data.matches_played); 
-
-      // const matchesWonResponse = await api.get('/api/user/matches-won/', {
-      //   headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      // });
-      // setMatchesWon(matchesWonResponse.data.matches_won); 
-
-      // const twoFAResponse = await api.get('/api/setup-2fa/',{
-      //   headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      // });
-      // console.log("2FA response", twoFAResponse)
-    } catch (err) {
-      setError('Error fetching profile data');
-      setLoading(false);
-    }
+      
+      //    // Number of matches played by user
+      //    const matchesResponse = await axios.get('/api/user/matches-played/', {
+        //      headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+        //    });
+//    setMatchesPlayed(matchesResponse.data.matches_played); 
+//
+//    const matchesWonResponse = await axios.get('/api/user/matches-won/', {
+  //      headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+  //    });
+  //    setMatchesWon(matchesWonResponse.data.matches_won); 
+  //
+  const twoFAResponse = await axios.get('/api/setup-2fa/', {
+    headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+    });
+    setIs2FAEnabled(twoFAResponse.data.is_2fa_enabled);
+    setLoading(false);
+      } catch (err) {
+        setError('Error fetching profile data');
+        setLoading(false);
+      }
   };
 
   const handleChangeData = async (e) => {
     e.preventDefault();
     const updatedData = {
+      given_name: newName.split(' ')[0],
+      surname: newName.split(' ')[1] || '',
       email: newEmail,
-      username: newUsername
+      username: newUsername,
     };
     if (newPassword) {
       updatedData.password = newPassword;
     }
     try {
-      const response = await api.post('/api/user/profile/', updatedData, {
+      const response = await axios.patch('/api/user/profile/update/', updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-      console.log("Sent new Profile data: ", response.data)
+      setName(`${response.data.given_name} ${response.data.surname}`);
+      setEmail(response.data.email);
+      setUsername(response.data.username);
+      setPassword(newPassword);
       handleCloseModal();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -125,7 +125,7 @@ export default function Profile() {
 
   const handleSetup2FA = async () => {
     try {
-      const response = await api.get('/api/setup-2fa/', {
+      const response = await axios.get('/api/setup-2fa/', {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setQrCode(response.data.qr_code);
@@ -142,7 +142,7 @@ export default function Profile() {
     e.preventDefault();
     try {
       const payload = is2FAEnabled ? { code: twoFACode, disable: true } : { code: twoFACode };
-      const response = await api.post('/api/setup-2fa/', payload, {
+      const response = await axios.post('/api/setup-2fa/', payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       alert(response.data.message);
@@ -154,27 +154,11 @@ export default function Profile() {
     }
   };
 
-  const getAvatarLetter = (username) => {
-    if (is42user)
-        return 42;
-    else
-      return username.charAt(0).toUpperCase()
-  };
+  const getAvatarLetter = (name) => name.charAt(0).toUpperCase();
 
   useEffect(() => {
     fetchProfileData();
-  }, [username, email, is42user]);
-
-  // const twoFAButton = () => {
-  //     if (!is42user)
-  //     {
-  //       return (
-  //       <Button variant={is2FAEnabled ? "danger" : "success"} onClick={handleSetup2FA}>
-  //         {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
-  //       </Button>);
-  //     }
-  //     return null
-  // };
+  }, []);
 
   if (loading) return <div>Loading...</div>;
 /*   if (error) return <div><NavBar></NavBar><div className='app-body'>{error}</div></div>; */
@@ -184,12 +168,14 @@ export default function Profile() {
       <NavBar />
       <div className='profile-body'>
         <div className="profile-container">
-          <div className="avatar">{getAvatarLetter(username)}</div>
+          <div className="avatar">{getAvatarLetter(name)}</div>
           <div className="profile-info">
             <div className="profile-details">
               <h1>Profile Details</h1>
+              <h5><strong>Name:</strong> {name}</h5>
               <h5><strong>Email:</strong> {email}</h5>
               <h5><strong>Username:</strong> {username}</h5>
+            
               <div className="profile-buttons">
                 <Button variant="primary" onClick={handleShowModal}>
                   Change Data
@@ -207,13 +193,15 @@ export default function Profile() {
         <EditProfileModal 
           showModal={showModal} 
           handleCloseModal={() => setShowModal(false)} 
+          newName={newName} 
+          setNewName={setNewName} 
           newEmail={newEmail} 
           setNewEmail={setNewEmail} 
           newUsername={newUsername} 
           setNewUsername={setNewUsername} 
+          handleChangeData={handleChangeData} 
           setNewPassword={setNewPassword}
           newPassword={newPassword}
-          handleChangeData={handleChangeData} 
         />
         <TwoFAModal 
           show2FAModal={show2FAModal} 

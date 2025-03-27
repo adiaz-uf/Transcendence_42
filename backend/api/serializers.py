@@ -10,11 +10,12 @@ CurrentUser = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-#These are all the fields which will be serialized when accepting and/or returning a user
         fields = [ 
             "id",
             "email", 
             "username", 
+            "given_name", 
+            "surname",
             "last_active",
             "password",
             "is_42user",
@@ -22,11 +23,13 @@ class UserSerializer(serializers.ModelSerializer):
             "totp_secret"]
         extra_kwargs = {"password": {"write_only": True}}       #Write only means this field wont be returned and cant be read be users
         
-    def create(self, validated_data):                           #This will be called when creaing a user. validated data is sent via JSON and contains the fields created above
+    def create(self, validated_data):                       
         user = UserProfile.objects.create_user(
             username=validated_data["username"],
             password=validated_data["password"],
             email=validated_data.get("email", ""),
+            given_name=validated_data.get("given_name", ""),
+            surname=validated_data.get("surname", ""),
             is_42user=validated_data.get("is_42user", False)
         )       #This data is then stored in a user and returned, this def is created in CustomUserManager
         return user
@@ -35,20 +38,15 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CurrentUser
-        fields = ["email", "username", "password"]
+        fields = ["email", "username", "given_name", "surname", "password"]
         extra_kwargs = {
             "password": {"write_only": True, "required": False},  # Password shouldn't be readable
             "email": {"required": False},
             "username": {"required": False},
         }
 
-    def validate_password(self, value):
-        """Ensure password is strong enough (optional)."""
-        if len(value) < 8:
-            raise serializers.ValidationError("Password must be at least 8 characters long.")
-        return value
-
     def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
         """Update user profile details safely."""
         
         # Update fields if provided
@@ -59,7 +57,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             instance.username = validated_data["username"]
 
         if "password" in validated_data:
-            instance.password = make_password(validated_data["password"])  # Hash the password
+            instance.set_password(password)
         
         instance.save()  # Save the updated instance
         return instance

@@ -8,6 +8,8 @@ class UserProfile(AbstractUser): # AbstractUser has fields password
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     username = models.CharField(unique=True, max_length=64)
+    given_name = models.CharField(max_length=35, null=True, blank=True)
+    surname = models.CharField(max_length=35, null=True, blank=True)
     last_active = models.DateTimeField(null=True, blank=True)
     first_name = None
     last_name = None
@@ -31,7 +33,6 @@ class UserProfile(AbstractUser): # AbstractUser has fields password
 class Match(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     match_duration = models.DurationField()
-    #tournament_id = models.ForeignKey(Tournament, on_delete=models.CASCADE, null=True)
     player_left = models.ForeignKey("UserProfile", on_delete=models.CASCADE, related_name="player_left", null=True)
     player_right = models.ForeignKey("UserProfile", on_delete=models.CASCADE, related_name="player_right", null=True)
     left_score = models.PositiveIntegerField(default=0)
