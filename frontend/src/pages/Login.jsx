@@ -4,7 +4,7 @@ import api from "../api";
 import '../styles/login.css'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-
+import MessageBox from '../components/MessageBox';
 
 export default function Login({route}) {
 
@@ -15,14 +15,19 @@ export default function Login({route}) {
 	const [requires2FA, setRequires2FA] = useState(false);
     const navigate = useNavigate();
 	const location = useLocation();
+	const [message, setMessage] = useState(null);
+	const [messageType, setMessageType] = useState('info');
+
 
 	const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
-
         try {
-			if (username === "" || password === "")
-				throw new Error("Please enter all the fields");
+			if (username === "" || password === ""){
+				setMessage("Please enter all the fields");
+				setMessageType("info")
+				return
+			}
             const res = await api.post(route, { 
 				username,
 				password,
@@ -37,7 +42,8 @@ export default function Login({route}) {
 				navigate("/");
 			}
 		} catch (error) {
-            alert(error.response?.data?.error || error.message);
+            setMessage(error.response?.data?.error || error.message);
+			setMessageType("error");
         } finally {
             setLoading(false)
         }
@@ -77,7 +83,8 @@ export default function Login({route}) {
                 navigate("/");
             })
             .catch(error => {
-                console.error("Error with profile qwery :", error);
+                setMessage(`Error with 42 profile qwery`);
+				setMessageType("error");
                 navigate("/login"); 
             });
         }
@@ -90,6 +97,10 @@ export default function Login({route}) {
 				<h1 className='header'>Login to play</h1>
 				<div className='login-wrapper'>
 					<div className='login-form-container'>
+					{message && <MessageBox 
+						message={message}
+						type={messageType}
+						onClose={() => setMessage(null)}/>}
 						<Form onSubmit={handleSubmit}>
 							<Form.Group id='username' className='mb-4'>
 								<Form.Control

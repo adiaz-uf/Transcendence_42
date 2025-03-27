@@ -3,6 +3,7 @@ import { useState } from "react";
 import api from "../api";
 import '../styles/login.css'
 import { useNavigate } from "react-router-dom";
+import MessageBox from '../components/MessageBox';
 
 /* handleSubmit, ...props} */
 export default function Register({route}) {
@@ -15,19 +16,25 @@ export default function Register({route}) {
 	const [surname, setSurname] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [error, setError] = useState(null);
+    const [messageType, setMessageType] = useState("");
 
 	const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
         try {
             if (username === "" || email === "" || given_name === "" || surname === "" || password === "" || repeatpassword === "")
-                throw new Error("Please enter all the fields");
+                setError("Please enter all the fields");
+                setMessageType("info");
             if (password !== repeatpassword)
-                throw new Error("Passwords must be the same!");
+                setError("Passwords aren't matching");
+                setMessageType("info");
+
             await api.post(route, { username, password, email, given_name, surname });
             navigate("/login");
         } catch (error) {
-            alert(error.response?.data?.detail || error.message);
+            setError(error.response?.data?.detail || error.message);
+            setMessageType("error");
         } finally {
             setLoading(false);
         }
@@ -35,6 +42,10 @@ export default function Register({route}) {
 
     return (
         <div className='login-container'>
+            {error && <MessageBox 
+                message={error}
+                type={messageType}
+                onClose={() => setError(null)}/>}
             <h1 className='header'>Register Page</h1>
             <div className='login-wrapper'>
                 <div className='register-form-container'>
