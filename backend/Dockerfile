@@ -1,4 +1,4 @@
-FROM python:3.13-alpine
+FROM python:3.10-alpine
 
 RUN apk add --no-cache postgresql-client netcat-openbsd
 
@@ -12,5 +12,4 @@ COPY . .
 # Expose Django port
 EXPOSE 8000
 
-CMD ["/init.sh"]
-# CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "backend.asgi:application"]
+CMD ["/app/init.sh"]
