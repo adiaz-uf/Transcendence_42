@@ -28,7 +28,6 @@ export default function Profile() {
   const [qrCode, setQrCode] = useState('');
   const [secret, setSecret] = useState('');
   const [twoFACode, setTwoFACode] = useState('');
-  setNewUsername
   const [newName, setNewName] = useState(name);
   const [newEmail, setNewEmail] = useState(email);
   const [newUsername, setNewUsername] = useState(username);
@@ -177,9 +176,11 @@ export default function Profile() {
               <h5><strong>Username:</strong> {username}</h5>
             
               <div className="profile-buttons">
+                {!is42user && (  
                 <Button variant="primary" onClick={handleShowModal}>
                   Change Data
                 </Button>
+                )}
                 {!is42user && (   
                 <Button variant={is2FAEnabled ? "danger" : "success"} onClick={handleSetup2FA}>
                   {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
