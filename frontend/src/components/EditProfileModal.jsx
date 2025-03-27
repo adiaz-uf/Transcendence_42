@@ -1,10 +1,49 @@
 import React from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
+import MessageBox from './MessageBox';
+import { ACCESS_TOKEN } from "../constants"; 
+import api from '../api';
+import { useState } from 'react';
 
 export default function EditProfileModal({ showModal, handleCloseModal,
-  newEmail, setNewEmail, newUsername, newPassword, setNewPassword, setNewUsername, handleChangeData }) {
+  newEmail, setNewEmail, newUsername, newPassword, setNewPassword, setNewUsername}) {
+  const [message, setMessage] = useState(null);
+
+  const handleChangeData = async (e) => {
+    e.preventDefault();
+    const updatedData = {};
+    if (newEmail) updatedData.email = newEmail;
+    if (newUsername) updatedData.username = newUsername;
+    if (newPassword) {
+      updatedData.password = newPassword;
+      setNewPassword(""); // Clean password wrote
+    }
+  
+    // check empty form
+    if (Object.keys(updatedData).length === 0) {
+      setMessage("No changes were made.");
+      return;
+    }
+    console.log(updatedData);
+    try {
+      const response = await api.post('/api/user/profile/', updatedData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+      });
+      handleCloseModal();
+    } catch (error) {
+      console.log(error);
+      setMessage(error.response?.data?.message || 'Update failed');
+    }
+  };
+
   return (
     <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal">
+      {message && (
+      <MessageBox 
+        message={message}
+        type="error"
+        onClose={() => setMessage(null)}/>
+      )}
       <Modal.Header closeButton>
         <Modal.Title>Edit Profile Data</Modal.Title>
       </Modal.Header>
@@ -43,5 +82,6 @@ export default function EditProfileModal({ showModal, handleCloseModal,
         </Form>
       </Modal.Body>
     </Modal>
+    
   );
 }

@@ -8,6 +8,7 @@ import Stat from '../components/Stat';
 import Alert from '../components/Alert';
 import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
+import MessageBox from '../components/MessageBox';
 
 
 export default function Profile() {
@@ -37,17 +38,27 @@ export default function Profile() {
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const handleShow2FAModal = () => setShow2FAModal(true);
-  const handleClose2FAModal = () => {
-    setShow2FAModal(false);
-    setTwoFACode('');
+  
+  
+  const [message, setMessage] = useState(null);
+  
+  const getAvatarLetter = (username) => {
+      return (is42user? 42:username.charAt(0).toUpperCase())
   };
+  
+  const handleCloseUpdateModal = () => {
+    fetchProfileData();
+    setShowModal(false)
+  };
+  
+  // ########################################   Fetch API ################################################
 
   useEffect(() => {
     if (matchesPlayed > 0) {
       // Calculamos el número de partidas perdidas
       const calculatedMatchesLosed = matchesPlayed - matchesWon;
       setMatchesLosed(calculatedMatchesLosed);
-  
+      
       if (calculatedMatchesLosed === 0) {
         // Si no hay partidos perdidos, el win ratio será igual a matchesWon
         setWinRatio(matchesWon > 0 ? matchesWon.toFixed(1) : "0.0");
@@ -86,42 +97,34 @@ export default function Profile() {
       //   headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       // });
       // setMatchesPlayed(matchesResponse.data.matches_played); 
-
+      
       // const matchesWonResponse = await api.get('/api/user/matches-won/', {
       //   headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       // });
       // setMatchesWon(matchesWonResponse.data.matches_won); 
-
+      
       // const twoFAResponse = await api.get('/api/setup-2fa/',{
       //   headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       // });
       // console.log("2FA response", twoFAResponse)
     } catch (err) {
-      setError('Error fetching profile data');
-      setLoading(false);
+      setMessage(error.response?.data?.message || 'fetch failed');
     }
   };
-
-  const handleChangeData = async (e) => {
-    e.preventDefault();
-    const updatedData = {
-      email: newEmail,
-      username: newUsername
-    };
-    if (newPassword) {
-      updatedData.password = newPassword;
-    }
-    try {
-      const response = await api.post('/api/user/profile/', updatedData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      });
-      console.log("Sent new Profile data: ", response.data)
-      handleCloseModal();
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      setError("Error updating profile");
-    }
-  };
+  
+  useEffect(() => {
+    fetchProfileData();
+    const interval = setInterval(fetchProfileData, 30000); // timer to refetch every 30s
+    return () => clearInterval(interval);    // destructor
+  }, []); // invoked at launch
+  
+  
+  
+  
+  
+  
+  
+  // ########################################   2FA ################################################
 
   const handleSetup2FA = async () => {
     try {
@@ -133,9 +136,13 @@ export default function Profile() {
       setIs2FAEnabled(response.data.is_2fa_enabled);
       handleShow2FAModal();
     } catch (error) {
-      console.error("Error fetching 2FA setup:", error);
-      setError("Error fetching 2FA setup");
+      setMessage(error.response?.data?.message || '42auth failed');
     }
+  };
+  
+  const handleClose2FAModal = () => {
+    setShow2FAModal(false);
+    setTwoFACode('');
   };
 
   const handleToggle2FA = async (e) => {
@@ -149,32 +156,12 @@ export default function Profile() {
       setIs2FAEnabled(!is2FAEnabled);
       handleClose2FAModal();
     } catch (error) {
-      console.error("Error toggling 2FA:", error);
-      alert(error.response?.data?.error || "Error toggling 2FA");
+      setMessage(error.response?.data?.message || '2FA failed');
     }
   };
 
-  const getAvatarLetter = (username) => {
-    if (is42user)
-        return 42;
-    else
-      return username.charAt(0).toUpperCase()
-  };
-
-  useEffect(() => {
-    fetchProfileData();
-  }, [username, email, is42user]);
-
-  // const twoFAButton = () => {
-  //     if (!is42user)
-  //     {
-  //       return (
-  //       <Button variant={is2FAEnabled ? "danger" : "success"} onClick={handleSetup2FA}>
-  //         {is2FAEnabled ? "Disable 2FA" : "Enable 2FA"}
-  //       </Button>);
-  //     }
-  //     return null
-  // };
+  
+  
 
   if (loading) return <div>Loading...</div>;
 /*   if (error) return <div><NavBar></NavBar><div className='app-body'>{error}</div></div>; */
@@ -183,6 +170,13 @@ export default function Profile() {
     <>
       <NavBar />
       <div className='profile-body'>
+      {message && (
+          <MessageBox 
+            message={message}
+            type='error'
+            onClose={() => setMessage(null)}
+          />
+          )}
         <div className="profile-container">
           <div className="avatar">{getAvatarLetter(username)}</div>
           <div className="profile-info">
@@ -206,14 +200,13 @@ export default function Profile() {
 
         <EditProfileModal 
           showModal={showModal} 
-          handleCloseModal={() => setShowModal(false)} 
+          handleCloseModal={handleCloseUpdateModal} 
           newEmail={newEmail} 
           setNewEmail={setNewEmail} 
           newUsername={newUsername} 
           setNewUsername={setNewUsername} 
           setNewPassword={setNewPassword}
           newPassword={newPassword}
-          handleChangeData={handleChangeData} 
         />
         <TwoFAModal 
           show2FAModal={show2FAModal} 
