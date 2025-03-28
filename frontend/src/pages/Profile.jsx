@@ -8,6 +8,7 @@ import Stat from '../components/Stat';
 import Alert from '../components/Alert';
 import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
+import MessageBox from '../components/MessageBox';
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -16,6 +17,7 @@ export default function Profile() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [messageType, setMessageType] = useState("");
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [is42user, setIs42user] = useState(false);
   const [matchesPlayed, setMatchesPlayed] = useState(0);
@@ -32,7 +34,6 @@ export default function Profile() {
   const [newEmail, setNewEmail] = useState(email);
   const [newUsername, setNewUsername] = useState(username);
   const [newPassword, setNewPassword] = useState('');
-
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const handleShow2FAModal = () => setShow2FAModal(true);
@@ -74,6 +75,13 @@ export default function Profile() {
       setNewUsername(username);
       setIs42user(is_42user);
       localStorage.setItem("username", username);
+      setLoading(false);
+    } catch (error)
+    {
+      setError(error?.response?.data || "Fetch failed");
+      setMessageType("error");
+    }
+  };
       //    // Number of matches played by user
       //    const matchesResponse = await api.get('/api/user/matches-played/', {
         //      headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
@@ -85,17 +93,6 @@ export default function Profile() {
   //    });
   //    setMatchesWon(matchesWonResponse.data.matches_won); 
   //
-  const twoFAResponse = await api.get('/api/setup-2fa/', {
-    headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-    });
-    setIs2FAEnabled(twoFAResponse.data.is_2fa_enabled);
-    setLoading(false);
-      } catch (err) {
-        setError('Error fetching profile data');
-        setLoading(false);
-      }
-  };
-
   const handleChangeData = async (e) => {
     e.preventDefault();
     const updatedData = {
@@ -117,8 +114,9 @@ export default function Profile() {
       setPassword(newPassword);
       handleCloseModal();
     } catch (error) {
-      console.error("Error updating profile:", error);
+      //No errors in console console.error("Error updating profile:", error);
       setError("Error updating profile");
+      setMessageType("error");// lets go ui jaja
     }
   };
 
@@ -132,8 +130,8 @@ export default function Profile() {
       setIs2FAEnabled(response.data.is_2fa_enabled);
       handleShow2FAModal();
     } catch (error) {
-      console.error("Error fetching 2FA setup:", error);
       setError("Error fetching 2FA setup");
+      setMessageType("error");
     }
   };
 
@@ -148,8 +146,8 @@ export default function Profile() {
       setIs2FAEnabled(!is2FAEnabled);
       handleClose2FAModal();
     } catch (error) {
-      console.error("Error toggling 2FA:", error);
-      alert(error.response?.data?.error || "Error toggling 2FA");
+      setError(error?.response?.data || "Error toggling 2FA");
+      setMessageType("error");
     }
   };
 
@@ -165,6 +163,10 @@ export default function Profile() {
   return (
     <>
       <NavBar />
+      {error && <MessageBox 
+        message={error}
+        type={messageType}
+        onClose={() => setError(null)}/>}
       <div className='profile-body'>
         <div className="profile-container">
           <div className="avatar">{getAvatarLetter(name)}</div>
@@ -176,7 +178,7 @@ export default function Profile() {
               <h5><strong>Username:</strong> {username}</h5>
             
               <div className="profile-buttons">
-                {!is42user && (  
+                {!is42user && ( 
                 <Button variant="primary" onClick={handleShowModal}>
                   Change Data
                 </Button>
