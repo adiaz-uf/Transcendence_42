@@ -4,7 +4,7 @@ import webSocketClient from "./websocket";
 import api from "../../api";
 import Menu from "./Menu";
 import InvitePlayer from "./InvitePlayerModal";
-import LoginForm from "../../components/LoginForm";  // Ensure LoginForm component is imported
+import LoginForm from "../../components/LoginForm";
 
 // Parent component that holds game mode selection and WebSocket connection state
 const GameApp = () => {
@@ -55,19 +55,19 @@ const GameApp = () => {
 
   // Close modal and start the game
   const handleCloseModal = () => {
-    setShowModal(false); // Close the modal
+    setShowModal(false);
     InitGame(selectedMode); // Start the game with the selected mode
   };
 
   // Handle game mode selection
   const handleGameModeSelect = (mode) => {
-    setSelectedMode(mode); // Save the selected mode (local or online)
-    setShowModal(true); // Show the modal
+    setSelectedMode(mode); 
+    setShowModal(true); 
   };
 
   // Handle login success
   const handleLoginSuccess = () => {
-    setShowLogin(false); // Hide login after successful authentication
+    setShowLogin(false);
     InitGame(selectedMode); // Start the game after login
   };
 
@@ -75,7 +75,10 @@ const GameApp = () => {
     <div className="game-container">
       {/* Show Login Form before Gameplay */}
       {showLogin ? (
+        <div>
+        <h1>Login Player 2 to play</h1>
         <LoginForm route="/api/login" navigateTo="/" onLoginSuccess={handleLoginSuccess} />
+        </div>
       ) : (
         gameMode === null ? (
           <Menu onGameModeSelect={handleGameModeSelect} />
@@ -83,13 +86,11 @@ const GameApp = () => {
           <Gameplay gameState={gameState} InitGame={InitGame} />
         )
       )}
-
-      {/* InvitePlayer component */}
       <InvitePlayer
         showModal={showModal}
         handleCloseModal={handleCloseModal}
-        gameMode={selectedMode} // Pass selected game mode to modal
-        setShowLogin={setShowLogin} // Pass function to show login
+        gameMode={selectedMode}
+        setShowLogin={setShowLogin}
       />
     </div>
   );
