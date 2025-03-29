@@ -60,7 +60,7 @@ const GameApp = () => {
             ...(gameUpdate.players?.right || {}), // Merge right if updated
           },
         },
-        pelota: {
+        ball: {
           ...prevState.pelota,
           ...(gameUpdate.pelota || {}), // Merge pelota if updated
         },

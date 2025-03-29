@@ -1,11 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth import get_user_model
-from .models import UserProfile, Tournament, Match, GoalStat, UserStat
-
-
-CurrentUser = get_user_model()
-
+from api.models import UserProfile
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,10 +28,10 @@ class UserSerializer(serializers.ModelSerializer):
         )       #This data is then stored in a user and returned, this def is created in CustomUserManager
         return user
 
-# Secondary Representation of UserProfile 
+# Secondary Representation of UserProfile
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CurrentUser
+        model = UserProfile
         fields = ["email", "username", "given_name", "surname", "password"]
         extra_kwargs = {
             "password": {"write_only": True, "required": False},  # Password shouldn't be readable
@@ -61,29 +55,3 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         
         instance.save()  # Save the updated instance
         return instance
-
-
-# Tournament Serializer with nested relationships
-class TournamentSerializer(serializers.ModelSerializer):
-    matches = serializers.PrimaryKeyRelatedField(
-        many=True, 
-        queryset=Match.objects.all(), 
-        required=False
-    )
-    class Meta:
-        model = Tournament
-        fields = '__all__'
-
-# Match Serializer
-class MatchSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Match
-        fields = '__all__'
-
-# Goal Statistics Serializer
-class UserStatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserStat
-        fields = '__all__'
-
-        
