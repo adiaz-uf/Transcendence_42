@@ -11,8 +11,8 @@ VALUES
 -- Aquí primero debes insertar los equipos y hacer que apunten al partido
 INSERT INTO team (name, player1_id_id)
 VALUES 
-    ('Equipo A', 1),  -- Equipo A: jugadores 1 y 2, asignado al partido
-    ('Equipo B', 2);  -- Equipo B: jugadores 3 y 4, asignado al partido
+    ('Equipo A', 1),  -- Equipo A: players 1 y 2, asignado al partido
+    ('Equipo B', 2);  -- Equipo B: players 3 y 4, asignado al partido
 -- 3. Insertar un torneo en la tabla "tournament" y obtener su id (id del torneo)
 -- WITH new_tournament AS (
 --     INSERT INTO tournament (name, owner_id, created_at, date)

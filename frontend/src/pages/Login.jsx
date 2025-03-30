@@ -5,6 +5,7 @@ import '../styles/login.css'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import MessageBox from '../components/MessageBox';
+import MessageBox from '../components/MessageBox';
 
 export default function Login({route}) {
 
@@ -21,7 +22,6 @@ export default function Login({route}) {
 	const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
-
         try {
 			if (username === "" || password === ""){
 				setMessageType('info');
@@ -84,7 +84,8 @@ export default function Login({route}) {
                 navigate("/");
             })
             .catch(error => {
-                console.error("Error with profile qwery :", error);
+                setMessage(`Error with 42 profile qwery`);
+				setMessageType("error");
                 navigate("/login"); 
             });
         }
@@ -97,6 +98,10 @@ export default function Login({route}) {
 				<h1 className='header'>Login to play</h1>
 				<div className='login-wrapper'>
 					<div className='login-form-container'>
+					{message && <MessageBox 
+						message={message}
+						type={messageType}
+						onClose={() => setMessage(null)}/>}
 						<Form onSubmit={handleSubmit}>
 							<Form.Group id='username' className='mb-4'>
 								<Form.Control

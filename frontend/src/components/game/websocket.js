@@ -1,4 +1,5 @@
 
+
 class WebSocketManager {
     constructor(serverUrl) {
         this.serverUrl = serverUrl;
@@ -16,6 +17,7 @@ class WebSocketManager {
         let userId = localStorage.getItem("userId");
         if (!userId) {
             userId = `user-${Math.random().toString(36).substr(2, 9)}`;
+            console.log("LocalStorageUserId: ",userId);
             localStorage.setItem("userId", userId);
         }
         return userId;
@@ -80,8 +82,6 @@ class WebSocketManager {
             console.warn("WebSocket not ready. Message not sent.");
         }
     }
-
-    //webSocketClient.sendPlayerMove({ 'data': {'izq': pressedKeysPlayerOne === "w" ? "up" : "down"} });
 
     sendPlayerMove(data) {
         let update = {'type':'update', 'data':data,'userId': this.userId}
