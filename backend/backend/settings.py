@@ -170,3 +170,38 @@ CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
 
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
+
+LOGGING = {
+    "version": 1,  # Required
+    "disable_existing_loggers": False,  # Keep default Django loggers
+    "formatters": {  # Define log formats
+        "verbose": {
+            "format": "[{levelname}] {asctime} {name} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "[{levelname}] {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {  # Define output methods
+        "file": {
+            "level": "DEBUG",  # Log level
+            "class": "logging.FileHandler",  # Save logs to a file
+            "filename": os.path.join(BASE_DIR, "debug.log"),
+            "formatter": "verbose",
+        },
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {  # Define loggers
+        "django": {
+            "handlers": ["file", "console"],  # Use both file and console handlers
+            "level": "DEBUG",  # Log all messages (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+            "propagate": True,
+        },
+    },
+}

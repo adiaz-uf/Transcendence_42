@@ -1,26 +1,28 @@
-import asyncio
 import json
+import uuid
+import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .game import PongGame
-from .game_manager import game_manager
-from copy import deepcopy
+from .game_manager import game_manager  # Import game session manager
+from .pongame import PongGame
+import logging
 
-class PongConsumer(AsyncWebsocketConsumer):
+logger = logging.getLogger("django")
+# Function that handles incoming new connections for local matc
+class StreamSocketLocalPlayers(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.message_handlers = {
             "update": self.handle_update,
-            "game_active": self.handle_game_active,
-        }
+            "game_active": self.handle_game_active,}
 
     async def connect(self):
+        logger.info(self.scope)
         self.player_id = self.scope["client"][1]  # Unique ID for each player
-        self.game_id = game_manager.add_player_to_game(self.player_id)
         self.game = PongGame()
         await self.accept()
-        await self.send(json.dumps({"message": "Connected", "game_id": self.game_id}))
+        await self.send(json.dumps({"message": "Connected"}))
     
-        self.game_task = asyncio.create_task(self.game_loop())  
+        self.game_task = await asyncio.create_task(self.game_loop())  
 
     async def disconnect(self, close_code):
         game_manager.remove_player(self.player_id)
@@ -41,31 +43,29 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def handle_update(self, data):
         update = data.get("data", {})
-        if "izq" in update:
-            self.game.mover_jugadores("izq", update["izq"])
-            await self.send(json.dumps({"jugadores": {"izq": self.game.jugadores["izq"]}}))
-        if "der" in update:
-            self.game.mover_jugadores("der", update["der"])
-            await self.send(json.dumps({"jugadores": {"der": self.game.jugadores["der"]}}))
+        if "left" in update:
+            self.game.move_players("left", update["left"])
+            await self.send(json.dumps({"players": {"left": self.game.players["left"]}}))
+        if "right" in update:
+            self.game.move_players("right", update["right"])
+            await self.send(json.dumps({"players": {"right": self.game.players["right"]}}))
 
     async def handle_game_active(self, data):
-        print("set game_active to ", data.get("game_active", False) )
         self.game.game_active = data.get("game_active", False)
-
 
     async def sendResponse(self, message):
         await self.send(json.dumps(message))
 
     async def game_loop(self):
-
         print(f"[{self.game_id}] - LOOP STARTED - ", self.game.game_active)
         
         while self.game.game_active:
-            self.game.update_pelota()
+            self.game.update_ball()
             self.game.endGame()
-            await self.send(json.dumps({"pelota":self.game.pelota}))
+            await self.send(json.dumps({"ball":self.game.ball}))
 
-            await self.send(json.dumps({"jugadores": self.game.jugadores}))
+            await self.send(json.dumps({"players": self.game.players}))
             await asyncio.sleep(0.01)  # 60ms delay for smooth updates
         print(f"[{self.game_id}] - LOOP ENDED - ", self.game.game_active)
+
 
