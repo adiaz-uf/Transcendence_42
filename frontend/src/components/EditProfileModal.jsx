@@ -31,6 +31,15 @@ export default function EditProfileModal({ showModal, handleCloseModal, newName,
               placeholder="Enter your email"
             />
           </Form.Group>
+          <Form.Group controlId="formName">
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Enter your name"
+            />
+          </Form.Group>
           <Form.Group controlId="formUsername">
             <Form.Label>Username</Form.Label>
             <Form.Control
