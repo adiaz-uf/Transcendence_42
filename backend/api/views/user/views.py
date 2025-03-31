@@ -56,7 +56,7 @@ class CreateUserView(generics.CreateAPIView):
 # UPDATE Profile VIEW:  for modifying account
 #   model: UserProfile 
 #   serializer: UserProfileUpdateSerializer
-
+# Todo: make a RetrieveUpdateAPIView
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 

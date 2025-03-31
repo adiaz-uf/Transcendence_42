@@ -1,16 +1,12 @@
 import asyncio
-from channels.layers import get_channel_layer
 import json
-
-class GameSession:
-    def __init__(self):
 
 class GameSessionManager:
     def __init__(self):
         self.games = {}  # Stores active games
         self.async_tasks = set()
 
-    def create_game(self, match_id):
+    def create_game(self, userId):
         """Creates a new game session if not already existing"""
         if match_id not in self.games:
             gameSession = GameSession(match_id)
