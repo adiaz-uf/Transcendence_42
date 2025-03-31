@@ -83,6 +83,7 @@ class WebSocketManager {
         }
     }
 
+    //webSocketClient.sendPlayerMove({ 'data': {'left': pressedKeysPlayerOne === "w" ? "up" : "down"} });
     sendPlayerMove(data) {
         let update = {'type':'update', 'data':data,'userId': this.userId}
         console.log(update)

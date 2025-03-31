@@ -5,7 +5,6 @@ import '../styles/login.css'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import MessageBox from '../components/MessageBox';
-import MessageBox from '../components/MessageBox';
 
 export default function Login({route}) {
 
@@ -17,18 +16,18 @@ export default function Login({route}) {
     const navigate = useNavigate();
 	const location = useLocation();
 	const [message, setMessage] = useState(null);
-    const [messageType, setMessageType] = useState('info');
+	const [messageType, setMessageType] = useState('info');
+
 
 	const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
         try {
 			if (username === "" || password === ""){
-				setMessageType('info');
 				setMessage("Please enter all the fields");
-				return;
+				setMessageType("info")
+				return
 			}
-
             const res = await api.post(route, { 
 				username,
 				password,
@@ -43,8 +42,8 @@ export default function Login({route}) {
 				navigate("/");
 			}
 		} catch (error) {
-			setMessage(error.response?.data?.message || 'Login failed');
-            setMessageType('error');
+            setMessage(error.response?.data?.error || error.message);
+			setMessageType("error");
         } finally {
             setLoading(false)
         }
