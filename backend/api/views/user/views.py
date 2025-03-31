@@ -60,13 +60,20 @@ class CreateUserView(generics.CreateAPIView):
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
+    def get_object(self):
+        """Retrieve the user profile object."""
+        try:
+            return UserProfile.objects.get(pk=self.request.user.id)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
     def get(self, request):
-        user = request.user  # Get the authentified user
+        user = self.get_object()  # Retrieve user object
         serializer = UserSerializer(user)  # Serialize user object
         return Response(serializer.data)  # Get serialized user object
 
     def patch(self, request):
-        user = request.user
+        user = self.get_object()
         serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)
         
         if serializer.is_valid():
@@ -121,5 +128,6 @@ class LoginView(generics.CreateAPIView):
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
+                    'id': user.id
                 })
         return Response({'error': 'Identifiants invalides'}, status=401)

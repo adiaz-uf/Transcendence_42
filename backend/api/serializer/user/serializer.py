@@ -34,24 +34,26 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ["email", "username", "given_name", "surname", "password"]
         extra_kwargs = {
-            "password": {"write_only": True, "required": False},  # Password shouldn't be readable
             "email": {"required": False},
             "username": {"required": False},
+            "given_name": {"required": False},
+            "surname": {"required": False},
+            "password": {"write_only": True, "required": False},  # Password shouldn't be readable
         }
 
     def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
         """Update user profile details safely."""
-        
-        # Update fields if provided
-        if "email" in validated_data:
-            instance.email = validated_data["email"]
+        if not isinstance(instance, UserProfile):
+            raise TypeError("Expected a UserProfile instance")
 
-        if "username" in validated_data:
-            instance.username = validated_data["username"]
+        password = validated_data.pop('password', None)
 
-        if "password" in validated_data:
+        for key in self.Meta.fields:
+            if key in validated_data:
+                setattr(instance, key, validated_data[key])
+
+        if password:  # Hash password before saving
             instance.set_password(password)
-        
-        instance.save()  # Save the updated instance
+
+        instance.save()
         return instance
