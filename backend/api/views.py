@@ -213,22 +213,8 @@ class AvailableMatchView(generics.ListAPIView):
     serializer_class = MatchSerializer
 
     def get_queryset(self):
-        return Match.objects.filter(is_multiplayer=True, player_right__isnull=True)
+        return Match.objects.filter(is_multiplayer=True, is_started=False, )
 
-class JoinMatchView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, match_id):
-        match = get_object_or_404(Match, id=match_id, is_multiplayer=True, player_right__isnull=True)
-
-        if match.player_left == request.user:
-            return Response({"error": "You are already part of this match."}, status=status.HTTP_400_BAD_REQUEST)
-
-        match.player_right = request.user
-        match.save()
-
-        serializer = MatchSerializer(match)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     
 # class MatchesPlayedView(APIView):
