@@ -2,7 +2,6 @@ import json
 import uuid
 import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .game_manager import game_manager  # Import game session manager
 from .pongame import PongGame
 import logging
 
@@ -16,16 +15,16 @@ class StreamSocketLocalPlayers(AsyncWebsocketConsumer):
             "game_active": self.handle_game_active,}
 
     async def connect(self):
-        logger.info(self.scope)
+        logger.info({self.scope})
         self.player_id = self.scope["client"][1]  # Unique ID for each player
+        logger.info("WSLocalPlayer connectfrom: {self.player_id}")
         self.game = PongGame()
         await self.accept()
         await self.send(json.dumps({"message": "Connected"}))
-    
+
         self.game_task = await asyncio.create_task(self.game_loop())  
 
     async def disconnect(self, close_code):
-        game_manager.remove_player(self.player_id)
         print(f"CLIENT[{self.player_id}] game-id[{self.game_id}]:Disconnected")
         if hasattr(self, 'game_task') and not self.game_task.done():
             self.game_task.cancel()

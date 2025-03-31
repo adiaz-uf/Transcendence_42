@@ -12,7 +12,7 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from django.urls import path
-from backend.api.game.websocket_consumers import PongConsumer
+from api.game.streamSocketLocalPlayer import StreamSocketLocalPlayers
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 
@@ -22,7 +22,7 @@ application = ProtocolTypeRouter(
         "websocket": AuthMiddlewareStack(
             URLRouter(
                 [
-                    path("ws/game/", PongConsumer.as_asgi()),
+                    path("ws/game/", StreamSocketLocalPlayers.as_asgi()),
                 ]
             )
         ),
