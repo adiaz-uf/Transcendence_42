@@ -19,6 +19,7 @@ urlpatterns = [
 
     # Matches
     path('matches/local/', MatchCreationView.as_view(), name='match-list'),
+    path('match/online/create/', OnlineMatchCreationView.as_view(), name='match-create'),
     path('matches/local/<int:pk>/update-score/', MatchScoreUpdateView.as_view(), name='match-update-score'),
     #path('matches/local/<int:pk>/', MatchDetailView.as_view(), name='match-detail'),
 

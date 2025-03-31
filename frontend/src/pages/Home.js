@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import NavBar from '../components/navigation/Navbar';
 import '../styles/App.css';
-import GameApp from '../game/GameApp';
+import GameApp from '../components/game/GameApp';
 
 function Home() {
   return (

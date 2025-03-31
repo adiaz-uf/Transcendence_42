@@ -38,6 +38,7 @@ class Match(models.Model):
     left_score = models.PositiveIntegerField(default=0)
     right_score = models.PositiveIntegerField(default=0)
     is_multiplayer = models.BooleanField(default=False)
+    is_started = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'match'
