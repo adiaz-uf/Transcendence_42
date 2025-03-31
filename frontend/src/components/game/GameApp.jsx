@@ -3,13 +3,14 @@ import Gameplay from "./Gameplay";
 import webSocketClient from "./websocket";
 import Menu from "./Menu";
 import InvitePlayer from "./InvitePlayerModal";
+import GameBoard from "../GamesBoard";
 
 // Parent component that holds game mode selection and WebSocket connection state
 const GameApp = () => {
   const [gameMode, setGameMode] = useState(null);
   const [showModal, setShowModal] = useState(false); // Controls the modal state
   const [selectedMode, setSelectedMode] = useState(null); // Stores the selected mode (local or online)
-  const [showLogin, setShowLogin] = useState(false); // Controls the visibility of the Login
+  const [showBoard, setShowBoard] = useState(false); // Controls the visibility of the Board
   const [gameState, setGameState] = useState({
     game_active: true,
     // Players state
@@ -57,6 +58,12 @@ const GameApp = () => {
     InitGame(selectedMode); // Start the game with the selected mode
   };
 
+  const handleCloseBoard = () => {
+    setShowBoard(false);
+    InitGame(selectedMode); // Start the game with the selected mode
+  };
+
+
   // Handle game mode selection
   const handleGameModeSelect = (mode) => {
     if (mode === "local")
@@ -68,6 +75,10 @@ const GameApp = () => {
       setShowModal(true); 
       setSelectedMode(mode);
     }
+    else if (mode === "online-join") {
+      setShowBoard(true);
+      setSelectedMode(mode);
+    }
   };
 
   return (
@@ -76,13 +87,19 @@ const GameApp = () => {
         gameMode === null ? (
           <Menu onGameModeSelect={handleGameModeSelect} />     
         ) : (
-          <Gameplay gameState={gameState} InitGame={InitGame} />
+           // Esto es una condición ternaria para mostrar el GameBoard o Gameplay
+            <Gameplay gameState={gameState} InitGame={InitGame} />
+          )
         )
-      )}
+      }
       <InvitePlayer
         showModal={showModal}
         handleCloseModal={handleCloseModal}
         gameMode={selectedMode}
+      />
+      <GameBoard 
+        showBoard={showBoard}
+        handleCloseBoard={handleCloseBoard}
       />
     </div>
   );
