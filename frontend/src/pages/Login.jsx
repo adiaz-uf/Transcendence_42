@@ -18,7 +18,6 @@ export default function Login({route}) {
 	const [message, setMessage] = useState(null);
 	const [messageType, setMessageType] = useState('info');
 
-
 	const handleSubmit = async (e) => {
         setLoading(true);
         e.preventDefault();
@@ -39,6 +38,8 @@ export default function Login({route}) {
 				localStorage.setItem(ACCESS_TOKEN, res.data.access);
 				localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
 				localStorage.setItem("username", username);
+				localStorage.setItem("userId", res.data.id);
+				console.log("res.data.userId: ", res.data.userId);
 				navigate("/");
 			}
 		} catch (error) {
