@@ -20,6 +20,8 @@ urlpatterns = [
     # Matches
     path('matches/local/', MatchCreationView.as_view(), name='match-list'),
     path('matches/local/<int:pk>/update-score/', MatchScoreUpdateView.as_view(), name='match-update-score'),
+    path('matches/available/', AvailableMatchView.as_view(), name='match-available'),
+    path('matches/<int:match_id>/join/', JoinMatchView.as_view(), name='match-join'),
     #path('matches/local/<int:pk>/', MatchDetailView.as_view(), name='match-detail'),
 
 
