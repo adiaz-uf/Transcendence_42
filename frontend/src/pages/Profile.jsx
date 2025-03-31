@@ -10,7 +10,6 @@ import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
 import MessageBox from '../components/MessageBox';
 
-
 export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -41,11 +40,7 @@ export default function Profile() {
   
   
   const [message, setMessage] = useState(null);
-  
-  const getAvatarLetter = (username) => {
-      return (username.charAt(0).toUpperCase())
-  };
-  
+    
   const handleCloseUpdateModal = () => {
     fetchProfileData();
     setShowModal(false)
@@ -162,12 +157,16 @@ export default function Profile() {
       setIs2FAEnabled(!is2FAEnabled);
       handleClose2FAModal();
     } catch (error) {
-      setMessage(error.response?.data?.message || '2FA failed');
+      setError(error?.response?.data || "Error toggling 2FA");
+      setMessageType("error");
     }
   };
 
-  
-  
+  const getAvatarLetter = (name) => name.charAt(0).toUpperCase();
+
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
 
   if (loading) return <div>Loading...</div>;
 /*   if (error) return <div><NavBar></NavBar><div className='app-body'>{error}</div></div>; */
@@ -214,12 +213,14 @@ export default function Profile() {
 
         <EditProfileModal 
           showModal={showModal} 
-          handleCloseModal={handleCloseUpdateModal} 
+          handleCloseModal={() => setShowModal(false)} 
+          newName={newName} 
+          setNewName={setNewName} 
           newEmail={newEmail} 
           setNewEmail={setNewEmail} 
           newUsername={newUsername} 
           setNewUsername={setNewUsername} 
-          handleChangeData={handleChangeData}
+          handleChangeData={handleChangeData} 
           setNewPassword={setNewPassword}
           newPassword={newPassword}
         />

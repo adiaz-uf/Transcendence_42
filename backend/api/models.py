@@ -33,7 +33,7 @@ class UserProfile(AbstractUser): # AbstractUser has fields password
 class Match(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     date = models.DateTimeField(auto_now_add=True)
-    match_duration = models.DurationField(null=True)
+    match_duration = models.DurationField()
     player_left = models.ForeignKey("UserProfile", on_delete=models.CASCADE, related_name="player_left", null=True)
     player_right = models.ForeignKey("UserProfile", on_delete=models.CASCADE, related_name="player_right", null=True)
     left_score = models.PositiveIntegerField(default=0)
