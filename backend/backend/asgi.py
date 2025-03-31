@@ -12,9 +12,12 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from django.urls import path
-from api.game.streamSocketLocalPlayer import StreamSocketLocalPlayers
+from api.game.StreamSocket import StreamSocket
+import os, django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
+django.setup()
+
 
 application = ProtocolTypeRouter(
     {
@@ -22,7 +25,7 @@ application = ProtocolTypeRouter(
         "websocket": AuthMiddlewareStack(
             URLRouter(
                 [
-                    path("ws/game/", StreamSocketLocalPlayers.as_asgi()),
+                    path("game/", StreamSocket.as_asgi()),
                 ] # re_path(r'game/(?P<id>[0-9a-f-]{36})/$', .as_asgi()),
 
             )
