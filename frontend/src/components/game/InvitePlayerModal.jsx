@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, Modal } from 'react-bootstrap';
-import axios from 'axios';
-import { ACCESS_TOKEN } from "../../src/constants"; 
+import api from '../../api';
+import { ACCESS_TOKEN } from "../../constants"; 
 
-const InvitePlayer = ({ showModal, handleCloseModal, gameMode, setShowLogin }) => {
+const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
   const [newUsername, setNewUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isInviting, setIsInviting] = useState(false);
@@ -27,7 +27,7 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode, setShowLogin }) =
         }
 
         // Call the Django API to check if the username exists
-        const response = await axios.get(`/api/check_username/${newUsername}/`, {
+        const response = await api.get(`/api/check_username/${newUsername}/`, {
             headers: {
                 Authorization: `Bearer ${token}`,  // Include the JWT token in the header
             },
@@ -37,11 +37,29 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode, setShowLogin }) =
             console.log('User found. Sending invitation...');
             
             if (gameMode === "local") {
-                setShowLogin(true); // Show the login if the game mode is local
                 handleCloseModal(); // Close the modal after sending the invitatio
             } else {
-                // Here goes the logic to invite the user (e.g., send message to the server)
+              // Enviar una solicitud POST para crear un nuevo partido
+              const matchData = {
+                player_right: newUsername,  // Usamos el nuevo username para player_right
+                match_duration: 0,
+                left_score: 0,
+                right_score: 0,
+                is_multiplayer: true,
+                is_started: false
+              };
+              const matchResponse = await api.post(`/api/match/online/create/`, matchData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,  // Include the JWT token in the header
+                },
+            });
+
+            if (matchResponse.status === 201) {
+              console.log('Match created successfully');
+              handleCloseModal();
+              // Redirigir o realizar alguna acción adicional si es necesario
             }
+          }
         }
     } catch (error) {
         if (error.response && error.response.status === 404) {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from 'react-bootstrap';
-import '../styles/game.css'
+import '../../styles/game.css'
 
 
 

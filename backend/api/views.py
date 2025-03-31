@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.db import connection
 from django.http import HttpResponseRedirect, JsonResponse
 from rest_framework import generics, status
-
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -42,6 +42,7 @@ from .serializers import (
     TournamentSerializer,
     MatchSerializer,
     UserStatSerializer,
+    MatchCreateSerializer,
 )
 
 
@@ -168,6 +169,55 @@ class MatchCreationView(generics.CreateAPIView):
                         match_duration=0, 
                         left_score=0,
                         right_score=0)
+                        
+class OnlineMatchCreationView(generics.CreateAPIView):
+    serializer_class = MatchCreateSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return Match.objects.none
+
+    def perform_create(self, serializer):
+        """
+        Sobrescribir perform_create para asignar player_left, player_right,
+        y otros detalles como is_multiplayer e is_started al partido.
+        """
+        # Obtener el usuario autenticado para player_left
+        player_left = self.request.user
+
+        # Obtener el nombre de usuario del jugador derecho desde la solicitud
+        player_right_username = self.request.data.get("player_right")
+
+        # Verificar si se proporciona player_right
+        if not player_right_username:
+            raise ValidationError("El nombre de usuario de jugador derecho es obligatorio.")
+
+        # Validar si el jugador derecho existe
+        player_right = UserProfile.objects.filter(username=player_right_username).first()
+        if not player_right:
+            raise ValidationError(f"El jugador derecho con el nombre de usuario '{player_right_username}' no existe.")  # Si el jugador derecho no existe
+
+        # Determinar si el partido es multijugador o no
+        is_multiplayer = self.request.data.get("is_multiplayer", False)
+
+        # Determinar si el partido ha comenzado
+        is_started = self.request.data.get("is_started", False)
+
+        # Guardar el partido con los valores correspondientes
+        match = serializer.save(
+            player_left=player_left, 
+            player_right=player_right,
+            match_duration=0, 
+            left_score=0,     
+            right_score=0,    
+            is_multiplayer=is_multiplayer,
+            is_started=is_started
+        )
+
+        return Response(
+            {"message": "Partido creado con éxito", "match": serializer.data},
+            status=status.HTTP_201_CREATED
+        )
 
 class MatchScoreUpdateView(generics.UpdateAPIView):
     """
