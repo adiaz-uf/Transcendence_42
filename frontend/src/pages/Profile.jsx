@@ -41,11 +41,6 @@ export default function Profile() {
   
   const [message, setMessage] = useState(null);
     
-  const handleCloseUpdateModal = () => {
-    fetchProfileData();
-    setShowModal(false)
-  };
-  
   // ########################################   Fetch API ################################################
 
   useEffect(() => {
@@ -72,7 +67,7 @@ export default function Profile() {
       const response = await api.get('/api/user/profile/', {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-      const { username, email, given_name, surname, is_42user } = response.data;
+      const { id, username, email, given_name, surname, is_42user } = response.data;
       setUsername(username);
       setEmail(email);
       setName(`${given_name} ${surname}`);
@@ -81,6 +76,7 @@ export default function Profile() {
       setNewUsername(username);
       setIs42user(is_42user);
       localStorage.setItem("username", username);
+      localStorage.setItem("userId", id);
       setLoading(false);
     } catch (error)
     {
@@ -88,10 +84,11 @@ export default function Profile() {
       setMessageType("error");
     }
   };
+
       //    // Number of matches played by user
       //    const matchesResponse = await api.get('/api/user/matches-played/', {
         //      headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-        //    });
+        //  });
 //    setMatchesPlayed(matchesResponse.data.matches_played); 
 //
 //    const matchesWonResponse = await api.get('/api/user/matches-won/', {
@@ -101,16 +98,23 @@ export default function Profile() {
   //
   const handleChangeData = async (e) => {
     e.preventDefault();
-    const updatedData = {
-      given_name: newName.split(' ')[0],
-      surname: newName.split(' ')[1] || '',
-      email: newEmail,
-      username: newUsername,
-    };
+    const updatedData = {};
+    if (newEmail) {
+      updatedData.email = email;
+    }
+    if (newUsername) {
+      updatedData.username = username;
+    }
+    if (newName) {
+      updatedData.given_name = newName.split(' ')[0];
+      updatedData.surname = newName.split(' ')[1] || '';
+    }
     if (newPassword) {
       updatedData.password = newPassword;
     }
     try {
+      if (Object.keys(updatedData).length == 0)
+        return;
       const response = await api.patch('/api/user/profile/', updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
@@ -119,6 +123,8 @@ export default function Profile() {
       setUsername(response.data.username);
       setPassword(newPassword);
       handleCloseModal();
+      localStorage.setItem("username", response.data.username);
+      fetchProfileData();
     } catch (error) {
       //No errors in console console.error("Error updating profile:", error);
       setError("Error updating profile");
@@ -199,7 +205,7 @@ export default function Profile() {
                 {!is42user && ( 
                 <Button variant="primary" onClick={handleShowModal}>
                   Change Data
-                </Button>
+                </Button>  /* 42 user cannot change data ! but we dont care Edit editprofile data to allow changing only username for is42user people and still not affecting auth*/ 
                 )}
                 {!is42user && (   
                 <Button variant={is2FAEnabled ? "danger" : "success"} onClick={handleSetup2FA}>
