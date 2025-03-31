@@ -1,14 +1,19 @@
 import React, { useCallback, useState } from "react";
 import Gameplay from "./Gameplay";
-import webSocketClient from "./websocket";
+import webSocketClient from "./ClientWebSocket";
 import api from "../../api";
 import Menu from "./Menu";
 import InvitePlayer from "./InvitePlayerModal";
 import Login from "../../pages/Login";  // Asegúrate de importar el componente Login
+import { ACCESS_TOKEN } from "../../constants";
+import MessageBox from '../MessageBox';
 
 // Componente Padre, guarda estado de selección de juego y conexión websocket
 const GameApp = () => {
   const [gameMode, setGameMode] = useState(null); // Guardará el modo seleccionado (local o online)
+  const [MatchId, setMatchId] = useState("");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("")
   const [showModal, setShowModal] = useState(false); // Controla el estado del modal
   const [showLogin, setShowLogin] = useState(false); // Controla la visibilidad del Login
   const [gameState, setGameState] = useState({
@@ -74,7 +79,7 @@ const GameApp = () => {
       webSocketClient.sendMessage({ type: 'game_active', game_active: false });
       webSocketClient.close();
     } else {
-      webSocketClient.connect();
+      webSocketClient.connect(MatchId);
       StateLinkerGameWebSocket(setGameState);
     }
   };
@@ -86,6 +91,15 @@ const GameApp = () => {
 
   const handleGameModeSelect = (mode) => {
     setGameMode(mode); // Guarda el modo seleccionado (local o online)
+    api.post("matches/", { 
+      player_left: localStorage.getItem('userId'),
+      is_multiplayer: (mode=="online")? true:false}, {
+        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` }}).then(response => {
+        setMatchId(response.Match.id)
+        }).catch(error => {
+      setMessage(`Error with new Match`);
+      setMessageType("error");
+      });
     setShowModal(true); // Muestra el modal
   };
 
@@ -101,6 +115,13 @@ const GameApp = () => {
       ) : (
         <Gameplay gameState={gameState} InitGame={InitGame} />
       )}
+      {message && (
+        <MessageBox 
+          message={message}
+          type={messageType}
+          onClose={() => setMessage(null)}
+        />
+        )}
 
       {/* Componente InvitePlayer */}
       <InvitePlayer 
