@@ -1,10 +1,11 @@
 import React, { useCallback, useState } from "react";
 import Gameplay from "./Gameplay";
 import webSocketClient from "./websocket";
-import api from "../../api";
+import api from "../api";
 import Menu from "./Menu";
 import InvitePlayer from "./InvitePlayerModal";
-import LoginForm from "../../components/LoginForm";
+import LoginForm from "../components/LoginForm";
+import { Button } from "react-bootstrap";
 
 // Parent component that holds game mode selection and WebSocket connection state
 const GameApp = () => {
@@ -61,8 +62,15 @@ const GameApp = () => {
 
   // Handle game mode selection
   const handleGameModeSelect = (mode) => {
-    setSelectedMode(mode); 
-    setShowModal(true); 
+    if (mode === "local")
+    {
+      setSelectedMode(mode); 
+      setShowModal(true); 
+    }
+    else if (mode === "online-create") {
+      setSelectedMode(mode);
+      setShowModal(true); 
+    }
   };
 
   // Handle login success
@@ -81,7 +89,7 @@ const GameApp = () => {
         </div>
       ) : (
         gameMode === null ? (
-          <Menu onGameModeSelect={handleGameModeSelect} />
+          <Menu onGameModeSelect={handleGameModeSelect} />     
         ) : (
           <Gameplay gameState={gameState} InitGame={InitGame} />
         )
