@@ -236,7 +236,6 @@ class UserMatchListView(generics.ListAPIView):
             player_right=self.request.user
         )
 
-
 class AvailableMatchView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = MatchSerializer
@@ -247,8 +246,6 @@ class AvailableMatchView(generics.ListAPIView):
                 is_started=False,
                 player_right=self.request.user
         )
-
-
     
 # class MatchesPlayedView(APIView):
 #     permission_classes = [IsAuthenticated]
