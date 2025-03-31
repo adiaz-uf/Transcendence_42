@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import webSocketClient from "./websocket";
+import webSocketClient from "./ClientWebSocket";
 
 //TODO: Upgrade to a play or stop game but not closing conection by returning to menu
 const ReturnToMenu = ({InitGame}) => {
@@ -9,7 +9,6 @@ const ReturnToMenu = ({InitGame}) => {
       InitGame(null)
     }
   };
-
   return (
     <button onClick={handleClick}>
       Menu
@@ -48,18 +47,14 @@ const Gameplay = ({ gameState, InitGame }) => {
   // What to do for when key of player one is pressed
   const sendPlayerMovesPlayerOne = () => {
     if (pressedKeysPlayerOne) {
-      webSocketClient.sendPlayerMove({
-        left: pressedKeysPlayerOne === "w" ? "up" : "down",
-      });
+      webSocketClient.sendPlayerMove(pressedKeysPlayerOne === "w" ? "up" : "down");
     }
     PlayerOneFrameRef.current = requestAnimationFrame(sendPlayerMovesPlayerOne);
   };
   // What to do for when key of player 2 is pressed
   const sendPlayerMovesSecondPlayer = () => {
     if (pressedKeysSecondPlayer) {
-      webSocketClient.sendPlayerMove({
-        right: pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down",
-      });
+      webSocketClient.sendPlayerMove(pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down");
     }
     SecondPlayerFrameRef.current = requestAnimationFrame(sendPlayerMovesSecondPlayer);
   };
