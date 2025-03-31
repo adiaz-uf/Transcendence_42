@@ -63,6 +63,6 @@ fclean:  ## Completely clean the project (remove containers and volumes)
 	@docker rmi $$(docker images -qa)
 
 re:  ## Rebuild and restart the project from scratch
-	$(MAKE) clean
+	$(MAKE) down
 	$(MAKE) build
 	$(MAKE) up
