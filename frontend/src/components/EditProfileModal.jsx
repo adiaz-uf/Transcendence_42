@@ -5,36 +5,9 @@ import { ACCESS_TOKEN } from "../constants";
 import api from '../api';
 import { useState } from 'react';
 
-export default function EditProfileModal({ showModal, handleCloseModal,
-  newEmail, setNewEmail, newUsername, newPassword, setNewPassword, setNewUsername}) {
+export default function EditProfileModal({ showModal, handleCloseModal, newName, setNewName,
+  newEmail, setNewEmail, newUsername, newPassword, setNewPassword, setNewUsername,handleChangeData}) {
   const [message, setMessage] = useState(null);
-
-  const handleChangeData = async (e) => {
-    e.preventDefault();
-    const updatedData = {};
-    if (newEmail) updatedData.email = newEmail;
-    if (newUsername) updatedData.username = newUsername;
-    if (newPassword) {
-      updatedData.password = newPassword;
-      setNewPassword(""); // Clean password wrote
-    }
-  
-    // check empty form
-    if (Object.keys(updatedData).length === 0) {
-      setMessage("No changes were made.");
-      return;
-    }
-    console.log(updatedData);
-    try {
-      const response = await api.post('/api/user/profile/', updatedData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      });
-      handleCloseModal();
-    } catch (error) {
-      console.log(error);
-      setMessage(error.response?.data?.message || 'Update failed');
-    }
-  };
 
   return (
     <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal">
