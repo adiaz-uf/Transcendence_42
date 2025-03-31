@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponseRedirect, JsonResponse
+from django.contrib.auth import authenticate, login
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -31,6 +32,7 @@ def get_or_create_user(user_data):
             'is_42user': True,
             'given_name': user_data['displayname'].split()[0],
             'surname': ' '.join(user_data['displayname'].split()[1:]) or '',
+            'username': user_data['login']
         }
     )
     return user
