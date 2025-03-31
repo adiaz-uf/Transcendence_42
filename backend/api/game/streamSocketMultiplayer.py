@@ -1,22 +1,27 @@
 import json
 import uuid
 import asyncio
-from channels.generic.websocket import AsyncWebsocketConsumer
-from django.core.exceptions import ObjectDoesNotExist
 import logging
+from django.http import JsonResponse
+from channels.generic.websocket import AsyncWebsocketConsumer
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from channels.db import database_sync_to_async
 from api.models import Match
 from .pongame import PongGame
-from channels.db import database_sync_to_async
+from .asyncDb import get_match
 
 # from .game_manager import game_manager  # Import game session manager
 logger = logging.getLogger("django")
 
-@database_sync_to_async
-async def get_match(match_id):
-    try:
-        return Match.objects.get(pk=match_id, )
-    except ObjectDoesNotExist:
-        return False
+
+    # Loop de interacion con el cliente, servidor = StreamSocketMultiplayer
+
+#1 cliente crea partido POST con match player 1  = userId en body
+#2 cliente ejecuta ws.connect() -> sservidor recibe en ervidor.connect()
+#3 cliente ws.send({'match-id':Id}) servidor reciben en servidor.__handle_MatchSessionPairing()
+    # 3.1 se anade player 2 al MatchId en db
+     #3.2 anadir al canal al grupo de canales
+#
 
 # Function that handles incoming new connections for online matches
 class StreamSocketMultiplayer(AsyncWebsocketConsumer):
@@ -26,22 +31,21 @@ class StreamSocketMultiplayer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__message_handlers = {
-            "join":self.__handle_MatchSessionPairing,
             "update": self.__handle_update,
-            "game_active": self.__handle_game_active,}
+            "game_active": self.__handle_game_active}
 
     async def connect(self):
         self.player_id = self.scope["user"]
-        logger.info(self.player_id)
+        logger.info("Player id connected to WS: {self.player_id}")
+        # logger.info("Match id Game: {self.match_id}")
+        logger.info({self.scope})
+
         await self.accept()
         await self.send(json.dumps({"message": "Connected"}))
         #self.game_task= await asyncio.create_task(self.game_loop())  
 
     async def disconnect(self, close_code):
-        p#rint(f"CLIENT[{self.player_id}] game-id[{self.game_id}]:Disconnected")
-        #game_manager.remove_player(self.player_id)
-        # if hasattr(self, 'game_task') and not self.game_task.done():
-            #self.game_task.cancel()
+        await self.channel_layer.group_discard(self.match_id, self.channel_name)
         await self.close()
 
     async def receive(self, text_data):
@@ -54,29 +58,35 @@ class StreamSocketMultiplayer(AsyncWebsocketConsumer):
         else:
             print(f"Unknown message type: {message_type}")
 
-
     async def __handle_MatchSessionPairing(self, data):
         """Associate socket session with a match-id"""
         match_id = data.get('matchId', '')
-        Match_model = get_match(match_id) if match_id else None
-        if not Match_model:
+
+        if (get_match(self.match_id))
             logger.info("Match not found")
-            return False #notify not found
-        if Match_model.player_right:
-            logger.info("Match player_right is here, match has started")
-            return False #Notify match has started
-        Match_model.player_right = self.player_id
+            return JsonResponse({"error": "Match not found"}, status=404)
+    
         await self.channel_layer.group_add(match_id, self.channel_name)
         #AsyncioGame.loop() routine
 
+    # async def __handle_notifyInvite(self):
+
     async def __handle_update(self, data):
+        """Processes paddle movement updates"""
+        if not hasattr(self, 'game'):
+            logger.info("handleGameUpdateWs: Game not found")
+            return
         update = data.get("data", {})
-        if "left" in update:
+        direction = ("left", "right")
+
+        if direction[0] in update:
             self.game.move_players("left", update["left"])
-            await self.send(json.dumps({"players": {"left": self.game.players["left"]}}))
-        if "right" in update:
+            direction = direction[0]
+    
+        else direction[1] in update:
             self.game.move_players("right", update["right"])
-            await self.send(json.dumps({"players": {"right": self.game.players["right"]}}))
+            direction = direction[1]
+        await self.channel_layer.group_send(self.match_id, {"type": "game_update", {"players": {direction: self.game.players[direction]}}})
 
     async def __handle_game_active(self, data):
         self.game.game_active = data.get("game_active", False)
@@ -91,7 +101,6 @@ class StreamSocketMultiplayer(AsyncWebsocketConsumer):
             self.game.update_ball()
             self.game.endGame()
             await self.send(json.dumps({"ball":self.game.ball}))
-
             await self.send(json.dumps({"players": self.game.players}))
             await asyncio.sleep(0.01)  # 60ms delay for smooth updates
         print(f"[{self.game_id}] - LOOP ENDED - ", self.game.game_active)

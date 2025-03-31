@@ -23,7 +23,8 @@ application = ProtocolTypeRouter(
             URLRouter(
                 [
                     path("ws/game/", StreamSocketLocalPlayers.as_asgi()),
-                ]
+                ] # re_path(r'game/(?P<id>[0-9a-f-]{36})/$', .as_asgi()),
+
             )
         ),
     }
