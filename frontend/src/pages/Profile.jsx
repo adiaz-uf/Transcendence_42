@@ -215,7 +215,7 @@ export default function Profile() {
           showModal={showModal} 
           handleCloseModal={() => setShowModal(false)} 
           newName={newName} 
-          setNewName={setNewName} 
+          setNewName={setNewName}
           newEmail={newEmail} 
           setNewEmail={setNewEmail} 
           newUsername={newUsername} 
