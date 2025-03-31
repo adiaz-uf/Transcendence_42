@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+/* import PropTypes from 'prop-types'; */
 import "../styles/MessageBox.css";
 
 const MessageBox = ({ 
@@ -65,12 +65,12 @@ const getProgressColor = (type) => {
     }
 };
 
-MessageBox.propTypes = {
+/* MessageBox.propTypes = {
     message: PropTypes.string.isRequired,
     type: PropTypes.oneOf(['info', 'success', 'error', 'warning']),
     duration: PropTypes.number,
     onClose: PropTypes.func
-};
+}; */
 
 export default MessageBox;
 

@@ -20,7 +20,7 @@ class PongConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.send(json.dumps({"message": "Connected", "game_id": self.game_id}))
     
-        self.game_task = asyncio.create_task(self.game_loop())  
+        self.game_task = asyncio.create_task(self.game_loop())
 
     async def disconnect(self, close_code):
         game_manager.remove_player(self.player_id)
@@ -51,7 +51,6 @@ class PongConsumer(AsyncWebsocketConsumer):
     async def handle_game_active(self, data):
         print("set game_active to ", data.get("game_active", False) )
         self.game.game_active = data.get("game_active", False)
-
 
     async def sendResponse(self, message):
         await self.send(json.dumps(message))
