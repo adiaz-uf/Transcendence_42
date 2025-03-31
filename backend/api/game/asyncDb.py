@@ -4,32 +4,30 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-@database_sync_to_async
-def get_match_instance(matchId):
-    return Match.objects.get(pk=matchId)
+
 
 @database_sync_to_async
-def save_match_instance(match_db_instance):
-    match_db_instance.save()
-
-async def get_match(matchId, userId):
+def async_get_User_instance(userId):
     try:
-        # Check if the match exists in the database
-        match_db_instance = await get_match_instance(matchId)
+        from api.models import UserProfile
 
-        # Check if player requesting is leftplayer (creator)
-        if match_db_instance.player_left == userId:
-            return True
-        else:  # No? Maybe player right (invited)
-            if match_db_instance.player_right == userId:  # Have you connected before?
-                return True
-            if match_db_instance.player_right:  # Already someone in the match :(
-                logger.info("Match already started")
-                return False
-            else:
-                match_db_instance.player_right = userId  # All yours
-                await save_match_instance(match_db_instance)  # Save the updated match instance ASYNCRONOUUUSLYY
-                return True
+        return UserProfile.objects.get(pk=userId)
+    except ObjectDoesNotExist:
+        logger.info("User not found")
+        return False
+    except MultipleObjectsReturned:
+        logger.info("Multiple user found")
+        return False
+    except Exception as e:
+        logger.info(f"An error occurred: {e}")
+        return False
+
+
+@database_sync_to_async
+def async_get_Match_instance(matchId):
+    try:
+        from api.models import Match
+        return Match.objects.get(pk=matchId)
     except ObjectDoesNotExist:
         logger.info("Match not found")
         return False
@@ -39,3 +37,38 @@ async def get_match(matchId, userId):
     except Exception as e:
         logger.info(f"An error occurred: {e}")
         return False
+
+@database_sync_to_async #storing maybe perjudicial
+def async_save_match_instance(match_db_instance):
+    try:
+        match_db_instance.save()
+        return True
+    except:
+        return False
+
+
+# Returns an integer indicating the player number in the match
+async def IsPlayerinMatch(matchId, userId):
+        if not (await async_get_User_instance(userId)):
+            logger.info("User not found")
+            raise ObjectDoesNotExist("User not found")
+        
+        match_db_instance = await async_get_Match_instance(matchId)
+        if not match_db_instance:
+            raise ObjectDoesNotExist("Match not found")
+        # Check if player requesting is leftplayer (creator)
+        if match_db_instance.player_left == userId:
+            return 1
+        else:  # No? Maybe player right 
+            if match_db_instance.player_right == userId:  # Are you player 2 
+                return 2
+        return 0
+
+async def IsMultiplayerMatch(matchId):
+    from api.models import Match
+    match_db_instance = await async_get_Match_instance(matchId)
+    
+    if not match_db_instance:
+        raise ObjectDoesNotExist("Match not found")
+    return match_db_instance.is_multiplayer
+
