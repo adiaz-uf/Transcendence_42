@@ -22,9 +22,9 @@ urlpatterns = [
     path("setup-2fa/", Setup2FAView.as_view(), name='setup2fa'),# GET & POST
     path("auth/42/callback/", FTAuthCallbackView.as_view(), name='ft_callback'), #GET
 
-    path('matches/local/', MatchCreationView.as_view(), name='match-create'), #POST create matx
-    path('matches/local/<uuid:pk>', MatchScoreUpdateView.as_view(), name='match-update'),#UPDT Updates Matches scores and duration
-    path('matches/local/list', UserMatchListView.as_view(), name="list-match") ,# GET Can specify match-id or list all user matches
+    path('matches/', MatchCreationView.as_view(), name='match-create'), #POST create matx
+    path('matches/<uuid:pk>', MatchScoreUpdateView.as_view(), name='match-update'),#UPDT Updates Matches scores and duration
+    path('matches/list', UserMatchListView.as_view(), name="list-match") ,# GET Can specify match-id or list all user matches
     
     path("tournament/", CreateTournamentView.as_view(), name="tournament"),
 #   path('tournaments/<int:pk>/', TournamentDetailView.as_view(), name='tournament-detail'),
