@@ -170,54 +170,33 @@ class MatchCreationView(generics.CreateAPIView):
                         left_score=0,
                         right_score=0)
                         
-class OnlineMatchCreationView(generics.CreateAPIView):
-    serializer_class = MatchCreateSerializer
+class CreateOnlineMatchView(generics.CreateAPIView):
     permission_classes = [AllowAny]
+    queryset = Match.objects.all()
+    serializer_class = MatchSerializer 
 
-    def get_queryset(self):
-        return Match.objects.none
+    def post(self, request):
+        player_left = request.data.get('player_left')
+        player_right = request.data.get('player_right')
+        is_multiplayer = request.data.get('is_multiplayer', False)
+        left_score = request.data.get('left_score', 0)
+        right_score = request.data.get('right_score', 0)
+        is_started = request.data.get('is_started', False)
 
-    def perform_create(self, serializer):
-        """
-        Sobrescribir perform_create para asignar player_left, player_right,
-        y otros detalles como is_multiplayer e is_started al partido.
-        """
-        # Obtener el usuario autenticado para player_left
-        player_left = self.request.user
-
-        # Obtener el nombre de usuario del jugador derecho desde la solicitud
-        player_right_username = self.request.data.get("player_right")
-
-        # Verificar si se proporciona player_right
-        if not player_right_username:
-            raise ValidationError("El nombre de usuario de jugador derecho es obligatorio.")
-
-        # Validar si el jugador derecho existe
-        player_right = UserProfile.objects.filter(username=player_right_username).first()
-        if not player_right:
-            raise ValidationError(f"El jugador derecho con el nombre de usuario '{player_right_username}' no existe.")  # Si el jugador derecho no existe
-
-        # Determinar si el partido es multijugador o no
-        is_multiplayer = self.request.data.get("is_multiplayer", False)
-
-        # Determinar si el partido ha comenzado
-        is_started = self.request.data.get("is_started", False)
-
-        # Guardar el partido con los valores correspondientes
-        match = serializer.save(
-            player_left=player_left, 
-            player_right=player_right,
-            match_duration=0, 
-            left_score=0,     
-            right_score=0,    
+        is_multiplayer = True if is_multiplayer == 'true' or is_multiplayer is True else False
+        is_started = True if is_started == 'true' or is_started is True else False
+        # Crear un nuevo partido
+        match = Match.objects.create(
+            player_left_id=player_left,
+            player_right_id=player_right,
             is_multiplayer=is_multiplayer,
-            is_started=is_started
+            left_score=left_score,
+            right_score=right_score,
+            is_started=is_started,
         )
 
-        return Response(
-            {"message": "Partido creado con éxito", "match": serializer.data},
-            status=status.HTTP_201_CREATED
-        )
+        serializer = MatchSerializer(match)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class MatchScoreUpdateView(generics.UpdateAPIView):
     """
@@ -469,6 +448,19 @@ class CheckUsernameView(APIView):
         try:
             # Verifica si el usuario existe en la base de datos
             user = UserProfile.objects.get(username=username)
-            return Response({"exists": True}, status=status.HTTP_200_OK)
+
+            # Devuelve la información del usuario junto con "exists: True"
+            return Response({
+                "exists": True,
+                "userProfile": {
+                    "id": str(user.id),
+                    "username": user.username,
+                    "given_name": user.given_name,
+                    "surname": user.surname,
+                    "email": user.email
+                    # Puedes agregar más campos si los necesitas
+                }
+            }, status=status.HTTP_200_OK)
+        
         except UserProfile.DoesNotExist:
             return Response({"exists": False}, status=status.HTTP_404_NOT_FOUND)

@@ -34,31 +34,40 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
         });
 
         if (response.data.exists) {
-            console.log('User found. Sending invitation...');
-            
-            if (gameMode === "local") {
-                handleCloseModal(); // Close the modal after sending the invitatio
-            } else {
-              // Enviar una solicitud POST para crear un nuevo partido
-              const matchData = {
-                player_right: newUsername,  // Usamos el nuevo username para player_right
-                match_duration: 0,
-                left_score: 0,
-                right_score: 0,
-                is_multiplayer: true,
-                is_started: false
-              };
-              const matchResponse = await api.post(`/api/match/online/create/`, matchData, {
+          console.log('User found. Sending invitation...');
+          
+          // Obtener el perfil del jugador que está enviando la invitación (player_left)
+          const playerLeftResponse = await api.get(`/api/user/profile/`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+          });
+          const playerLeft = playerLeftResponse.data; // Datos del jugador que invita
+          console.log("playerLeft:", playerLeft);
+          const playerRight = response.data.userProfile; // Datos del jugador al que se le envía la invitación
+          console.log("playerRight:", playerRight);
+
+          if (gameMode === "local") {
+              handleCloseModal(); 
+          } else {
+            console.log("Creating match...");
+            const payload = {
+              player_left: playerLeft.id,
+              player_right: playerRight.id,
+              is_multiplayer: true,
+              left_score: 0,
+              right_score: 0,
+              is_started: false,
+            };
+            console.log("Payload antes de enviar:", payload);
+            // Enviar una solicitud POST para crear un nuevo partido
+            const matchResponse = await api.post('/api/match/online/create/', payload, {
                 headers: {
-                    Authorization: `Bearer ${token}`,  // Include the JWT token in the header
+                    Authorization: `Bearer ${token}`,
                 },
             });
-
-            if (matchResponse.status === 201) {
-              console.log('Match created successfully');
-              handleCloseModal();
-              // Redirigir o realizar alguna acción adicional si es necesario
-            }
+            console.log('Match created', matchResponse.data);
+            handleCloseModal();
           }
         }
     } catch (error) {

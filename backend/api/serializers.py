@@ -80,45 +80,10 @@ class MatchSerializer(serializers.ModelSerializer):
         model = Match
         fields = '__all__'
 
-from rest_framework import serializers
-from .models import Match, UserProfile
-
 class MatchCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
-        fields = ['match_duration', 'left_score', 'right_score', 'is_multiplayer', 'is_started', 'player_left', 'player_right']
-
-    def validate_player_right(self, value):
-        """Buscar al jugador derecho por su nombre de usuario (username)."""
-        player_right = UserProfile.objects.filter(username=value).first()
-        if not player_right:
-            raise ValidationError(f"El jugador derecho con el nombre de usuario '{value}' no existe.")
-        return player_right
-
-    def create(self, validated_data):
-        """Crear el partido y asignar correctamente los jugadores."""
-        # Obtener el jugador que está autenticado (player_left)
-        player_left = self.context['request'].user
-
-        # Obtener el jugador derecho (player_right) a partir del username
-        player_right = validated_data.get('player_right')
-
-        # Validar que player_right esté presente y sea un usuario válido
-        if not player_right:
-            raise ValidationError("El jugador derecho es obligatorio.")
-        
-        # Crear el partido con los datos proporcionados
-        match = Match.objects.create(
-            player_left=player_left,
-            player_right=player_right,
-            match_duration=validated_data.get('match_duration', None),
-            left_score=validated_data.get('left_score', 0),
-            right_score=validated_data.get('right_score', 0),
-            is_multiplayer=validated_data.get('is_multiplayer', False),
-            is_started=validated_data.get('is_started', False)
-        )
-        
-        return match
+        fields = ['player_left', 'player_right', 'is_multiplayer', 'left_score', 'right_score', 'is_started']
 
 # Goal Statistics Serializer
 class UserStatSerializer(serializers.ModelSerializer):
