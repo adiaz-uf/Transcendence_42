@@ -50,12 +50,16 @@ class MatchCreationView(generics.CreateAPIView):
         if not username:
             return UserProfile.objects.none()
         else:
-            return UserProfile.objects.filter(username=username)
-    
+            try:
+                return UserProfile.objects.filter(username=username)
+            except:
+                return UserProfile.objects.none()
     def get_object(self):
         # Retrieve single Object from querySet
         queryset = self.get_queryset()
-        return queryset.first()
+        if queryset.count() == 1:
+            return queryset.first()
+        return None
 
     def perform_create(self, serializer):
         """
@@ -67,7 +71,8 @@ class MatchCreationView(generics.CreateAPIView):
                         player_right=player_right,
                         match_duration=timedelta(minutes=0, seconds=0),
                         left_score=0,
-                        right_score=0)
+                        right_score=0,
+                        is_multiplayer=self.request.data.get("is_multiplayer", False))
         if serializer.is_valid():
             return Response(
                 {"message": "Match Created !", "match": serializer.validated_data},
