@@ -257,6 +257,15 @@ class UserMatchListView(generics.ListAPIView):
             player_right=self.request.user
         )
 
+
+class AvailableMatchView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = MatchSerializer
+
+    def get_queryset(self):
+        return Match.objects.filter(is_multiplayer=True, is_started=False, )
+
+
     
 # class MatchesPlayedView(APIView):
 #     permission_classes = [IsAuthenticated]
