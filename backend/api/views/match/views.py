@@ -29,9 +29,7 @@ class AvailableMatchView(generics.ListAPIView):
     def get_queryset(self):
         return Match.objects.filter(
                 is_multiplayer=True,
-                is_started=False,
-                player_right=self.request.user
-        )
+                player_right=self.request.user)
         
 class UserMatchListView(generics.ListAPIView):
     serializer_class = MatchSerializer

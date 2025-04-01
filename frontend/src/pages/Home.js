@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import NavBar from '../components/navigation/Navbar';
 import '../styles/App.css';
 import GameApp from '../components/game/GameApp';

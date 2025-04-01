@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Form, Button, Modal } from 'react-bootstrap';
 import api from '../../api';
 import { ACCESS_TOKEN } from "../../constants"; 
@@ -8,7 +7,6 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
   const [newUsername, setNewUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isInviting, setIsInviting] = useState(false);
-  const navigate = useNavigate();
 
   const handleUsernameInvite = async (e) => {
     e.preventDefault();
