@@ -54,6 +54,5 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
         if password:  # Hash password before saving
             instance.set_password(password)
-
         instance.save()
         return instance

@@ -1,13 +1,13 @@
 import { Button, Form, Spinner, Image } from 'react-bootstrap';
 import { useState, useEffect } from "react";
 import api from "../api";
+import LoginForm from "../components/LoginForm"
 import '../styles/login.css'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import MessageBox from '../components/MessageBox';
 
 export default function Login({route}) {
-
 	const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 	const [code, setCode] = useState("");
@@ -79,8 +79,8 @@ export default function Login({route}) {
                 headers: { Authorization: `Bearer ${accessToken}` }
             })
             .then(response => {
-                const username = response.data.username; 
-                localStorage.setItem("username", username); 
+                const username = response.data.username;
+                localStorage.setItem("username", username);
                 navigate("/");
             })
             .catch(error => {
@@ -161,11 +161,17 @@ export default function Login({route}) {
 					<MessageBox 
 						message={message}
 						type={messageType}
-						onClose={() => setMessage(null)}
-					/>
-					)}
-					</div>
-				</div>
-			</div>
-    );
+						onClose={() => se    // return (
+							// 	<div className='login-container'>
+							// 		<h1 className='header'>Welcome to pong!</h1>
+							// 		<h1 className='header'>Login to play</h1>
+							// 		<LoginForm route={route} navigateTo="/"></LoginForm>
+							// 	</div>
+							// );
+	// 	<div className='login-container'>
+	// 		<h1 className='header'>Welcome to pong!</h1>
+	// 		<h1 className='header'>Login to play</h1>
+	// 		<LoginForm route={route} navigateTo="/"></LoginForm>
+	// 	</div>
+    // );
 }

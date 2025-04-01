@@ -235,7 +235,7 @@ export default function Profile() {
           handleClose2FAModal={() => setShow2FAModal(false)} 
           is2FAEnabled={is2FAEnabled} 
           qrCode={qrCode} 
-          secret={secret} 
+          secret={secret}
           twoFACode={twoFACode} 
           setTwoFACode={setTwoFACode} 
           handleToggle2FA={handleToggle2FA} 
