@@ -22,7 +22,17 @@ from api.serializer.match.serializer import MatchSerializer
 
 #------------------------------------MAtches views -----------------------------------------
 
+class AvailableMatchView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = MatchSerializer
 
+    def get_queryset(self):
+        return Match.objects.filter(
+                is_multiplayer=True,
+                is_started=False,
+                player_right=self.request.user
+        )
+        
 class UserMatchListView(generics.ListAPIView):
     serializer_class = MatchSerializer
     permission_classes = [IsAuthenticated]
@@ -81,7 +91,6 @@ class MatchCreationView(generics.CreateAPIView):
         else:
             return Response({'error': 'No match created'}, status=400)
         
-
 class MatchScoreUpdateView(generics.UpdateAPIView):
     """
     Updates Match info

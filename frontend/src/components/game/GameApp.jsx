@@ -7,8 +7,9 @@ import InvitePlayer from "./InvitePlayerModal";
 import Login from "../../pages/Login";  // Asegúrate de importar el componente Login
 import { ACCESS_TOKEN } from "../../constants";
 import MessageBox from '../MessageBox';
+import GameBoard from "../GamesBoard";
 
-// Componente Padre, guarda estado de selección de juego y conexión websocket
+// Parent component that holds game mode selection and WebSocket connection state
 const GameApp = () => {
   const [gameMode, setGameMode] = useState(null); // Guardará el modo seleccionado (local o online)
   const [MatchId, setMatchId] = useState("");
@@ -16,37 +17,20 @@ const GameApp = () => {
   const [messageType, setMessageType] = useState("")
   const [showModal, setShowModal] = useState(false); // Controla el estado del modal
   const [showLogin, setShowLogin] = useState(false); // Controla la visibilidad del Login
+  const [showBoard, setShowBoard] = useState(false); // Controls the visibility of the Board
   const [gameState, setGameState] = useState({
+    
     game_active: true,
-    // Estado players
+    // Players state
     players: {
-        'left': {
-            'x': 10,
-            'y': 150,
-            'width': 15,
-            'height': 115,
-            'speed': 5,
-            'score': 0
-        },
-        'right': {
-            'x': 880,
-            'y': 150,
-            'width': 15,
-            'height': 115,
-            'speed': 5,
-            'score': 0
-        }
+      'left': { 'x': 10, 'y': 150, 'width': 15, 'height': 115, 'speed': 5, 'score': 0 },
+      'right': { 'x': 880, 'y': 150, 'width': 15, 'height': 115, 'speed': 5, 'score': 0 }
     },
-    // Estado ball
-    ball: {
-        'x': 400,
-        'y': 200,
-        'radio': 5,
-        'rx': 11,
-        'ry': -11
-    }
+    // Ball state
+    ball: { 'x': 400, 'y': 200, 'radio': 5, 'rx': 11, 'ry': -11 }
   });
 
+  // WebSocket update listener
   const StateLinkerGameWebSocket = useCallback((setGameState) => {
     webSocketClient.listenForGameUpdates((gameUpdate) => {
       console.log("Received game update:", gameUpdate);
@@ -69,10 +53,12 @@ const GameApp = () => {
           ...prevState.pelota,
           ...(gameUpdate.pelota || {}), // Merge pelota if updated
         },
+        pelota: { ...prevState.pelota, ...(gameUpdate.pelota || {}) } // Merge pelota if updated
       }));
     });
   });
 
+  // Initialize game based on mode
   const InitGame = (mode) => {
     setGameMode(mode);
     if (mode === null) {
@@ -84,32 +70,54 @@ const GameApp = () => {
     }
   };
 
+  // Close modal and start the game
   const handleCloseModal = () => {
-    setShowModal(false); // Cierra el modal
-    InitGame(gameMode); // Inicia el juego con el modo seleccionado
+    setShowModal(false);
+    InitGame(selectedMode); // Start the game with the selected mode
   };
 
+  const handleCloseBoard = () => {
+    setShowBoard(false);
+    InitGame(selectedMode); // Start the game with the selected mode
+  };
+
+
+  // Handle game mode selection
   const handleGameModeSelect = (mode) => {
-    setGameMode(mode); // Guarda el modo seleccionado (local o online)
-    api.post("matches/", { 
-      player_left: localStorage.getItem('userId'),
-      is_multiplayer: (mode=="online")? true:false}, {
-        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` }}).then(response => {
-        setMatchId(response.Match.id)
-        }).catch(error => {
-      setMessage(`Error with new Match`);
-      setMessageType("error");
-      });
-    setShowModal(true); // Muestra el modal
+    if (mode === "local")
+    {
+      setSelectedMode(mode); 
+      api.post("matches/", { 
+        player_left: localStorage.getItem('userId'),
+        is_multiplayer:false}, {
+          headers: { Authorization: `Bearer ${ACCESS_TOKEN}` }}).then(response => {
+          setMatchId(response.Match.id)
+          }).catch(error => {
+        setMessage(`Error with new Match`);
+        setMessageType("error");
+        });
+      setShowModal(true); 
+    }
+    else if (mode === "online-create") {
+      setShowModal(true);
+      api.post("matches/", { 
+        player_left: localStorage.getItem('userId'),
+        is_multiplayer:true}, {
+          headers: { Authorization: `Bearer ${ACCESS_TOKEN}` }}).then(response => {
+          setMatchId(response.Match.id)
+          }).catch(error => {
+        setMessage(`Error with new Match`);
+        setMessageType("error");
+        });
+      setSelectedMode(mode);
+    }
+    else if (mode === "online-join") {
+      setShowBoard(true);
+      setSelectedMode(mode);
+    }
   };
 
-  const handleLoginSuccess = () => {
-    setShowLogin(false); // Oculta el login después de un inicio de sesión exitoso
-    InitGame(gameMode); // Inicia el juego después del login
-  };
-
-  return (
-    <div className="game-container">
+  return (<div className="game-container">
       {gameMode === null ? (
         <Menu onGameModeSelect={handleGameModeSelect} />
       ) : (
@@ -127,15 +135,14 @@ const GameApp = () => {
       <InvitePlayer 
         showModal={showModal} 
         handleCloseModal={handleCloseModal}
-        gameMode={gameMode} // Pasa el modo de juego al modal
-        setShowLogin={setShowLogin} // Pasa la función para mostrar el login
+        gameMode={selectedMode}
       />
-
-      {/* Mostrar el componente Login solo si showLogin es true */}
-      {showLogin && <Login route="/api/login" onLoginSuccess={handleLoginSuccess} />} 
+      <GameBoard 
+        showBoard={showBoard}
+        handleCloseBoard={handleCloseBoard}
+      />
     </div>
   );
 };
 
 export default GameApp;
-

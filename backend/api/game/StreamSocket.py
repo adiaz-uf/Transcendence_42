@@ -131,12 +131,12 @@ class StreamSocket(AsyncWebsocketConsumer):
     async def __game_loop(self):
         print(f"[{self.matchId}] [{self.player_1}]- LOOP STARTED - ")
         gameobject = session_manager.getGameObject(self.matchId)
-        
+
         while 42:
             if gameobject.IsGameActive():
                 self.game.update_ball()
                 self.game.endGame()
                 await self.channel_layer.group_send(self.matchId, {"type": "game_update", "players": self.game.players, "ball": self.game.ball})
                 await asyncio.sleep(0.01)  # 60ms delay for smooth updates
-            
+    
         print(f"[{self.matchId}]  [{self.player_1}] - LOOP ENDED - ")
