@@ -5,7 +5,6 @@ import { ACCESS_TOKEN } from "../constants";
 import '../styles/profile.css';
 import NavBar from '../components/navigation/Navbar';
 import Stat from '../components/Stat';
-import Alert from '../components/Alert';
 import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
 import MessageBox from '../components/MessageBox';
@@ -14,14 +13,13 @@ export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [messageType, setMessageType] = useState("");
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [is42user, setIs42user] = useState(false);
-  const [matchesPlayed, setMatchesPlayed] = useState(0);
-  const [matchesWon, setMatchesWon] = useState(0);
+  const [matchesPlayed] = useState(0);
+  const [matchesWon] = useState(0);
   const [matchesLosed, setMatchesLosed] = useState(0);
   const [winRatio, setWinRatio] = useState(0);
 
@@ -100,10 +98,10 @@ export default function Profile() {
     e.preventDefault();
     const updatedData = {};
     if (newEmail) {
-      updatedData.email = email;
+      updatedData.email = newEmail;
     }
     if (newUsername) {
-      updatedData.username = username;
+      updatedData.username = newUsername;
     }
     if (newName) {
       updatedData.given_name = newName.split(' ')[0];
@@ -113,18 +111,17 @@ export default function Profile() {
       updatedData.password = newPassword;
     }
     try {
-      if (Object.keys(updatedData).length == 0)
+      if (Object.keys(updatedData).length === 0)
         return;
       const response = await api.patch('/api/user/profile/', updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
+      console.log(response);
       setName(`${response.data.given_name} ${response.data.surname}`);
       setEmail(response.data.email);
       setUsername(response.data.username);
-      setPassword(newPassword);
       handleCloseModal();
-      localStorage.setItem("username", response.data.username);
-      fetchProfileData();
+      window.location.reload();
     } catch (error) {
       //No errors in console console.error("Error updating profile:", error);
       setError("Error updating profile");

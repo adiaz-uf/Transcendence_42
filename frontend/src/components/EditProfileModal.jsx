@@ -1,8 +1,6 @@
 import React from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 import MessageBox from './MessageBox';
-import { ACCESS_TOKEN } from "../constants"; 
-import api from '../api';
 import { useState } from 'react';
 
 export default function EditProfileModal({ showModal, handleCloseModal, newName, setNewName,
@@ -37,8 +35,7 @@ export default function EditProfileModal({ showModal, handleCloseModal, newName,
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Enter your name"
-            />
+              placeholder="Enter your name"/>
           </Form.Group>
           <Form.Group controlId="formUsername">
             <Form.Label>Username</Form.Label>

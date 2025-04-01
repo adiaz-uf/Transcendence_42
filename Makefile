@@ -15,7 +15,7 @@ up:  ## Start the Docker containers
 	$(DOCKER_COMPOSE) up -d
 
 down:  ## Stop and remove the Docker containers
-	$(DOCKER_COMPOSE) down
+	$(DOCKER_COMPOSE) down --timeout 2
 
 build:  ## Build the Docker containers
 	$(DOCKER_COMPOSE) build

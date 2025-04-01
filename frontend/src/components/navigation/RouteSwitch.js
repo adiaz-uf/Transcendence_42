@@ -6,7 +6,7 @@ import NotFound from '../../pages/NotFound'
 import Profile from '../../pages/Profile'
 import Alert from '../../components/Alert'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute'
+//import ProtectedRoute from './ProtectedRoute'
 
 function Logout() {
     localStorage.clear()

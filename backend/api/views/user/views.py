@@ -93,32 +93,32 @@ class CheckUserExistsView(generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         """Return user existence status."""
         user = self.get_queryset().first()
-        return Response({"exists": bool(user)}, status=status.HTTP_200_OK)
+        return Response({"exists": bool(user), "user":user}, status=status.HTTP_200_OK)
 
 
-class CheckUsernameView(APIView):
-    permission_classes = [IsAuthenticated]
-    serilzer
-    def get(self, request, username, format=None):
-        try:
-            # Verifica si el usuario existe en la base de datos
-            user = UserProfile.objects.get(username=username)
+# class CheckUsernameView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     serilzer
+#     def get(self, request, username, format=None):
+#         try:
+#             # Verifica si el usuario existe en la base de datos
+#             user = UserProfile.objects.get(username=username)
 
-            # Devuelve la información del usuario junto con "exists: True"
-            return Response({
-                "exists": True,
-                "userProfile": {
-                    "id": str(user.id),
-                    "username": user.username,
-                    "given_name": user.given_name,
-                    "surname": user.surname,
-                    "email": user.email
-                    # Puedes agregar más campos si los necesitas
-                }
-            }, status=status.HTTP_200_OK)
+#             # Devuelve la información del usuario junto con "exists: True"
+#             return Response({
+#                 "exists": True,
+#                 "userProfile": {
+#                     "id": str(user.id),
+#                     "username": user.username,
+#                     "given_name": user.given_name,
+#                     "surname": user.surname,
+#                     "email": user.email
+#                     # Puedes agregar más campos si los necesitas
+#                 }
+#             }, status=status.HTTP_200_OK)
         
-        except UserProfile.DoesNotExist:
-            return Response({"exists": False}, status=status.HTTP_404_NOT_FOUND)
+#         except UserProfile.DoesNotExist:
+#             return Response({"exists": False}, status=status.HTTP_404_NOT_FOUND)
 
 
 # LOGIN VIEW: for logging into the account

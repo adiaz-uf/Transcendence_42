@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from api.views.user.views import CreateUserView, UserProfileView, LoginView, CheckUserExistsView
-from api.views.match.views import MatchCreationView, UserMatchListView, MatchScoreUpdateView
+from api.views.match.views import MatchCreationView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
 from api.views.auth.TwoFA import Setup2FAView
 from api.views.auth.auth42 import FTAuthCallbackView
 from api.views.tournament.views import CreateTournamentView

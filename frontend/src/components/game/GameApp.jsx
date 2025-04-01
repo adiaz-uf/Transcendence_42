@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import Gameplay from "./Gameplay";
 import webSocketClient from "./ClientWebSocket";
 import api from "../../api";
 import Menu from "./Menu";
 import InvitePlayer from "./InvitePlayerModal";
-import Login from "../../pages/Login";  // Asegúrate de importar el componente Login
+// import Login from "../../pages/Login";  // Asegúrate de importar el componente Login
 import { ACCESS_TOKEN } from "../../constants";
 import MessageBox from '../MessageBox';
 import GameBoard from "../GamesBoard";
@@ -16,7 +16,7 @@ const GameApp = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("")
   const [showModal, setShowModal] = useState(false); // Controla el estado del modal
-  const [showLogin, setShowLogin] = useState(false); // Controla la visibilidad del Login
+  //const [showLogin, setShowLogin] = useState(false); // Controla la visibilidad del Login
   const [showBoard, setShowBoard] = useState(false); // Controls the visibility of the Board
   const [gameState, setGameState] = useState({
     
@@ -30,8 +30,7 @@ const GameApp = () => {
     ball: { 'x': 400, 'y': 200, 'radio': 5, 'rx': 11, 'ry': -11 }
   });
 
-  // WebSocket update listener
-  const StateLinkerGameWebSocket = useCallback((setGameState) => {
+  const StateLinkerGameWebSocket = (setGameState) => {
     webSocketClient.listenForGameUpdates((gameUpdate) => {
       console.log("Received game update:", gameUpdate);
       setGameState((prevState) => ({
@@ -39,25 +38,25 @@ const GameApp = () => {
         ...gameUpdate,
         players: {
           ...prevState.players,
-          ...gameUpdate.players, // Merge players if updated
+          ...gameUpdate.players,
           left: {
             ...prevState.players.left,
-            ...(gameUpdate.players?.left || {}), // Merge left if updated
+            ...(gameUpdate.players?.left || {}),
           },
           right: {
             ...prevState.players.right,
-            ...(gameUpdate.players?.right || {}), // Merge right if updated
+            ...(gameUpdate.players?.right || {}),
           },
         },
         ball: {
           ...prevState.pelota,
-          ...(gameUpdate.pelota || {}), // Merge pelota if updated
+          ...(gameUpdate.pelota || {}),
         },
-        pelota: { ...prevState.pelota, ...(gameUpdate.pelota || {}) } // Merge pelota if updated
+        pelota: { ...prevState.pelota, ...(gameUpdate.pelota || {}) },
       }));
     });
-  });
-
+  };
+  
   // Initialize game based on mode
   const InitGame = (mode) => {
     setGameMode(mode);
@@ -73,12 +72,12 @@ const GameApp = () => {
   // Close modal and start the game
   const handleCloseModal = () => {
     setShowModal(false);
-    InitGame(selectedMode); // Start the game with the selected mode
+    InitGame(gameMode); // Start the game with the selected mode
   };
 
   const handleCloseBoard = () => {
     setShowBoard(false);
-    InitGame(selectedMode); // Start the game with the selected mode
+    InitGame(gameMode); // Start the game with the selected mode
   };
 
 
@@ -86,7 +85,7 @@ const GameApp = () => {
   const handleGameModeSelect = (mode) => {
     if (mode === "local")
     {
-      setSelectedMode(mode); 
+      setGameMode(mode); 
       api.post("matches/", { 
         player_left: localStorage.getItem('userId'),
         is_multiplayer:false}, {
@@ -109,11 +108,11 @@ const GameApp = () => {
         setMessage(`Error with new Match`);
         setMessageType("error");
         });
-      setSelectedMode(mode);
+      setGameMode(mode);
     }
     else if (mode === "online-join") {
       setShowBoard(true);
-      setSelectedMode(mode);
+      setGameMode(mode);
     }
   };
 
@@ -135,7 +134,7 @@ const GameApp = () => {
       <InvitePlayer 
         showModal={showModal} 
         handleCloseModal={handleCloseModal}
-        gameMode={selectedMode}
+        gameMode={gameMode}
       />
       <GameBoard 
         showBoard={showBoard}

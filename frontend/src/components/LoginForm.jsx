@@ -4,8 +4,9 @@ import api from "../api";
 import '../styles/login.css'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import MessageBox from '../components/MessageBox';
 
-export default function Login({route, navigateTo, onLoginSuccess}) {
+export default function LoginForm({route, navigateTo, onLoginSuccess}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
@@ -13,6 +14,8 @@ export default function Login({route, navigateTo, onLoginSuccess}) {
   const [requires2FA, setRequires2FA] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+	const [message, setMessage] = useState("");
+	const [messageType, setMessageType] = useState('info');
 
   const handleSubmit = async (e) => {
     setLoading(true);

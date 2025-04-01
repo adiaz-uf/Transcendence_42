@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useCallback, useRef, useState, useEffect } from "react";
 import webSocketClient from "./ClientWebSocket";
 
 //TODO: Upgrade to a play or stop game but not closing conection by returning to menu
@@ -45,41 +45,43 @@ const Gameplay = ({ gameState, InitGame }) => {
       setPressedKeysSecondPlayer(null);}
   };
   // What to do for when key of player one is pressed
-  const sendPlayerMovesPlayerOne = () => {
+  const sendPlayerMovesPlayerOne = useCallback((pressedKeysPlayerOne) => {
     if (pressedKeysPlayerOne) {
       webSocketClient.sendPlayerMove(pressedKeysPlayerOne === "w" ? "up" : "down");
     }
-    PlayerOneFrameRef.current = requestAnimationFrame(sendPlayerMovesPlayerOne);
-  };
+    PlayerOneFrameRef.current = requestAnimationFrame(() => sendPlayerMovesPlayerOne(pressedKeysPlayerOne));
+  }, []);
   // What to do for when key of player 2 is pressed
-  const sendPlayerMovesSecondPlayer = () => {
+  const sendPlayerMovesSecondPlayer = useCallback((pressedKeysSecondPlayer) => {
     if (pressedKeysSecondPlayer) {
       webSocketClient.sendPlayerMove(pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down");
     }
-    SecondPlayerFrameRef.current = requestAnimationFrame(sendPlayerMovesSecondPlayer);
-  };
+    SecondPlayerFrameRef.current = requestAnimationFrame(() => sendPlayerMovesSecondPlayer(pressedKeysSecondPlayer));
+  }, []);
   
   // Reload frame when key is pressed and clean when destroyed
   useEffect(() => {
-    /* if (pressedKeysPlayerOne) { */
-      PlayerOneFrameRef.current = requestAnimationFrame(sendPlayerMovesPlayerOne);
-/*     } else {
-      cancelAnimationFrame(PlayerOneFrameRef.current);} */
+      if (pressedKeysPlayerOne){
+        PlayerOneFrameRef.current = requestAnimationFrame(() => sendPlayerMovesPlayerOne(pressedKeysPlayerOne));
+      }
+      else {
+      cancelAnimationFrame(PlayerOneFrameRef.current);
+      }
     return () => {
       cancelAnimationFrame(PlayerOneFrameRef.current);
     };
-  }, [pressedKeysPlayerOne]);
+  }, [pressedKeysPlayerOne, sendPlayerMovesPlayerOne] );
 
   useEffect(() => {
     if (pressedKeysSecondPlayer) {
-      SecondPlayerFrameRef.current = requestAnimationFrame(sendPlayerMovesSecondPlayer);
+      SecondPlayerFrameRef.current = requestAnimationFrame(() => sendPlayerMovesSecondPlayer(pressedKeysSecondPlayer));
     } else {
       cancelAnimationFrame(SecondPlayerFrameRef.current);
     }
     return () => {
       cancelAnimationFrame(SecondPlayerFrameRef.current);
     };
-  }, [pressedKeysSecondPlayer]);
+  }, [pressedKeysSecondPlayer, sendPlayerMovesSecondPlayer]);
 
   // Canvas initialization
   useEffect(() => {
