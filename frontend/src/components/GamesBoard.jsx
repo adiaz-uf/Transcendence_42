@@ -65,7 +65,9 @@ const GameBoardModal = ({ showBoard, handleCloseBoard }) => {
       <Modal.Body className="modal-body">
         <ListGroup>
           {matches.length === 0 ? (
-            <Card body className="text-center text-white">
+            <Card 
+              body className="text-center text-white" 
+              style={{"background-color":"#26292d", "border": "none"}}>
               No matches available.
             </Card>
           ) : (
@@ -74,13 +76,13 @@ const GameBoardModal = ({ showBoard, handleCloseBoard }) => {
                 <div>
                   <strong>{match.player_left_username}</strong> vs <strong>{match.player_right_username}</strong>
                 </div>
-                <Button variant="success">Join</Button>
+                <Button variant="success">Join Game</Button>
               </ListGroup.Item>
             ))
           )}
         </ListGroup>
       </Modal.Body>
-      <Modal.Footer>
+      <Modal.Footer style={{ border: 'none' }}>
         <Button variant="danger" onClick={handleCloseBoard}>Close</Button>
       </Modal.Footer>
     </Modal>
