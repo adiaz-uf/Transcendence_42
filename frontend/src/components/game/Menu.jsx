@@ -15,7 +15,6 @@ const Menu = ({ onGameModeSelect }) => {
 
   return (
     <div className="menu-container">
-        
           <h1>Select GamePlay mode</h1>
           {!showButtons && (
           <div>
