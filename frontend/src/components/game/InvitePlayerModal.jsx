@@ -25,9 +25,9 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
         }
 
         // Call the Django API to check if the username exists
-        const response = await api.get(`/api/check_username/${newUsername}/`, {
+        const response = await api.get(`/api/user/${newUsername}/`, {
             headers: {
-                Authorization: `Bearer ${token}`,  // Include the JWT token in the header
+              Authorization: `Bearer ${token}`,// Include the JWT token in the header
             },
         });
 
@@ -59,7 +59,7 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
             };
             console.log("Payload antes de enviar:", payload);
             // Enviar una solicitud POST para crear un nuevo partido
-            const matchResponse = await api.post('/api/match/online/create/', payload, {
+            const matchResponse = await api.post('/api/matches/online-create/', payload, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

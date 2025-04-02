@@ -88,7 +88,35 @@ class MatchCreationView(generics.CreateAPIView):
             )
         else:
             return Response({'error': 'No match created'}, status=400)
-        
+
+class CreateOnlineMatchView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    queryset = Match.objects.all()
+    serializer_class = MatchSerializer 
+
+    def post(self, request):
+        player_left = request.data.get('player_left')
+        player_right = request.data.get('player_right')
+        is_multiplayer = request.data.get('is_multiplayer', False)
+        left_score = request.data.get('left_score', 0)
+        right_score = request.data.get('right_score', 0)
+        is_started = request.data.get('is_started', False)
+
+        is_multiplayer = True if is_multiplayer == 'true' or is_multiplayer is True else False
+        is_started = True if is_started == 'true' or is_started is True else False
+        # Crear un nuevo partido
+        match = Match.objects.create(
+            player_left_id=player_left,
+            player_right_id=player_right,
+            is_multiplayer=is_multiplayer,
+            left_score=left_score,
+            right_score=right_score,
+            is_started=is_started,
+        )
+
+        serializer = MatchSerializer(match)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 class MatchScoreUpdateView(generics.UpdateAPIView):
     """
     Updates Match info
