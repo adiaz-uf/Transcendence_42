@@ -8,6 +8,7 @@ export default function Setup2FA() {
   const [qrCode, setQrCode] = useState('');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,7 +20,7 @@ export default function Setup2FA() {
         });
         setQrCode(response.data.qr_code);
       } catch (error) {
-        alert('Erreur lors de la récupération du QR code');
+        alert('Error while fetching the QR code');
         navigate('/login');
       }
     };
@@ -28,6 +29,7 @@ export default function Setup2FA() {
 
   const handleVerify = async () => {
     setLoading(true);
+	setErrorMessage('');
     try {
       const token = localStorage.getItem(ACCESS_TOKEN);
       const response = await api.post('/api/setup-2fa/', { code }, {
@@ -36,7 +38,11 @@ export default function Setup2FA() {
       alert(response.data.message);
       navigate('/');
     } catch (error) {
-      alert(error.response?.data?.error || 'Erreur lors de la vérification');
+		if (error.response?.status === 400) {
+			setErrorMessage('There was an issue with the information you provided. Please check your input and try again.');
+		} else {
+			setErrorMessage(error.response?.data?.error || 'An error occurred during verification.');
+		}
     } finally {
       setLoading(false);
     }
@@ -44,8 +50,8 @@ export default function Setup2FA() {
 
   return (
     <div className="setup-2fa-container" style={{ textAlign: 'center', padding: '20px' }}>
-      <h2>Activer la double authentification</h2>
-      <p>Scannez ce QR code avec une application comme Google Authenticator :</p>
+      <h2>Activate Two-Factor Authentication</h2>
+      <p>Scan this QR code with an app like Google Authenticator:</p>
       {qrCode && <img src={qrCode} alt="QR Code" />}
       <Form style={{ maxWidth: '300px', margin: '20px auto' }}>
         <Form.Group id="code" className="mb-4">
@@ -53,7 +59,7 @@ export default function Setup2FA() {
             type="text"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Entrez le code TOTP"
+            placeholder="Enter the TOTP code"
           />
         </Form.Group>
         <Button
@@ -62,7 +68,7 @@ export default function Setup2FA() {
           onClick={handleVerify}
           disabled={loading}
         >
-          {loading ? <Spinner animation="border" size="sm" /> : 'Vérifier et activer'}
+          {loading ? <Spinner animation="border" size="sm" /> : 'Verify and Activate'}
         </Button>
       </Form>
     </div>
