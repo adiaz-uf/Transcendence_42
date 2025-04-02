@@ -88,7 +88,10 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
       <Modal.Body>
         {isInvited ? (
           <div className="d-flex flex-column text-center align-items-center justify-content-center">
-            <div class="loader"></div> 
+            <div className="loader">
+              <div class="wall-left"></div>
+              <div class="wall-right"></div>
+            </div> 
             <h4>Waiting for opponent to join...</h4>
             <Button variant="danger" className="mt-3" onClick={handleCloseModal}>
               Go back
