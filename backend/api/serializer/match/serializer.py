@@ -29,7 +29,17 @@ class CustomDurationField(serializers.DurationField):
 
 # Match Serializer
 class MatchSerializer(serializers.ModelSerializer):
-    match_duration = CustomDurationField(required=False, default=timedelta(minutes=0))  # Default value
+    player_left_username = serializers.CharField(source='player_left.username', read_only=True)
+    player_right_username = serializers.CharField(source='player_right.username', read_only=True)
+
     class Meta:
         model = Match
-        fields = '__all__'
+        fields = ['id', 'date', 'is_multiplayer', 'is_started', 'left_score', 'right_score', 
+                  'match_duration', 'player_left_username', 'player_right_username']
+
+
+#class MatchSerializer(serializers.ModelSerializer):
+#    match_duration = CustomDurationField(required=False, default=timedelta(minutes=0))  # Default value
+#    class Meta:
+#        model = Match
+#        fields = '__all__'
