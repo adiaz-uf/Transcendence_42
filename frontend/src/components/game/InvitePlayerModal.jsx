@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
+import { Form, Button, Modal, Spinner } from 'react-bootstrap';
 import api from '../../api';
 import { ACCESS_TOKEN } from "../../constants"; 
+import '../../styles/game.css'
 
 const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
   const [newUsername, setNewUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isInviting, setIsInviting] = useState(false);
+  const [isInvited, setIsInvited] = useState(false); // Estado para controlar si se envió la invitación
 
   const handleUsernameInvite = async (e) => {
     e.preventDefault();
@@ -27,7 +29,7 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
         // Call the Django API to check if the username exists
         const response = await api.get(`/api/user/${newUsername}/`, {
             headers: {
-              Authorization: `Bearer ${token}`,// Include the JWT token in the header
+              Authorization: `Bearer ${token}`, // Include the JWT token in the header
             },
         });
 
@@ -64,8 +66,7 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log('Match created', matchResponse.data);
-            handleCloseModal();
+            setIsInvited(true); // Cambia el estado a "invitación enviada"
           }
         }
     } catch (error) {
@@ -82,23 +83,33 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
   return (
     <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal">
       <Modal.Header closeButton>
-        <Modal.Title>Enter your opponent username</Modal.Title>
+        <Modal.Title>{isInvited ? 'Waiting Opponent' : 'Enter your opponent username'}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleUsernameInvite}>
-          <Form.Group controlId="formName">
-            <Form.Label>Username</Form.Label>
-            <Form.Control
+        {isInvited ? (
+          <div className="d-flex flex-column text-center align-items-center justify-content-center">
+            <div class="loader"></div> 
+            <h4>Waiting for opponent to join...</h4>
+            <Button variant="danger" className="mt-3" onClick={handleCloseModal}>
+              Go back
+            </Button>
+          </div>
+        ) : (
+          <Form onSubmit={handleUsernameInvite}>
+            <Form.Group controlId="formName">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
                 type="text"
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
                 placeholder="Username"
                 required />
-          </Form.Group>
-          <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isInviting}>
-            {isInviting ? 'Inviting...' : 'Invite User'}
-          </Button>
-        </Form>
+            </Form.Group>
+            <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isInviting}>
+              {isInviting ? 'Inviting...' : 'Invite User'}
+            </Button>
+          </Form>
+        )}
         {errorMessage && <div className="mt-3 text-danger">{errorMessage}</div>}
       </Modal.Body>
     </Modal>
