@@ -39,9 +39,9 @@ class StreamSocket(AsyncWebsocketConsumer):
             "game_active": self.__handle_game_active}
 
     async def connect(self):
-        logger.info("WS SCOPE: {self.scope}")
+        logger.info(f"WS SCOPE: %s",json.dumps(my_dict))
         self.player_1 = self.scope["user"].id  # Unique ID for each player from User model since auth is used
-        logger.info("WS connectfrom: {self.player_1}")
+        logger.info("WS connectfrom: %s", self.player_1)
         await self.accept()
         await self.send(json.dumps({"message": "Connected"}))
 
@@ -54,13 +54,13 @@ class StreamSocket(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        message_type = data.get("type")
+        message_type = data.get("type", None)
 
         # Route the message to the appropriate handler
-        if message_type in self.message_handlers:
+        if message_type in self.__message_handlers:
             await self.__message_handlers[message_type](data)
         else:
-            print(f"Unknown message type: {message_type}")
+            print(f"Unknown message: {data}")
 
     async def __handle_MatchSessionPairing(self, data):
         """Confirm socket session with a match"""
@@ -129,7 +129,7 @@ class StreamSocket(AsyncWebsocketConsumer):
         gameobject.SetGameActive(data.get("game_active", False))
 
     async def __game_loop(self):
-        print(f"[{self.matchId}] [{self.player_1}]- LOOP STARTED - ")
+        print(f"[- LOOP STARTED - ", self.matchId)
         gameobject = session_manager.getGameObject(self.matchId)
 
         while 42:
@@ -139,4 +139,4 @@ class StreamSocket(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(self.matchId, {"type": "game_update", "players": self.game.players, "ball": self.game.ball})
                 await asyncio.sleep(0.01)  # 60ms delay for smooth updates
     
-        print(f"[{self.matchId}]  [{self.player_1}] - LOOP ENDED - ")
+        print("[- LOOP ENDED - ", self.matchId)

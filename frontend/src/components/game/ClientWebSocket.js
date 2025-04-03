@@ -1,24 +1,31 @@
-
 class ClientWebSocket {
     constructor(serverUrl) {
+        if (ClientWebSocket.instance) {
+            return ClientWebSocket.instance; // Ensure singleton instance
+        }
         this.serverUrl = serverUrl;
         this.socket = null;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 10;
         this.reconnectDelay = 2000;
         this.gameUpdateCallback = null;
-        this.userId = this.getUserId();
-        
-        //this.connect();
-    }
+        this.userId = localStorage.getItem("userId");
+        this.matchId = null;
+        this.manualClose = false;
 
-    getUserId() {
-        return localStorage.getItem("userId");
+        ClientWebSocket.instance = this;
     }
 
     connect(matchId) {
+
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            console.warn("WebSocket is already connected.");
+            return;
+        }
+
         this.matchId = matchId
         this.socket = new WebSocket(this.serverUrl);
+        console.log("Connecting WebSocket with matchId:", matchId);
 
         this.socket.addEventListener("open", () => {
             console.log("Connected to WebSocket server");
@@ -51,7 +58,6 @@ class ClientWebSocket {
 
     close() {
         console.log("Closing WebSocket...");
-        this.manualClose = true;
         if (this.socket) {
             this.socket.removeEventListener("open", this.connect);
             this.socket.removeEventListener("message", this.gameUpdateCallback);
@@ -73,11 +79,20 @@ class ClientWebSocket {
     }
 
     sendMessage(message) {
-        if (this.socket.readyState === WebSocket.OPEN) {
+
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
         } else {
             console.warn("WebSocket not ready. Message not sent.");
         }
+    }
+
+    sendPlayerMove(direction) {
+        this.sendMessage({
+            type: "update",
+            userId: this.userId,
+            direction
+        });
     }
 
     handleServerMessage(data) {
@@ -85,8 +100,8 @@ class ClientWebSocket {
             if (this.gameUpdateCallback) {
                 this.gameUpdateCallback(data);
             }
-        } else if (data.type === "joined") {
-            console.log("Successfully joined the match.");
+        } else if (data.type === "invite") {
+            console.log("Someone invited you !");
         } else if (data.type === "Error") {
             console.error("Server Error:", data.message);
         } else {
@@ -94,13 +109,6 @@ class ClientWebSocket {
         }
     }
 
-    sendPlayerMove(data) {
-        this.sendMessage({
-            type: "update",
-            userId: this.userId,
-            direction: data,
-        });
-    }
 
     listenForGameUpdates(callback) {
         this.gameUpdateCallback = callback;
@@ -108,7 +116,7 @@ class ClientWebSocket {
 }
 
 // Initialize WebSocketManager
-const clientWS = new ClientWebSocket(`wss://${window.location.host}/game/`);
+const clientWS = new ClientWebSocket(`wss://${window.location.host}:8000/game/`);
 
 // export const connect = () => webSocketClient.connect();
 

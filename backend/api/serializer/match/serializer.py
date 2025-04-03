@@ -29,7 +29,9 @@ class CustomDurationField(serializers.DurationField):
 
 # Match Serializer
 class MatchSerializer(serializers.ModelSerializer):
-    match_duration = CustomDurationField(required=False, default=timedelta(minutes=0))  # Default value
+    player_left_username = serializers.CharField(source='player_left.username', read_only=True)
+    player_right_username = serializers.CharField(source='player_right.username', read_only=True,  allow_null=True, default=None)
+
     class Meta:
         model = Match
         fields = '__all__'
