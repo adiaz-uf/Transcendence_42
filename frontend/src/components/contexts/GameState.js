@@ -1,7 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useWebSocket } from "./ClientWSContext";
+import { useGameSetting } from "./MenuContext";
 
-export function initializeGameState() {
+
+function initializeGameState() {
     return {
         game_active: true,
         players: {
@@ -11,6 +13,25 @@ export function initializeGameState() {
         ball: { x: 400, y: 200, radio: 5, rx: 11, ry: -11 },
     };
 }
+
+// Create context with a default value
+export const GameStateContext = React.createContext({
+  gameState: initializeGameState(),
+  setGameState: () => {},
+  webSocketClient: null
+});
+
+// Custom hook for easier context consumption
+export const useGameState = () => { // Allows to retrieve contextValue
+  const context = useContext(GameStateContext);
+  
+  if (context === undefined) {
+    throw new Error('useGameState must be used within a GameStateProvider');
+  }
+  
+  return context;
+};
+
 
 export function StateLinkerGameWebSocket({setGameState, webSocketClient}) {
     webSocketClient.listenForGameUpdates((gameUpdate) => {
@@ -38,38 +59,19 @@ export function StateLinkerGameWebSocket({setGameState, webSocketClient}) {
     });
 }
 
-// Create context with a default value
-export const GameStateContext = React.createContext({
-  gameState: initializeGameState(),
-  setGameState: () => {},
-  webSocketClient: null
-});
 
-// Custom hook for easier context consumption
-export const useGameState = () => { // Allows to retrieve contextValue
-  const context = useContext(GameStateContext);
-  
-  if (context === undefined) {
-    throw new Error('useGameState must be used within a GameStateProvider');
-  }
-  
-  return context;
-};
-
-const GameStateProvider = ({ children }) => { // Component Anchor for passing values and handling WS instance
+export const GameStateProvider = ({children}) => { // Component Anchor for passing values and handling WS instance
   const webSocketClient = useWebSocket();
+  const {matchId}= useGameSetting();
+  
   const [gameState, setGameState] = useState(initializeGameState);
 
   useEffect(() => {
     webSocketClient.connect(matchId);
     
-    const cleanup = StateLinkerGameWebSocket({
-      setGameState, 
-      webSocketClient
-    });
+    StateLinkerGameWebSocket({setGameState, webSocketClient});
 
     return () => {
-      cleanup();
       webSocketClient.close();
     };
   }, [matchId, webSocketClient]);
@@ -88,5 +90,4 @@ const GameStateProvider = ({ children }) => { // Component Anchor for passing va
   );
 };
 
-export default GameStateProvider; // USED TO INITIALIZE
 

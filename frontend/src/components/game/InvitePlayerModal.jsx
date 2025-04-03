@@ -28,6 +28,8 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
 
       console.log("Skipping invite, starting local game...");
       const localMatchResponse = await POSTcreateMatch(payload);
+      console.log("Match local response");
+      console.log(localMatchResponse)
       if (localMatchResponse) {
         setMatchId(localMatchResponse.id);
         console.log('Local match created:', localMatchResponse);
@@ -62,7 +64,10 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           is_started: false,
         };
         const playerRight = await GETCheckUsernameExists(newUsername);
+        console.log("recibiendo info de player right")
+        console.log(playerRight);
         payload.player_right = playerRight.get("id", null);
+        setOpponentUsername(newUsername)
 
         if (gameMode === "local") {
           console.log("Creating match...");
@@ -81,7 +86,6 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           navigate('/pong');
         }
         else { // ONLINE
-          setOpponentUsername(playerRight.get('username', 'None'));
           if (!id1 || payload.player_right){
             setErrorMessage("One of both player are missing");
           }

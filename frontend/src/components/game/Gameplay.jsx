@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useState, useEffect} from "react";
-import useGameState from "../contexts/GameState";
-import GameStateProvider from "../contexts/GameState";
+import {useGameState} from "../contexts/GameState";
+import {GameStateProvider} from "../contexts/GameState";
 
 const Gameplay = () => {
   const { gameState, ClientWS, matchId, setGameMode } = useGameState();
@@ -88,9 +88,12 @@ const Gameplay = () => {
       canvas.width = 900;
       canvas.height = 700;
     }
+    if (ClientWS)
+    {
+      ClientWS.sendMessage({"connectToMatch":matchId});
+      ClientWS.sendMessage({"game_active":true});
+    }
 
-    ClientWS.sendMessage({"connectToMatch":matchId});
-    ClientWS.sendMessage({"game_active":true});
     // add event function handlers for key presses
     window.addEventListener("keydown", handleKeyDownPlayers);
     window.addEventListener("keyup", handleKeyUpPlayers);
@@ -100,7 +103,7 @@ const Gameplay = () => {
       window.removeEventListener("keydown", handleKeyDownPlayers);
       window.removeEventListener("keyup", handleKeyUpPlayers);
     };
-  }, []);
+  }, [ClientWS, matchId]);
 
 //   useEffect(() => {
 //     // Escucha de eventos de WebSocket para goles
