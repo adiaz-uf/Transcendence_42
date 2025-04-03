@@ -6,11 +6,9 @@ export default function NavBar() {
     const [username, setUsername] = useState('');
 
     useEffect(() => {
-        const savedUsername = localStorage.getItem("username");
-        setUsername(savedUsername || 'Guest'); 
     }, []); 
-
-
+    
+    
     useEffect(() => {
         const handleStorageChange = () => {
             const savedUsername = localStorage.getItem("username");
@@ -23,6 +21,7 @@ export default function NavBar() {
     }, []);
 
     return (
+        <div tabIndex="0">
         <Navbar expand="lg" bg="dark" variant="dark" className="navbar-fixed-top">
             <Container>
                 <Navbar.Brand href="/">Transcendence</Navbar.Brand>
@@ -43,5 +42,6 @@ export default function NavBar() {
                 </Navbar.Collapse>
             </Container>
         </Navbar>
+        </div>
     );
 }

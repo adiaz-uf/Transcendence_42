@@ -1,22 +1,20 @@
-import React, { useCallback, useRef, useState, useEffect } from "react";
-import webSocketClient from "./ClientWebSocket";
+import React, { useCallback, useRef, useState, useEffect} from "react";
+import useGameState from "../contexts/GameState";
+import GameStateProvider from "../contexts/GameState";
 
-//TODO: Upgrade to a play or stop game but not closing conection by returning to menu
-const ReturnToMenu = ({InitGame}) => {
-
-  const handleClick = () => {
-    if (webSocketClient.socket?.readyState === WebSocket.OPEN) {
-      InitGame(null)
-    }
+const Gameplay = () => {
+  const { gameState, ClientWS, matchId, setGameMode } = useGameState();
+    
+  const handleReturnToMenu = () => {
+    // Optional: Send game end signal to backend
+    ClientWS.sendMessage({
+      type: 'game_end',
+      matchId
+    });
+    
+    // Return to menu
+    setGameMode(null);
   };
-  return (
-    <button onClick={handleClick}>
-      Menu
-    </button>
-  );
-};
-
-const Gameplay = ({ gameState, InitGame }) => {
   // html ref for canvas
   const canvasRef = useRef(null);
   const GameFrameRef = useRef(null);
@@ -47,17 +45,17 @@ const Gameplay = ({ gameState, InitGame }) => {
   // What to do for when key of player one is pressed
   const sendPlayerMovesPlayerOne = useCallback((pressedKeysPlayerOne) => {
     if (pressedKeysPlayerOne) {
-      webSocketClient.sendPlayerMove(pressedKeysPlayerOne === "w" ? "up" : "down");
+      ClientWS.sendPlayerMove(pressedKeysPlayerOne === "w" ? "up" : "down");
     }
     PlayerOneFrameRef.current = requestAnimationFrame(() => sendPlayerMovesPlayerOne(pressedKeysPlayerOne));
-  }, []);
+  }, [ClientWS]);
   // What to do for when key of player 2 is pressed
   const sendPlayerMovesSecondPlayer = useCallback((pressedKeysSecondPlayer) => {
     if (pressedKeysSecondPlayer) {
-      webSocketClient.sendPlayerMove(pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down");
+      ClientWS.sendPlayerMove(pressedKeysSecondPlayer === "ArrowUp" ? "up" : "down");
     }
     SecondPlayerFrameRef.current = requestAnimationFrame(() => sendPlayerMovesSecondPlayer(pressedKeysSecondPlayer));
-  }, []);
+  }, [ClientWS]);
   
   // Reload frame when key is pressed and clean when destroyed
   useEffect(() => {
@@ -91,6 +89,8 @@ const Gameplay = ({ gameState, InitGame }) => {
       canvas.height = 700;
     }
 
+    ClientWS.sendMessage({"connectToMatch":matchId});
+    ClientWS.sendMessage({"game_active":true});
     // add event function handlers for key presses
     window.addEventListener("keydown", handleKeyDownPlayers);
     window.addEventListener("keyup", handleKeyUpPlayers);
@@ -193,10 +193,14 @@ const Gameplay = ({ gameState, InitGame }) => {
   //<p>Game State: {gameState ? JSON.stringify(gameState) : "Waiting for game data..."}</p>
   return (
     <div className="gameplay-container">
-      <div className="game-header">
-        <ReturnToMenu InitGame={InitGame}/>
+      <div className="game-return">
+        <button onClick={handleReturnToMenu}>
+          Return to Menu
+        </button>
       </div>
-      <canvas ref={canvasRef} className="game-canvas" />
+      <GameStateProvider matchId={matchId}>
+        <canvas ref={canvasRef} className="game-canvas" />
+      </GameStateProvider>
     </div>
   );
 };

@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 def get_or_create_user(user_data):
     """Create or get a user from 42 database."""
-    print("Received user_data from 42: ", user_data)
+    #print("Received user_data from 42: ", user_data)
     username = user_data['login']
     email = user_data['email']
     user, created = UserProfile.objects.get_or_create(
@@ -52,7 +52,6 @@ class FTAuthCallbackView(APIView):
         state_data = json.loads(state)
         redirect_uri = state_data.get('redirect_uri')
         logger.info(f"Retrieved redirect_uri from state: {redirect_uri}")
-
         token_url = "https://api.intra.42.fr/oauth/token"
         payload = {
             'grant_type': 'authorization_code',
@@ -87,5 +86,4 @@ class FTAuthCallbackView(APIView):
         # Redirect to frontend
         callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
         redirect_url = f"{callback_uri}?access={refresh.access_token}"
-        logger.info(f"Redirecting to: {redirect_url}")
         return HttpResponseRedirect(redirect_url)

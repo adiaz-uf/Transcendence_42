@@ -1,147 +1,88 @@
-import React, { useState } from "react";
 import Gameplay from "./Gameplay";
-import webSocketClient from "./ClientWebSocket";
-import api from "../../api";
-import Menu from "./Menu";
-import InvitePlayer from "./InvitePlayerModal";
+// import InvitePlayer from "./InvitePlayerModal";
 // import Login from "../../pages/Login";  // Asegúrate de importar el componente Login
-import { ACCESS_TOKEN } from "../../constants";
-import MessageBox from '../MessageBox';
-import GameBoard from "../GamesBoard";
+// import MessageBox from '../MessageBox';
+// import GameBoard from "../GamesBoard";
+import GameStateProvider from "../contexts/GameState";
+import { useGameSetting } from "../contexts/MenuContext";
+
 
 // Parent component that holds game mode selection and WebSocket connection state
 const GameApp = () => {
-  const [gameMode, setGameMode] = useState(null); // Guardará el modo seleccionado (local o online)
-  const [MatchId, setMatchId] = useState("");
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("")
-  const [showModal, setShowModal] = useState(false); // Controla el estado del modal
-  //const [showLogin, setShowLogin] = useState(false); // Controla la visibilidad del Login
-  const [showBoard, setShowBoard] = useState(false); // Controls the visibility of the Board
-  const [gameState, setGameState] = useState({
-    
-    game_active: true,
-    // Players state
-    players: {
-      'left': { 'x': 10, 'y': 150, 'width': 15, 'height': 115, 'speed': 5, 'score': 0 },
-      'right': { 'x': 880, 'y': 150, 'width': 15, 'height': 115, 'speed': 5, 'score': 0 }
-    },
-    // Ball state
-    ball: { 'x': 400, 'y': 200, 'radio': 5, 'rx': 11, 'ry': -11 }
-  });
-
-  const StateLinkerGameWebSocket = (setGameState) => {
-    webSocketClient.listenForGameUpdates((gameUpdate) => {
-      console.log("Received game update:", gameUpdate);
-      setGameState((prevState) => ({
-        ...prevState,
-        ...gameUpdate,
-        players: {
-          ...prevState.players,
-          ...gameUpdate.players,
-          left: {
-            ...prevState.players.left,
-            ...(gameUpdate.players?.left || {}),
-          },
-          right: {
-            ...prevState.players.right,
-            ...(gameUpdate.players?.right || {}),
-          },
-        },
-        ball: {
-          ...prevState.pelota,
-          ...(gameUpdate.pelota || {}),
-        },
-        pelota: { ...prevState.pelota, ...(gameUpdate.pelota || {}) },
-      }));
-    });
-  };
-  
-  // Initialize game based on mode
-  const InitGame = (mode) => {
-    setGameMode(mode);
-    if (mode === null) {
-      webSocketClient.sendMessage({ type: 'game_active', game_active: false });
-      webSocketClient.close();
-    } else {
-      webSocketClient.connect(MatchId);
-      StateLinkerGameWebSocket(setGameState);
-    }
-  };
-
-  // Close modal and start the game
-  const handleCloseModal = () => {
-    setShowModal(false);
-    InitGame(gameMode); // Start the game with the selected mode
-  };
-
-  const handleCloseBoard = () => {
-    setShowBoard(false);
-    InitGame(gameMode); // Start the game with the selected mode
-  };
-
-
-  // Handle game mode selection
-  const handleGameModeSelect = (mode) => {
-    if (mode === "local")
-    {
-      setGameMode(mode); 
-      api.post("matches/", { 
-        player_left: localStorage.getItem('userId'),
-        is_multiplayer:false}, {
-          headers: { Authorization: `Bearer ${ACCESS_TOKEN}` }}).then(response => {
-          setMatchId(response.Match.id)
-          }).catch(error => {
-        setMessage(`Error with new Match`);
-        setMessageType("error");
-        });
-      setShowModal(true); 
-    }
-    else if (mode === "online-create") {
-      setShowModal(true);
-      api.post("matches/", { 
-        player_left: localStorage.getItem('userId'),
-        is_multiplayer:true}, {
-          headers: { Authorization: `Bearer ${ACCESS_TOKEN}` }}).then(response => {
-          setMatchId(response.Match.id)
-          }).catch(error => {
-        setMessage(`Error with new Match`);
-        setMessageType("error");
-        });
-      setGameMode(mode);
-    }
-    else if (mode === "online-join") {
-      setShowBoard(true);
-      setGameMode(mode);
-    }
-  };
-
+  const {matchId} = useGameSetting();
+  console.log("Initiating game id: ",matchId);
   return (<div className="game-container">
-      {gameMode === null ? (
-        <Menu onGameModeSelect={handleGameModeSelect} />
-      ) : (
-        <Gameplay gameState={gameState} InitGame={InitGame} />
-      )}
-      {message && (
+          <GameStateProvider matchId={matchId}>
+            <Gameplay/>
+          </GameStateProvider>
+      {/* {message && (
         <MessageBox 
           message={message}
-          type={messageType}
+          type={"error"}
           onClose={() => setMessage(null)}
         />
-        )}
+      )} */}
 
       {/* Componente InvitePlayer */}
-      <InvitePlayer 
+      {/* <InvitePlayer 
         showModal={showModal} 
         handleCloseModal={handleCloseModal}
         gameMode={gameMode}
-      />
+        setGameMode={setGameMode}
+        setMatchId={setMatchId}
+        />
       <GameBoard 
         showBoard={showBoard}
         handleCloseBoard={handleCloseBoard}
-      />
+      /> */}
     </div>
   );
 };
 
 export default GameApp;
+
+
+// return (
+  //   <>
+  //   {currentMode === GameMode.MENU && (
+    //     <Menu 
+  //       onGameModeSelect={(mode) => handleModeSelect(mode)}
+  //     />
+  //   )}
+  
+  //   {(currentMode === GameMode.LOCAL || currentMode === GameMode.ONLINE) && (
+    //       <InvitePlayer
+    //       show={currentMode !== GameMode.MENU && !matchId}
+  //       gameMode={currentMode}
+  //       onCreateMatch={(createdMatchId, config) => {
+    //           setMatchId(createdMatchId);
+    //           setGameConfig(config);
+  //         }}
+  //       onCancel={() => handleModeSelect(GameMode.MENU)}/>) 
+  //       }
+  //   {(matchId && (currentMode != GameMode.MENU)) && 
+  //   (
+  //     <Gameplay 
+  //       matchId={matchId}
+  //       setMode={handleModeSelect}
+  //     />
+  //   )}
+  //   </>
+  // );
+
+  // Unified mode handler
+  // const handleModeSelect = useCallback((mode, config = {}) => {
+  //     switch(mode) {
+  //       case GameMode.LOCAL:
+  //         setCurrentMode(GameMode.LOCAL);
+  //         setGameConfig(config);
+  //         break;
+  //       case GameMode.ONLINE:
+  //         setCurrentMode(GameMode.ONLINE);
+  //         setGameConfig(config);
+  //         break;
+  //       default:
+  //         setCurrentMode(GameMode.MENU);
+  //         setMatchId(null);
+  //     }
+  // }, []);

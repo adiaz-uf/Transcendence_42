@@ -1,5 +1,5 @@
 from django.contrib import admin
-from api.models import 
+from api.models import UserProfile, Match, UserStat, Tournament
 
 # Register your models here.
 admin.site.register(UserProfile)

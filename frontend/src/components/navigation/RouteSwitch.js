@@ -1,4 +1,3 @@
-import Home from '../../pages/Home'
 import Login from '../../pages/Login'
 import Setup2FA from '../../pages/Setup2FA'
 import Register from '../../pages/Register'
@@ -6,6 +5,7 @@ import NotFound from '../../pages/NotFound'
 import Profile from '../../pages/Profile'
 import Alert from '../../components/Alert'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import HomeRouter from '../../pages/Home'
 //import ProtectedRoute from './ProtectedRoute'
 
 function Logout() {
@@ -22,7 +22,7 @@ export default function RouterSwitch() {
       return (
         <BrowserRouter>
             <Routes>
-					<Route path ='/' element ={ <Home/> }/>
+					<Route path ='/*' element ={ <HomeRouter/> }/>
 					<Route path="/login" element={<Login route='/api/user/login/' />} />
 					<Route path ='/register' element ={<RegisterAndLogout/>}/>
 		  			<Route path="/login/callback" element={<Login route='/api/user/login/' />} />

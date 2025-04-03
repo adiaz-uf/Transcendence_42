@@ -45,7 +45,7 @@ class Match(models.Model):
         db_table = 'match'
 
     def __str__(self):
-        return self.name
+        return "{self.id} {self.player_left}:{left_score}vs{self.player_right}:{right_score} ONLINE:{is_multiplayer}"
 
 #Tournament Info
 class Tournament(models.Model):
@@ -73,7 +73,7 @@ class UserStat(models.Model):
         db_table = 'UserStat'
 
     def __str__(self):
-        return self.name
+        return "User [{self.user_id}] matches_played: {self.matches_played}"
 
 class GoalStat(models.Model):
     user_id = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
@@ -84,4 +84,4 @@ class GoalStat(models.Model):
     class Meta:
         db_table = 'goalstat'
     def __str__(self):
-        return self.name    
+        return "match [{match_id}]"
