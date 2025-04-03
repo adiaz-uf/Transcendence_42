@@ -27,8 +27,7 @@ const HomeRouter = () => {
           <WebSocketProvider> 
             <Routes>
                 <Route path="/" element={<Home />} />
-                  <Route path="/pong" element={<GameApp/>}>
-                </Route>
+                <Route path="/pong" element={<GameApp/>} />
             </Routes>
           </WebSocketProvider>
         </GameSettingProvider>
