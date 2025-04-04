@@ -65,7 +65,7 @@ export default function Profile() {
       const response = await api.get('/api/user/profile/', {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-      const { id, username, email, given_name, surname, is_42user } = response.data;
+      const { id, username, email, given_name, surname, is_42user, is_2fa_enabled } = response.data;
       setUsername(username);
       setEmail(email);
       setName(`${given_name} ${surname}`);
@@ -73,6 +73,7 @@ export default function Profile() {
       setNewEmail(email);
       setNewUsername(username);
       setIs42user(is_42user);
+      setIs2FAEnabled(is_2fa_enabled);
       localStorage.setItem("username", username);
       localStorage.setItem("userId", id);
       setLoading(false);
