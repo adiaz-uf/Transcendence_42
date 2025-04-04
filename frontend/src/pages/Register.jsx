@@ -24,17 +24,24 @@ export default function Register({route}) {
         e.preventDefault();
         try {
             if (username === "" || email === "" || given_name === "" || surname === "" || password === "" || repeatpassword === "")
-                setError("Please enter all the fields");
-                setMessageType("info");
+                throw new Error("Please enter all the fields");
             if (password !== repeatpassword)
-                setError("Passwords aren't matching");
-                setMessageType("info");
+                throw new Error("Passwords aren't matching");
 
             await api.post(route, { username, password, email, given_name, surname });
             navigate("/login");
-        } catch (error) {
-            setError(error.response?.data?.detail || error.message);
+        } catch (err) {
+            if (err.response && err.response.data) {
+                const djangoErrors = err.response.data;
+                const errorMessages = Object.entries(djangoErrors)
+                    .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
+                    .join("\n");
+                setError(errorMessages);
+            } else {
+                setError(err.message || "An error occurred");
+            }
             setMessageType("error");
+    
         } finally {
             setLoading(false);
         }
