@@ -37,11 +37,11 @@ export default function Register({route}) {
                     .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
                     .join("\n");
                 setError(errorMessages);
+                setMessageType("error");
             } else {
                 setError(err.message || "An error occurred");
+                setMessageType("info");
             }
-            setMessageType("error");
-    
         } finally {
             setLoading(false);
         }

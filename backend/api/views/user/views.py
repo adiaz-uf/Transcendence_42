@@ -143,8 +143,8 @@ class LoginView(generics.CreateAPIView):
                             'access': str(refresh.access_token),
                             'id': str(id),
                         })
-                    return Response({'error': 'Code 2FA invalide'}, status=400)
-                return Response({'message': 'Code 2FA requis'}, status=206)
+                    return Response({'error': 'Invalide 2FA code'}, status=400)
+                return Response({'message': '2FA code is required'}, status=206)
             else:
                 login(request, user)
                 refresh = RefreshToken.for_user(user)
@@ -153,4 +153,4 @@ class LoginView(generics.CreateAPIView):
                     'access': str(refresh.access_token),
                     'id': user.id
                 })
-        return Response({'error': 'Identifiants invalides'}, status=401)
+        return Response({'error': 'Invalid identifiers'}, status=401)

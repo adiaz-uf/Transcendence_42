@@ -113,7 +113,7 @@ export default function Profile() {
     }
     try {
       if (Object.keys(updatedData).length === 0)
-        return;
+        throw new Error("All the fields are empty");
       const response = await api.patch('/api/user/profile/', updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
@@ -123,10 +123,18 @@ export default function Profile() {
       setUsername(response.data.username);
       handleCloseModal();
       window.location.reload();
-    } catch (error) {
-      //No errors in console console.error("Error updating profile:", error);
-      setError("Error updating profile");
-      setMessageType("error");// lets go ui jaja
+    } catch (e) {
+      if (e.response && e.response.data) {
+        const djangoErrors = e.response.data;
+        const errorMessages = Object.entries(djangoErrors)
+          .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
+          .join("\n");
+        setError(errorMessages);
+        setMessageType("error");
+      } else {
+        setError(e?.message || "Error updating profile");
+        setMessageType("info");
+      }
     }
   };
 
@@ -157,7 +165,8 @@ export default function Profile() {
       const response = await api.post('/api/setup-2fa/', payload, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-      alert(response.data.message);
+      setError(response.data.message);
+      setMessageType("success");
       setIs2FAEnabled(!is2FAEnabled);
       handleClose2FAModal();
     } catch (error) {
@@ -184,13 +193,6 @@ export default function Profile() {
         type={messageType}
         onClose={() => setError(null)}/>}
       <div className='profile-body'>
-      {message && (
-          <MessageBox 
-            message={message}
-            type='error'
-            onClose={() => setMessage(null)}
-          />
-          )}
         <div className="profile-container">
           <div className="avatar">{getAvatarLetter(name)}</div>
           <div className="profile-info">
