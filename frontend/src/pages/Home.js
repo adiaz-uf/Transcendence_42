@@ -4,8 +4,8 @@ import '../styles/App.css';
 import {Menu} from '../components/navigation/Menu';
 
 import { Routes, Route } from "react-router-dom";
-import { WebSocketProvider } from '../components/contexts/ClientWSContext';
 import {GameSettingProvider} from '../components/contexts/MenuContext';
+
 import GameApp from '../components/game/GameApp';
 
 function Home() {
@@ -24,12 +24,10 @@ const HomeRouter = () => {
       <>
       <NavBar />
         <GameSettingProvider>
-          <WebSocketProvider> 
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/pong" element={<GameApp/>} />
             </Routes>
-          </WebSocketProvider>
         </GameSettingProvider>
       </>
   );

@@ -1,8 +1,11 @@
+import { ACCESS_TOKEN } from "../../constants"; //JWT auth ws
+
 class ClientWebSocket {
-    constructor(serverUrl) {
+    constructor(serverUrl, matchId) {
         if (ClientWebSocket.instance) {
             return ClientWebSocket.instance; // Ensure singleton instance
         }
+        this.matchId = matchId;
         this.serverUrl = serverUrl;
         this.socket = null;
         this.reconnectAttempts = 0;
@@ -14,26 +17,24 @@ class ClientWebSocket {
         this.manualClose = false;
 
         ClientWebSocket.instance = this;
+        this.connect()
     }
 
-    connect(matchId) {
+    connect() {
 
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             console.warn("WebSocket is already connected.");
             return;
         }
 
-        this.matchId = matchId
         this.socket = new WebSocket(this.serverUrl);
-        console.log("Connecting WebSocket with matchId:", matchId);
 
         this.socket.addEventListener("open", () => {
             console.log("Connected to WebSocket server");
             this.reconnectAttempts = 0;
+
+            this.sendConnectToGame(this.matchId); 
             // Send initial connection message with matchId
-            this.sendMessage({
-            type: "connectToMatch",
-            matchId: this.matchId});
         });
 
         this.socket.addEventListener("close", (event) => {
@@ -86,8 +87,24 @@ class ClientWebSocket {
             console.warn("WebSocket not ready. Message not sent.");
         }
     }
+    sendConnectToGame(matchId){
+        this.sendMessage({"type":"connectToMatch", "matchId":matchId});
+    }
+    sendPlayGame(){
+        this.sendMessage({"type":"game_active", "game_active":true});
+    }
+
+    sendStopGame(){
+        this.sendMessage({"type":"game_active", "game_active":false});
+    }
 
     sendPlayerMove(direction) {
+
+        console.log("Sending: ", {
+            type: "update",
+            userId: this.userId,
+            direction
+        });
         this.sendMessage({
             type: "update",
             userId: this.userId,
@@ -115,17 +132,4 @@ class ClientWebSocket {
     }
 }
 
-// Initialize WebSocketManager
-const clientWS = new ClientWebSocket(`wss://${window.location.host}:8000/game/`);
-
-// export const connect = () => webSocketClient.connect();
-
-// export const close = () => webSocketClient.close();
-// // Export functions for external use
-// export const sendPlayerMove = (update) => webSocketClient.sendPlayerMove(update);
-
-// export const sendMessage = (message) => webSocketClient.sendMessage(message);
-
-// export const listenForGameUpdates = (callback) => webSocketClient.listenForGameUpdates(callback);
-
-export default clientWS;
+export default ClientWebSocket;

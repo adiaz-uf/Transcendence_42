@@ -9,6 +9,7 @@ export const GameSettingProvider = ({ children }) => {
   const [isInviting, setIsInviting] = useState(""); // "host" | "invitado"
   const [opponentUsername, setOpponentUsername] = useState(""); // Username for invitation
   const [isMultiplayer, setIsMultiplayer] = useState(false); // Multiplayer game
+  
   // const [showModal, setShowModal] = useState(false); // Controla el estado del modal
   // const [showBoard, setShowBoard] = useState(false); // Controls the visibility of the Board
   

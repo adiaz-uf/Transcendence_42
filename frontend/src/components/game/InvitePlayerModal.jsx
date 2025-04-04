@@ -10,6 +10,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   
   const [newUsername, setNewUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isInvited, setIsInvited] = useState('');
   const navigate = useNavigate(); 
 
   const handleSkip = async () => {
@@ -31,8 +32,8 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       console.log("Match local response");
       console.log(localMatchResponse)
       if (localMatchResponse) {
+        console.log("MatchId set to: ", localMatchResponse.id);
         setMatchId(localMatchResponse.id);
-        console.log('Local match created:', localMatchResponse);
         handleCloseModal();
         navigate('/pong'); 
       } else {
@@ -120,13 +121,25 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   return (
     <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal">
       <Modal.Header closeButton>
-        <Modal.Title>Enter your opponent username</Modal.Title>
+        <Modal.Title>{isInvited ? 'Waiting Opponent' : 'Enter your opponent username'}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleUsernameInvite}>
-          <Form.Group controlId="formName">
-            <Form.Label>Username</Form.Label>
-            <Form.Control
+        {isInvited ? (
+          <div className="d-flex flex-column text-center align-items-center justify-content-center">
+            <div className="loader">
+              <div class="wall-left"></div>
+              <div class="wall-right"></div>
+            </div> 
+            <h4>Waiting for opponent to join...</h4>
+            <Button variant="danger" className="mt-3" onClick={handleCloseModal}>
+              Go back
+            </Button>
+          </div>
+        ) : (
+          <Form onSubmit={handleUsernameInvite}>
+            <Form.Group controlId="formName">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
                 type="text"
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
@@ -143,7 +156,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isInviting}>
             {isInviting ? 'Inviting...' : 'Invite User'}
           </Button>
-        </Form>
+        </Form>)}
         {errorMessage && <div className="mt-3 text-danger">{errorMessage}</div>}
       </Modal.Body>
     </Modal>

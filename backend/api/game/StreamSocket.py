@@ -39,17 +39,19 @@ class StreamSocket(AsyncWebsocketConsumer):
             "game_active": self.__handle_game_active}
 
     async def connect(self):
-        logger.info(f"WS SCOPE: %s",json.dumps(my_dict))
-        self.player_1 = self.scope["user"].id  # Unique ID for each player from User model since auth is used
+        # logger.info(f"WS SCOPE: %s", json.dumps(self.scope, default=str, indent=4))
+        self.player_1 = self.scope["user"] # Unique ID for each player from User model since auth is used
         logger.info("WS connectfrom: %s", self.player_1)
         await self.accept()
         await self.send(json.dumps({"message": "Connected"}))
 
     async def disconnect(self, close_code):
+        logger.info("WS DISCONNECT: %s   %d", self.player_1, close_code)
         #Cancel GameTask
-        if not session_manager.getGameTask(self.matchId).done():
+        session = session_manager.getSession(self.matchId)
+        if session:
             session_manager.getGameTask(self.matchId).cancel()
-        await self.channel_layer.group_discard(self.matchId, self.channel_name)
+            await self.channel_layer.group_discard(self.matchId, self.channel_name)
         await self.close()
 
     async def receive(self, text_data):
@@ -64,6 +66,7 @@ class StreamSocket(AsyncWebsocketConsumer):
 
     async def __handle_MatchSessionPairing(self, data):
         """Confirm socket session with a match"""
+        logger.info(data)
         match_id = data.get('matchId', None)
 
         if  match_id is None:
@@ -102,7 +105,7 @@ class StreamSocket(AsyncWebsocketConsumer):
                 await self.send(json.dumps({"Error": "Not in Match"}))
 
                 return
-        logger.info(f"WS Match ID: {self.matchId} - JOINED")
+        logger.info("WS Match- JOINED")
         await self.send(json.dumps({"joined": True}))
 
 
@@ -116,6 +119,9 @@ class StreamSocket(AsyncWebsocketConsumer):
         userId = data.get("userId", {})
 
         gameobject = session_manager.getGameObject(self.matchId)
+        if not gameobject:
+            logger.info("handleGameUpdateWs: Game not found")
+            return
         if session_manager.getSession(self.matchId)['player1'] == userId:
             gameobject.move_players('left', direction)
             await self.channel_layer.group_send(self.matchId, {"type": "game_update", 'left': gameobject.get_players('left')})
