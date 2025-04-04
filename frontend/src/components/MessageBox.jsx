@@ -37,7 +37,7 @@ const MessageBox = ({
     return (
         <div className={`message-box ${type}`}>
             <div className="message-content">
-                {message}
+                {typeof message === 'object' ? JSON.stringify(message) : message}
                 <button 
                     className="message-close" 
                     onClick={handleClose}

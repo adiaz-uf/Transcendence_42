@@ -29,7 +29,7 @@ export default function Setup2FA() {
 
   const handleVerify = async () => {
     setLoading(true);
-	setErrorMessage('');
+	  setErrorMessage('');
     try {
       const token = localStorage.getItem(ACCESS_TOKEN);
       const response = await api.post('/api/setup-2fa/', { code }, {
@@ -40,7 +40,7 @@ export default function Setup2FA() {
     } catch (error) {
 		if (error.response?.status === 400) {
 			setErrorMessage('There was an issue with the information you provided. Please check your input and try again.');
-		} else {
+    } else {
 			setErrorMessage(error.response?.data?.error || 'An error occurred during verification.');
 		}
     } finally {

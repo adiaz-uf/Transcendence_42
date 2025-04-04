@@ -160,8 +160,9 @@ export default function Profile() {
       setIs2FAEnabled(!is2FAEnabled);
       handleClose2FAModal();
     } catch (error) {
-      setError(error?.response?.data || "Error toggling 2FA");
+      setError(error?.response?.data?.error || "Error toggling 2FA");
       setMessageType("error");
+      handleClose2FAModal();
     }
   };
 
