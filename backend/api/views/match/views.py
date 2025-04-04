@@ -49,46 +49,40 @@ class UserMatchListView(generics.ListAPIView):
                 player_right=self.request.user
             )
 
+
 class MatchCreationView(generics.CreateAPIView):
     serializer_class = MatchSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        """Filter UserProfile by username from req body"""
-        username = self.request.data.get("username", None)  # Get from request body
-        if not username:
-            return UserProfile.objects.none()
-        else:
-            try:
-                return UserProfile.objects.filter(username=username)
-            except:
-                return UserProfile.objects.none()
-    def get_object(self):
-        # Retrieve single Object from querySet
-        queryset = self.get_queryset()
-        if queryset.count() == 1:
-            return queryset.first()
-        return None
-
     def perform_create(self, serializer):
         """
         Override perform_create to set the match host (player_left).
+        Ensures `player_right` is either a valid UserProfile or None.
         """
-        player_right = self.get_object()
+        player_right_id = self.request.data.get("player_right", None)
+        player_right = None
+
+        if player_right_id:
+            try:
+                player_right = UserProfile.objects.get(id=player_right_id)
+            except UserProfile.DoesNotExist:
+                return Response({"error": "Invalid opponent ID"}, status=400)
+
         # Save the match
-        serializer.save(player_left=self.request.user,
-                        player_right=player_right,
-                        match_duration=timedelta(minutes=0, seconds=0),
-                        left_score=0,
-                        right_score=0,
-                        is_multiplayer=self.request.data.get("is_multiplayer", False))
-        if serializer.is_valid():
-            return Response(
-                {"message": "Match Created !", "match": serializer.validated_data},
-                status=201
-            )
-        else:
-            return Response({'error': 'No match created'}, status=400)
+        match = serializer.save(
+            player_left=self.request.user,
+            player_right=player_right,
+            match_duration=timedelta(minutes=0, seconds=0),
+            left_score=0,
+            right_score=0,
+            is_multiplayer=self.request.data.get("is_multiplayer", False),
+            is_started=self.request.data.get("is_started", False),
+        )
+
+        return Response(
+            {"message": "Match Created!", "match_id": match.id}, status=201
+        )
+
 
 class CreateOnlineMatchView(generics.CreateAPIView):
     permission_classes = [AllowAny]

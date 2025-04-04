@@ -1,14 +1,51 @@
 import React, { useState } from 'react';
-import { Form, Button, Modal, Spinner } from 'react-bootstrap';
-import api from '../../api';
-import { ACCESS_TOKEN } from "../../constants"; 
-import '../../styles/game.css'
+import { Form, Button, Modal } from 'react-bootstrap';
+import {GETCheckUsernameExists, POSTcreateMatch} from "../api-consumer/fetch";
+import { useGameSetting } from '../contexts/MenuContext';
+import {useNavigate} from "react-router-dom";
 
-const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
+export const InvitePlayer = ({ showModal, handleCloseModal}) => {
+  
+  const {gameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername} = useGameSetting();
+  
   const [newUsername, setNewUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [isInviting, setIsInviting] = useState(false);
-  const [isInvited, setIsInvited] = useState(false); // Estado para controlar si se envió la invitación
+  const [isInvited, setIsInvited] = useState('');
+  const navigate = useNavigate(); 
+
+  const handleSkip = async () => {
+    try {
+      setIsInviting(true);
+      let id1 = localStorage.getItem('userId');
+
+      let payload = {
+        player_left: id1,
+        player_right: null, // No second player
+        is_multiplayer: false, 
+        left_score: 0,
+        right_score: 0,
+        is_started: false,
+      };
+
+      console.log("Skipping invite, starting local game...");
+      const localMatchResponse = await POSTcreateMatch(payload);
+      console.log("Match local response");
+      console.log(localMatchResponse)
+      if (localMatchResponse) {
+        console.log("MatchId set to: ", localMatchResponse.id);
+        setMatchId(localMatchResponse.id);
+        handleCloseModal();
+        navigate('/pong'); 
+      } else {
+        setErrorMessage(`Error creating local match`);
+      }
+    } catch (error) {
+      console.log(error);
+      setErrorMessage('Error starting local game');
+    } finally {
+      setIsInviting(false);
+    }
+  };
 
   const handleUsernameInvite = async (e) => {
     e.preventDefault();
@@ -17,59 +54,60 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
 
     try {
         setIsInviting(true);
+        let id1 = localStorage.getItem('userId');
+        console.log("playerLeft:", id1);
+        let payload = {
+          player_left: id1,
+          player_right: null,
+          is_multiplayer: true,
+          left_score: 0,
+          right_score: 0,
+          is_started: false,
+        };
+        const playerRight = await GETCheckUsernameExists(newUsername);
+        console.log("recibiendo info de player right")
+        console.log(playerRight);
+        payload.player_right = playerRight.get("id", null);
+        setOpponentUsername(newUsername)
 
-        // Get the JWT token from local storage
-        const token = localStorage.getItem(ACCESS_TOKEN); 
-
-        if (!token) {
-            setErrorMessage('You are not logged in.');
-            return;
-        }
-
-        // Call the Django API to check if the username exists
-        const response = await api.get(`/api/user/${newUsername}/`, {
-            headers: {
-              Authorization: `Bearer ${token}`, // Include the JWT token in the header
-            },
-        });
-
-        if (response.data.exists) {
-          console.log('User found. Sending invitation...');
-          
-          // Obtener el perfil del jugador que está enviando la invitación (player_left)
-          const playerLeftResponse = await api.get(`/api/user/profile/`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-          });
-          const playerLeft = playerLeftResponse.data; // Datos del jugador que invita
-          console.log("playerLeft:", playerLeft);
-          const playerRight = response.data.userProfile; // Datos del jugador al que se le envía la invitación
-          console.log("playerRight:", playerRight);
-
-          if (gameMode === "local") {
-              handleCloseModal(); 
-          } else {
-            console.log("Creating match...");
-            const payload = {
-              player_left: playerLeft.id,
-              player_right: playerRight.id,
-              is_multiplayer: true,
-              left_score: 0,
-              right_score: 0,
-              is_started: false,
-            };
-            console.log("Payload antes de enviar:", payload);
-            // Enviar una solicitud POST para crear un nuevo partido
-            const matchResponse = await api.post('/api/matches/online-create/', payload, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setIsInvited(true); // Cambia el estado a "invitación enviada"
+        if (gameMode === "local") {
+          console.log("Creating match...");
+          // Enviar una solicitud POST para crear un nuevo partido
+          payload.is_multiplayer = false;
+          const LocalMatchResponse = await POSTcreateMatch(payload);
+          if (LocalMatchResponse){
+            setMatchId(LocalMatchResponse.id)
+            console.log('Match created', LocalMatchResponse);
           }
+          else{
+            setErrorMessage(`Error with new Match`);
+            console.log("error creating local match");
+          }
+          handleCloseModal();
+          navigate('/pong');
+        }
+        else { // ONLINE
+          if (!id1 || payload.player_right){
+            setErrorMessage("One of both player are missing");
+          }
+          console.log("playerLeft:", id1);
+          console.log("playerRight:", playerRight);
+          console.log("Creating match...");
+          // Enviar una solicitud POST para crear un nuevo partido
+          console.log("Payload antes de enviar:", payload);
+          const OnlineMatchResponse = await POSTcreateMatch(payload);
+          if (OnlineMatchResponse){
+            setMatchId(OnlineMatchResponse.id)
+            console.log('Match created', OnlineMatchResponse);
+          }
+          else{
+            setErrorMessage(`Error with new Match`);
+          }
+          handleCloseModal();
+          navigate('/pong');
         }
     } catch (error) {
+        console.log(error);
         if (error.response && error.response.status === 404) {
             setErrorMessage('The username does not exist.');
         } else {
@@ -107,16 +145,21 @@ const InvitePlayer = ({ showModal, handleCloseModal, gameMode }) => {
                 onChange={(e) => setNewUsername(e.target.value)}
                 placeholder="Username"
                 required />
-            </Form.Group>
-            <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isInviting}>
-              {isInviting ? 'Inviting...' : 'Invite User'}
-            </Button>
-          </Form>
-        )}
+          </Form.Group>
+          <Button 
+            variant="secondary" 
+            className="mt-3 w-100" 
+            onClick={handleSkip} 
+            disabled={isInviting}>
+            Skip (Start Local Game)
+          </Button>
+          <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isInviting}>
+            {isInviting ? 'Inviting...' : 'Invite User'}
+          </Button>
+        </Form>)}
         {errorMessage && <div className="mt-3 text-danger">{errorMessage}</div>}
       </Modal.Body>
     </Modal>
   );
 };
 
-export default InvitePlayer;
