@@ -1,31 +1,59 @@
 import React, { useCallback, useRef, useState, useEffect} from "react";
-import {useGameState} from "../contexts/GameState";
-import {GameStateProvider} from "../contexts/GameState";
+import { useGameSetting } from "../contexts/MenuContext";
+import {useNavigate} from "react-router-dom";
+import { useWebSocket } from "../contexts/ClientWSContext";
+import  GameCanvas from "./GameCanvas";
 
 const Gameplay = () => {
-  const { gameState, ClientWS, matchId, setGameMode } = useGameState();
-    
-  const handleReturnToMenu = () => {
-    // Optional: Send game end signal to backend
-    ClientWS.sendMessage({
-      type: 'game_end',
-      matchId
-    });
-    
-    // Return to menu
-    setGameMode(null);
-  };
+  const {matchId, setGameMode} = useGameSetting();
+  const { gameState, ClientWS} = useWebSocket();
+  const navigate = useNavigate();
+  const [IsGameActive, setIsGameActive] = useState(false);
+  
   // html ref for canvas
-  const canvasRef = useRef(null);
-  const GameFrameRef = useRef(null);
   const PlayerOneFrameRef = useRef(null);
   const SecondPlayerFrameRef = useRef(null);
-
-
+  
+  
   // Key stroke for each player
   const [pressedKeysPlayerOne, setPressedKeysPlayerOne] = useState(null);
   const [pressedKeysSecondPlayer, setPressedKeysSecondPlayer] = useState(null);
 
+  console.log("Gameplay component rendered ClientWS: ", ClientWS);
+  console.log("Gameplay component rendered matchId: ", matchId);
+  console.log("Gameplay component rendered gameState: ", gameState);
+
+  const PlayOrStopGame = () => {
+    if (!ClientWS){
+      console.log("ClientWS not initialized");
+      return
+    }
+    if (IsGameActive){
+      ClientWS.sendStopGame();
+      console.log("Stopping the game");      
+    }
+    else{
+      ClientWS.sendPlayGame();
+      console.log("Starting the game :)");
+    }
+    setIsGameActive(!IsGameActive);
+  }
+  
+  useEffect(() => {
+    if (!ClientWS) {
+      console.log("ClientWS not initialized yet");
+    } else {
+      console.log("ClientWS initialized:", ClientWS);
+    }
+  }, [ClientWS]);
+
+  const handleReturnToMenu = () => {
+    ClientWS.sendStopGame();
+    
+    setGameMode(null);
+    navigate("/");
+  };
+  
   // Key event handlers
   const handleKeyDownPlayers = (e) => {
     if (e.key === "w" || e.key === "s") {
@@ -59,17 +87,17 @@ const Gameplay = () => {
   
   // Reload frame when key is pressed and clean when destroyed
   useEffect(() => {
-      if (pressedKeysPlayerOne){
-        PlayerOneFrameRef.current = requestAnimationFrame(() => sendPlayerMovesPlayerOne(pressedKeysPlayerOne));
-      }
-      else {
+    if (pressedKeysPlayerOne){
+      PlayerOneFrameRef.current = requestAnimationFrame(() => sendPlayerMovesPlayerOne(pressedKeysPlayerOne));
+    }
+    else {
       cancelAnimationFrame(PlayerOneFrameRef.current);
-      }
+    }
     return () => {
       cancelAnimationFrame(PlayerOneFrameRef.current);
     };
   }, [pressedKeysPlayerOne, sendPlayerMovesPlayerOne] );
-
+  
   useEffect(() => {
     if (pressedKeysSecondPlayer) {
       SecondPlayerFrameRef.current = requestAnimationFrame(() => sendPlayerMovesSecondPlayer(pressedKeysSecondPlayer));
@@ -80,20 +108,9 @@ const Gameplay = () => {
       cancelAnimationFrame(SecondPlayerFrameRef.current);
     };
   }, [pressedKeysSecondPlayer, sendPlayerMovesSecondPlayer]);
-
+  
   // Canvas initialization
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      canvas.width = 900;
-      canvas.height = 700;
-    }
-    if (ClientWS)
-    {
-      ClientWS.sendMessage({"connectToMatch":matchId});
-      ClientWS.sendMessage({"game_active":true});
-    }
-
+  useEffect(() => {    
     // add event function handlers for key presses
     window.addEventListener("keydown", handleKeyDownPlayers);
     window.addEventListener("keyup", handleKeyUpPlayers);
@@ -103,109 +120,44 @@ const Gameplay = () => {
       window.removeEventListener("keydown", handleKeyDownPlayers);
       window.removeEventListener("keyup", handleKeyUpPlayers);
     };
-  }, [ClientWS, matchId]);
-
-//   useEffect(() => {
-//     // Escucha de eventos de WebSocket para goles
-//     webSocketClient.socket.onmessage = (event) => {
-//       const data = JSON.parse(event.data);
-
-//       // Cuando se recibe el mensaje de un gol
-//       if (data.type === "goal") {
-//         const updatedGameState = { ...gameState };
-//         updatedGameState.players.left.score = data.left_score;  // Actualiza puntaje de la leftuierda
-//         updatedGameState.players.right.score = data.der_score;  // Actualiza puntaje de la derecha
-//         InitGame(updatedGameState);  // Actualiza el estado del juego
-//       }
-//     };
-
-//     return () => {
-//       // Cleanup cuando el componente se desmonte
-//       if (webSocketClient.socket) {
-//         webSocketClient.socket.onmessage = null;
-//       }
-//     };
-//   }, [gameState, InitGame]);
-
-  // Handle game drawing
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-
-    const renderPlayerOne = (ctx) => {
-      if (gameState && gameState.players && gameState.players.left) {
-        ctx.fillStyle = "white";
-        ctx.fillRect(
-          gameState.players.left.x,
-          gameState.players.left.y,
-          gameState.players.left.width,
-          gameState.players.left.height,
-        );
-      }
-    };
-    
-    const renderPlayerTwo = (ctx) => {
-      if (gameState && gameState.players && gameState.players.right) {
-        ctx.fillStyle = "white";
-        ctx.fillRect(
-          gameState.players.right.x,
-          gameState.players.right.y,
-          gameState.players.right.width,
-          gameState.players.right.height,
-        );
-      }
-    };
-
-    const render = () => {
-      // board
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw center line
-      ctx.strokeStyle = "white";
-      ctx.setLineDash([5, 15]);
-      ctx.beginPath();
-      ctx.moveTo(canvas.width / 2, 0);
-      ctx.lineTo(canvas.width / 2, canvas.height);
-      ctx.stroke();
-
-      renderPlayerOne(ctx);
-      renderPlayerTwo(ctx);
-
-      if (gameState && gameState.ball) {
-        ctx.beginPath();
-        ctx.arc(gameState.ball.x, gameState.ball.y, gameState.ball.radio, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.font = "24px Arial";
-        ctx.fillText(`${gameState.players.right.score || 0}`, canvas.width / 4, 50);
-        ctx.fillText(`${gameState.players.left.score || 0}`, (3 * canvas.width) / 4, 50);
-      }
-
-    };
-
-    GameFrameRef.current = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(GameFrameRef.current);
-  }, [gameState]);
-
-  // <PlayOrStopBtn/>
-  //<button onClick={() => {setGameMode(null)}}>Return to menu </button>
-  //<span className='m-4'>Game Mode: {gameMode}</span>
-  //<p>Game State: {gameState ? JSON.stringify(gameState) : "Waiting for game data..."}</p>
+  }, []);
+  
   return (
     <div className="gameplay-container">
       <div className="game-return">
         <button onClick={handleReturnToMenu}>
           Return to Menu
         </button>
+        <button onClick={PlayOrStopGame}>
+          {IsGameActive? "End":"Start"}
+          </button>
       </div>
-      <GameStateProvider matchId={matchId}>
-        <canvas ref={canvasRef} className="game-canvas" />
-      </GameStateProvider>
+      <GameCanvas gameState={gameState} />
     </div>
   );
 };
 
 export default Gameplay;
+  //   useEffect(() => {
+    //     // Escucha de eventos de WebSocket para goles
+    //     webSocketClient.socket.onmessage = (event) => {
+      //       const data = JSON.parse(event.data);
+      
+      //       // Cuando se recibe el mensaje de un gol
+      //       if (data.type === "goal") {
+        //         const updatedGameState = { ...gameState };
+        //         updatedGameState.players.left.score = data.left_score;  // Actualiza puntaje de la leftuierda
+        //         updatedGameState.players.right.score = data.der_score;  // Actualiza puntaje de la derecha
+        //         InitGame(updatedGameState);  // Actualiza el estado del juego
+        //       }
+        //     };
+        
+        //     return () => {
+          //       // Cleanup cuando el componente se desmonte
+          //       if (webSocketClient.socket) {
+            //         webSocketClient.socket.onmessage = null;
+            //       }
+            //     };
+            //   }, [gameState, InitGame]);
+            
+            // Handle game drawing

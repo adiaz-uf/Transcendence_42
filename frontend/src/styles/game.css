@@ -33,3 +33,57 @@ p {
 margin: 0;
 padding: 0;
 }
+
+.loader {
+    height: 86px;
+    aspect-ratio: 1.5;
+    position: relative;
+    margin-bottom: 1.5em;
+    overflow: hidden;
+}
+
+.loader:before {
+    content: "";
+    position: absolute;
+    top: 10%;
+    bottom: 0;
+    left: 0;
+    width: 8px;
+    background: #FFF;
+    height: 80%; /* Ajustar altura al 80% del contenedor */
+}
+
+.loader:after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #0d6efd;
+    animation: ballBounce 1s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+}
+
+.loader .wall-right {
+    content: "";
+    position: absolute;
+    top: 10%;
+    bottom: 0;
+    right: 0;
+    width: 8px;
+    background: #FFF;
+    height: 80%; /* Ajustar altura al 80% del contenedor */
+}
+
+@keyframes ballBounce {
+    0% {
+        left: 10px;
+    }
+    50% {
+        left: calc(100% - 35px);
+    }
+    100% {
+        left: 10px;
+    }
+}

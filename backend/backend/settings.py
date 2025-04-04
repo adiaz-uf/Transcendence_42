@@ -126,6 +126,7 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = 'api.UserProfile'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default database-backed sessions
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

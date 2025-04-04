@@ -1,16 +1,18 @@
 import Gameplay from "./Gameplay";
-import {GameStateProvider} from "../contexts/GameState";
-
+import { WebSocketProvider } from '../contexts/ClientWSContext';
 
 // Parent component that holds game mode selection and WebSocket connection state
 const GameApp = () => {
-  return (<div className="game-container">
-          <GameStateProvider>
+  return (
+        <div className="game-container">
+          <WebSocketProvider>
             <Gameplay/>
-          </GameStateProvider>
-    </div>
-  );
+          </WebSocketProvider>
+        </div>
+        );
 };
+export default GameApp;
+
 
 {/* {message && (
   <MessageBox 
@@ -32,4 +34,3 @@ const GameApp = () => {
   showBoard={showBoard}
   handleCloseBoard={handleCloseBoard}
 /> */}
-export default GameApp;

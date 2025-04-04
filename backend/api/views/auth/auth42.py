@@ -80,6 +80,7 @@ class FTAuthCallbackView(APIView):
         user = get_or_create_user(user_data)
 
         # Connect user
+        authenticate(request, username=user.username)
         login(request, user)
         refresh = RefreshToken.for_user(user)
 

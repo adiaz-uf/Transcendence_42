@@ -17,7 +17,8 @@ const GameBoardModal = ({ showBoard, handleCloseBoard }) => {
             Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
           },
         });
-        console.log('Response from backend:', response.data);
+
+        console.log('Response data:', response.data);
         setMatches(response.data); // Asigna los partidos obtenidos a la variable de estado
       } catch (error) {
         setError('Failed to fetch matches'); // Si ocurre un error, actualiza el estado de error
@@ -58,42 +59,36 @@ const GameBoardModal = ({ showBoard, handleCloseBoard }) => {
 
   return (
     <Modal show={showBoard} onHide={handleCloseBoard} dialogClassName="custom-modal">
-      <Modal.Header closeButton className="modal-header">
-        <Modal.Title>Game Board</Modal.Title>
+      <Modal.Header closeButton className="modal-header text-center">
+        <Modal.Title>Join Game to Play!</Modal.Title>
       </Modal.Header>
       <Modal.Body className="modal-body">
         <ListGroup>
           {matches.length === 0 ? (
-            <Card body className="text-center text-white">
+            <Card 
+              body className="text-center text-white" 
+              style={{"background-color":"#26292d", "border": "none"}}>
               No matches available.
             </Card>
           ) : (
             matches.map((match) => (
               <ListGroup.Item key={match.id} className="d-flex justify-content-between bg-dark text-white">
                 <div>
-                  <strong>{match.player_left.username}</strong> vs <strong>{match.player_right.username}</strong>
+                  <strong>{match.player_left_username}</strong> vs <strong>{match.player_right_username}</strong>
                 </div>
-                <div>
-                  {match.is_started ? (
-                    <span>
-                      {match.left_score} - {match.right_score}
-                    </span>
-                  ) : (
-                    <span>Not Started</span>
-                  )}
-                </div>
-                <Button>Join</Button>
+                <Button variant="success">Join Game</Button>
               </ListGroup.Item>
             ))
           )}
         </ListGroup>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleCloseBoard}>Close</Button>
+      <Modal.Footer style={{ border: 'none' }}>
+        <Button variant="danger" onClick={handleCloseBoard}>Close</Button>
       </Modal.Footer>
     </Modal>
   );
 };
 
 export default GameBoardModal;
+
 
