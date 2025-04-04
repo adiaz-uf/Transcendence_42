@@ -132,7 +132,7 @@ const Gameplay = ({ gameState, InitGame }) => {
 
     const renderPlayerOne = (ctx) => {
       if (gameState && gameState.players && gameState.players.left) {
-        ctx.fillStyle = "white";
+        ctx.fillStyle = "red";
         ctx.fillRect(
           gameState.players.left.x,
           gameState.players.left.y,
@@ -144,7 +144,7 @@ const Gameplay = ({ gameState, InitGame }) => {
     
     const renderPlayerTwo = (ctx) => {
       if (gameState && gameState.players && gameState.players.right) {
-        ctx.fillStyle = "white";
+        ctx.fillStyle = "blue";
         ctx.fillRect(
           gameState.players.right.x,
           gameState.players.right.y,
@@ -170,7 +170,7 @@ const Gameplay = ({ gameState, InitGame }) => {
 
       renderPlayerOne(ctx);
       renderPlayerTwo(ctx);
-
+      ctx.fillStyle = "green";
       if (gameState && gameState.ball) {
         ctx.beginPath();
         ctx.arc(gameState.ball.x, gameState.ball.y, gameState.ball.radio, 0, Math.PI * 2);
