@@ -15,7 +15,6 @@ services:
       - django-admin:/app/staticfiles
     ports:
       - "${BACKEND_PORT}:8000"
-        #command: sh -c "/app/init.sh"
     networks:
       - transcendence_net
 

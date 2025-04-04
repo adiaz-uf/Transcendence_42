@@ -23,10 +23,14 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
 
     try {
       if (username === "" || password === "") {
-        throw new Error("Please enter all the fields");
-      } else if (requires2FA && code === "") {
+        setMessage("Please enter all the fields");
+        setMessageType("info")
+        return ;
+      }     
+      if (requires2FA && code === "") {
         throw new Error("2FA code is required");
       }
+      
       const res = await api.post(route, { 
         username,
         password,
