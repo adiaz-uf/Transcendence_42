@@ -21,7 +21,7 @@ COPY . .
 RUN pnpm run build
 
 # Final stage
-FROM node:alpine
+FROM node:alpine AS run
 
 # Install serve directly with npm (no need for PNPM here)
 RUN npm install -g serve
