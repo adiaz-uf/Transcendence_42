@@ -23,11 +23,16 @@ export default function Register({route}) {
         setLoading(true);
         e.preventDefault();
         try {
-            if (username === "" || email === "" || given_name === "" || surname === "" || password === "" || repeatpassword === "")
-                throw new Error("Please enter all the fields");
-            if (password !== repeatpassword)
-                throw new Error("Passwords aren't matching");
-
+            if (username === "" || email === "" || given_name === "" || surname === "" || password === "" || repeatpassword === "") {
+                setError("Please enter all the fields");
+                setMessageType("info");
+                return ;
+            }
+            if (password !== repeatpassword) {
+                setError("Passwords aren't matching");
+                setMessageType("info");
+                return ;
+            }
             await api.post(route, { username, password, email, given_name, surname });
             navigate("/login");
         } catch (err) {
@@ -37,11 +42,10 @@ export default function Register({route}) {
                     .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
                     .join("\n");
                 setError(errorMessages);
-                setMessageType("error");
             } else {
                 setError(err.message || "An error occurred");
-                setMessageType("info");
             }
+            setMessageType("error");
         } finally {
             setLoading(false);
         }

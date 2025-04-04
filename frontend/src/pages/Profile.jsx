@@ -122,7 +122,6 @@ export default function Profile() {
       setEmail(response.data.email);
       setUsername(response.data.username);
       handleCloseModal();
-      window.location.reload();
     } catch (e) {
       if (e.response && e.response.data) {
         const djangoErrors = e.response.data;
@@ -187,11 +186,16 @@ export default function Profile() {
 
   return (
     <>
-      <NavBar />
-      {error && <MessageBox 
-        message={error}
-        type={messageType}
-        onClose={() => setError(null)}/>}
+      <NavBar username={username} />
+      {error && (
+        <div style={{ position: 'fixed', top: '80px', right: '20px', zIndex: 9999 }}>
+          <MessageBox
+            message={error}
+            type={messageType}
+            onClose={() => setError(null)}
+          />
+        </div>
+      )}
       <div className='profile-body'>
         <div className="profile-container">
           <div className="avatar">{getAvatarLetter(name)}</div>
