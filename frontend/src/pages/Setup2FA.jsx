@@ -3,6 +3,7 @@ import { Button, Form, Spinner } from 'react-bootstrap';
 import api from '../api';
 import { ACCESS_TOKEN } from '../constants';
 import { useNavigate } from 'react-router-dom';
+import MessageBox from '../components/MessageBox';
 
 export default function Setup2FA() {
   const [qrCode, setQrCode] = useState('');
@@ -50,11 +51,11 @@ export default function Setup2FA() {
 
   return (
     <>
-      {message && (
+      {errorMessage && (
         <MessageBox
           message={errorMessage}
           type='error'
-          onClose={() => setMessage(null)}
+          onClose={() => setErrorMessage(null)}
         />
       )}
       <div className="setup-2fa-container" style={{ textAlign: 'center', padding: '20px' }}>
