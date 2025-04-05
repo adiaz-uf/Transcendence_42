@@ -121,6 +121,7 @@ export default function Profile() {
       setName(`${response.data.given_name} ${response.data.surname}`);
       setEmail(response.data.email);
       setUsername(response.data.username);
+      localStorage.setItem("username", response.data.username);
       handleCloseModal();
     } catch (e) {
       if (e.response && e.response.data) {
