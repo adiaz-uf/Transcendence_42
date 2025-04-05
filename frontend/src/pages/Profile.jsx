@@ -234,7 +234,6 @@ export default function Profile() {
           setNewUsername={setNewUsername} 
           handleChangeData={handleChangeData} 
           setNewPassword={setNewPassword}
-          newPassword={newPassword}
         />
         <TwoFAModal 
           show2FAModal={show2FAModal} 
