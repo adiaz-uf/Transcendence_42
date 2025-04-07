@@ -14,8 +14,8 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
   const [requires2FA, setRequires2FA] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-	const [message, setMessage] = useState("");
-	const [messageType, setMessageType] = useState('info');
+	const [message, setMessage] = useState(location.state?.message || null);
+	const [messageType, setMessageType] = useState(location.state?.type || 'info');
 
   const handleSubmit = async (e) => {
     setLoading(true);
@@ -51,7 +51,12 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
         if (onLoginSuccess) {
             onLoginSuccess();  // Aquí solo se ejecutará si la función se pasó
           } else {
-            navigate(navigateTo);
+            navigate(navigateTo, {
+              state: {
+                  message: "Ready to play !",
+                  type: "success"
+              }
+            });
           }
       } else if (res.status === 206) {
         // Si es necesario 2FA
@@ -96,13 +101,24 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
         .then(response => {
           const username = response.data.username; 
           localStorage.setItem("username", username); 
-          navigate("/");
+          navigate("/", {
+            state: {
+                message: "Ready to play !",
+                type: "success"
+            }
+          });
         })
         .catch(error => {
           setMessage(`Error with 42 profile qwery`);
           setMessageType("error");
           navigate("/login"); 
         });
+    }
+  }, [location, navigate]);
+
+  useEffect(() => {
+    if (location.state?.message) {
+      navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
 

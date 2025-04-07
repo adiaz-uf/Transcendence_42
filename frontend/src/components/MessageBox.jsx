@@ -5,7 +5,7 @@ import "../styles/MessageBox.css";
 const MessageBox = ({ 
     message, 
     type = 'info', 
-    duration = 4000, 
+    duration = 2000, 
     onClose 
 }) => {
     const [isVisible, setIsVisible] = useState(true);
