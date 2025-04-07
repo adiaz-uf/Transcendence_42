@@ -14,8 +14,6 @@ function initializeGameState() {
     };
 }
 
-
-
 // Custom hook for easier context consumption
 export const useWebSocket = () => {
     const context = useContext(WebSocketContext);
@@ -54,15 +52,20 @@ function StateLinkerGameWebSocket({ setGameState, clientWS }) {
 
 // Component Anchor for passing values and handling WS instance
 export const WebSocketProvider = ({ children }) => {
-    const {matchId} = useGameSetting(); // Use useGameSetting to get matchId
-    const [WSref, setWSref] = useState(null); // UseState  for WebSocket instance
-    const [gameState, setGameState] = useState(initializeGameState()); // Use useState for game state
+    const {matchId, setMatchId} = useGameSetting(); // Use useGameSetting to get matchId
+    const [WSref, setWSref] = useState(null); // UseState  for Web)Socket instance
+    const [gameState, setGameState] = useState(initializeGameState); // Use useState for game state
 
 
     useEffect(() => {
         console.log("WebSocketProvider mounted");
-      }, []);
-      
+    }, []);
+
+    useEffect(() => {
+        console.log("WebSocketProvider matchId changed:", matchId);
+    }, [matchId]);
+    
+    console.log("matchId:", matchId);
       useEffect(() => {
         if (WSref) console.log("WebSocket initialized:", WSref);
       }, [WSref]);
@@ -70,12 +73,13 @@ export const WebSocketProvider = ({ children }) => {
 
     useEffect(() => {
         // Initialize WebSocket instance only once
-        if (!WSref) {
-            const instance = new ClientWebSocket(`ws://${window.location.host}:8000/game/`, matchId);
+        console.log("WebSocketProvider useEffect matchId:", matchId);
+
+        if (matchId) {
+            const instance = new ClientWebSocket(`ws://${window.location.host}:8000/game/?token=${localStorage.getItem('access')}`, matchId);
             setWSref(instance); // Set the WebSocket instance
             console.log("WebSocket instance created:", instance);
 
-            instance.connect(); 
             // Link WebSocket updates to game state
             StateLinkerGameWebSocket({ setGameState, clientWS: instance });
         }
@@ -86,8 +90,8 @@ export const WebSocketProvider = ({ children }) => {
                     WSref.close();
                 }
             };
-        }, []); // Empty dependency array ensures this runs only once
-    
+    }, [matchId]); // Empty dependency array ensures this runs only once
+
     return (
             <WebSocketContext.Provider value={{ ClientWS:WSref, gameState, setGameState }}>
                 {children}

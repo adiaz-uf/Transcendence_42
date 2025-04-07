@@ -27,7 +27,7 @@ class UserProfile(AbstractUser): # AbstractUser has fields password
         db_table = 'user'
         
     def __str__(self):
-        return self.username
+        return f'{str(self.id).replace("-","")}'
     
 #match Info
 class Match(models.Model):
@@ -45,7 +45,7 @@ class Match(models.Model):
         db_table = 'match'
 
     def __str__(self):
-        return "{self.id} {self.player_left}:{left_score}vs{self.player_right}:{right_score} ONLINE:{is_multiplayer}"
+        return f"{self.id} {self.player_left}:{self.left_score}vs{self.player_right}:{self.right_score} ONLINE:{self.is_multiplayer}"
 
 #Tournament Info
 class Tournament(models.Model):

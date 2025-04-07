@@ -1,11 +1,12 @@
 import { ACCESS_TOKEN } from "../../constants"; //JWT auth ws
 
 class ClientWebSocket {
-    constructor(serverUrl, matchId) {
+    constructor(serverUrl, InmatchId) {
         if (ClientWebSocket.instance) {
             return ClientWebSocket.instance; // Ensure singleton instance
         }
-        this.matchId = matchId;
+        console.log("ClientWebSocket MatchId: ", InmatchId);
+        this.matchId = InmatchId;
         this.serverUrl = serverUrl;
         this.socket = null;
         this.reconnectAttempts = 0;
@@ -13,7 +14,6 @@ class ClientWebSocket {
         this.reconnectDelay = 2000;
         this.gameUpdateCallback = null;
         this.userId = localStorage.getItem("userId");
-        this.matchId = null;
         this.manualClose = false;
 
         ClientWebSocket.instance = this;
@@ -32,7 +32,6 @@ class ClientWebSocket {
         this.socket.addEventListener("open", () => {
             console.log("Connected to WebSocket server");
             this.reconnectAttempts = 0;
-
             this.sendConnectToGame(this.matchId); 
             // Send initial connection message with matchId
         });
@@ -80,7 +79,6 @@ class ClientWebSocket {
     }
 
     sendMessage(message) {
-
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(JSON.stringify(message));
         } else {
@@ -88,6 +86,7 @@ class ClientWebSocket {
         }
     }
     sendConnectToGame(matchId){
+        console.log("Sending connectToMatch message with matchId:", matchId);
         this.sendMessage({"type":"connectToMatch", "matchId":matchId});
     }
     sendPlayGame(){
