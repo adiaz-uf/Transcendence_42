@@ -4,11 +4,13 @@ import {GETCheckUsernameExists, POSTcreateMatch} from "../api-consumer/fetch";
 import { useGameSetting } from '../contexts/MenuContext';
 import {useNavigate} from "react-router-dom";
 
-export const InvitePlayer = ({ showModal, handleCloseModal}) => {
+export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
   
   const {gameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername} = useGameSetting();
   
-  const [newUsername, setNewUsername] = useState('');
+  const [newUsername1, setNewUsername1] = useState('');
+  const [newUsername2, setNewUsername2] = useState('');
+  const [newUsername3, setNewUsername3] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isInvited, setIsInvited] = useState('');
   const navigate = useNavigate(); 
@@ -64,11 +66,11 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           right_score: 0,
           is_started: false,
         };
-        const playerRight = await GETCheckUsernameExists(newUsername);
+        const playerRight = await GETCheckUsernameExists(newUsername1);
         console.log("recibiendo info de player right")
         console.log(playerRight);
         payload.player_right = playerRight.get("id", null);
-        setOpponentUsername(newUsername)
+        setOpponentUsername(newUsername1)
 
         if (gameMode === "local") {
           console.log("Creating match...");
@@ -121,7 +123,10 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   return (
     <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal">
       <Modal.Header closeButton>
-        <Modal.Title>{isInvited ? 'Waiting Opponent' : 'Enter your opponent username'}</Modal.Title>
+        {gameType === "tournament" ?
+          (<Modal.Title>{isInvited ? 'Waiting Opponent' :  'Enter your opponents usernames'}</Modal.Title>):
+          (<Modal.Title>{isInvited ? 'Waiting Opponent' :  'Enter your opponent username'}</Modal.Title>)
+        }
       </Modal.Header>
       <Modal.Body>
         {isInvited ? (
@@ -138,23 +143,49 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
         ) : (
           <Form onSubmit={handleUsernameInvite}>
             <Form.Group controlId="formName">
-              <Form.Label>Username</Form.Label>
+              <Form.Label>Player 2</Form.Label>
               <Form.Control
                 type="text"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
+                value={newUsername1}
+                onChange={(e) => setNewUsername1(e.target.value)}
                 placeholder="Username"
                 required />
-          </Form.Group>
+            </Form.Group>
+            {gameType === "tournament" && (
+            <Form.Group controlId="formName">
+              <Form.Label>Player 3</Form.Label>
+              <Form.Control
+                type="text"
+                value={newUsername2}
+                onChange={(e) => setNewUsername2(e.target.value)}
+                placeholder="Username"
+                required />
+            </Form.Group>
+            )}
+            {gameType === "tournament" && (
+            <Form.Group controlId="formName">
+              <Form.Label>Player 4</Form.Label>
+              <Form.Control
+                type="text"
+                value={newUsername3}
+                onChange={(e) => setNewUsername3(e.target.value)}
+                placeholder="Username"
+                required />
+            </Form.Group>
+            )}
           <Button 
-            variant="secondary" 
+            variant="warning" 
             className="mt-3 w-100" 
             onClick={handleSkip} 
             disabled={isInviting}>
             Skip (Start Local Game)
           </Button>
           <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isInviting}>
-            {isInviting ? 'Inviting...' : 'Invite User'}
+          {gameType === "tournament" ?
+            ( isInviting ? 'Inviting...' : 'Invite Users' ):
+            ( isInviting ? 'Inviting...' : 'Invite User' )
+          }
+           
           </Button>
         </Form>)}
         {errorMessage && <div className="mt-3 text-danger">{errorMessage}</div>}
