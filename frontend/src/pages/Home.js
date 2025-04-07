@@ -20,9 +20,10 @@ function Home() {
 }
 
 const HomeRouter = () => {
+  const username = localStorage.getItem("username");
   return (
       <>
-      <NavBar />
+      <NavBar username={username}/>
         <GameSettingProvider>
             <Routes>
                 <Route path="/" element={<Home />} />
