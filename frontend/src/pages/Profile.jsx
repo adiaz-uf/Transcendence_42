@@ -97,6 +97,19 @@ export default function Profile() {
   //
   const handleChangeData = async (e) => {
     e.preventDefault();
+
+    const hasChanged =
+    newEmail !== email ||
+    newUsername !== username ||
+    newName !== name ||
+    newPassword !== '';
+
+    if (!hasChanged) {
+      setError("No changes.");
+      setMessageType("info");
+      return;
+    }
+
     const updatedData = {};
     if (newEmail) {
       updatedData.email = newEmail;
@@ -122,6 +135,10 @@ export default function Profile() {
       setEmail(response.data.email);
       setUsername(response.data.username);
       localStorage.setItem("username", response.data.username);
+      
+      setError("Changes has been saved !");
+      setMessageType("success");
+      
       handleCloseModal();
     } catch (e) {
       if (e.response && e.response.data) {

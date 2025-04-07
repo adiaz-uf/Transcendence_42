@@ -34,7 +34,12 @@ export default function Register({route}) {
                 return ;
             }
             await api.post(route, { username, password, email, given_name, surname });
-            navigate("/login");
+            navigate("/login", {
+                state: {
+                    message: "New account created !",
+                    type: "success"
+                }
+            });
         } catch (err) {
             if (err.response && err.response.data) {
                 const djangoErrors = err.response.data;
