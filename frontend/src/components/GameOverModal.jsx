@@ -11,7 +11,7 @@ export default function GameOverModal({ /* showModal, handleCloseModal, */ winne
       </Modal.Header>
       <Modal.Body>
           <>
-            <p>Winner is : <strong>{winner}</strong></p>
+            <p>Winner is: <strong>{winner}</strong></p>
           </>
       </Modal.Body>
     </Modal>

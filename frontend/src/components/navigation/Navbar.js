@@ -17,7 +17,7 @@ export default function NavBar({ username }) {
                         <Nav>
                             <Navbar.Text>
                                 Signed in as: 
-                                <a href="/profile" className="user-link"> {username}</a> 
+                                <a href="/profile" className="user-link"> {username ? username: 'Guest'}</a> 
                                 <a href="/logout" className="logout-link"> Logout </a>
                             </Navbar.Text>
                         </Nav>
