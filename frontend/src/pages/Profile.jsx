@@ -41,7 +41,7 @@ export default function Profile() {
     
   // ########################################   Fetch API ################################################
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (matchesPlayed > 0) {
       // Calculamos el número de partidas perdidas
       const calculatedMatchesLosed = matchesPlayed - matchesWon;
@@ -58,7 +58,7 @@ export default function Profile() {
     } else {
       setWinRatio(0); // Si no hay partidos jugados, el win ratio es 0
     }
-  }, [matchesPlayed, matchesWon]);  // Dependencias
+  }, [matchesPlayed, matchesWon]);  // Dependencias */
 
   const fetchProfileData = async () => {
     try {
