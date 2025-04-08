@@ -7,31 +7,60 @@
 
 .gameplay-container {
     width: 100%;
-    max-width: 800px; /* Match the canvas width */
-    margin: 0 auto; /* Center the container */
-    overflow: hidden; /* Prevent content overflow */
-  }
-  
-.game-canvas {
-    display: block;
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.game-return {
     width: 100%;
-    max-width: 800px; /* Match the canvas width */
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
 }
 
-.gameplay-container {
-margin: 0 auto;
-padding: 0;
-box-sizing: border-box;
+.game-return button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #0d6efd;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.game-return button:hover {
+    background-color: #0b5ed7;
 }
 
 .game-canvas {
-margin: 0;
-padding: 0;
+    border: 2px solid #333;
+    border-radius: 5px;
+    background-color: black;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-p {
-margin: 0;
-padding: 0;
+.game-controls {
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.controls-info {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.controls-info p {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
 }
 
 .loader {
@@ -50,7 +79,7 @@ padding: 0;
     left: 0;
     width: 8px;
     background: #FFF;
-    height: 80%; /* Ajustar altura al 80% del contenedor */
+    height: 80%;
 }
 
 .loader:after {
@@ -73,7 +102,7 @@ padding: 0;
     right: 0;
     width: 8px;
     background: #FFF;
-    height: 80%; /* Ajustar altura al 80% del contenedor */
+    height: 80%;
 }
 
 @keyframes ballBounce {
