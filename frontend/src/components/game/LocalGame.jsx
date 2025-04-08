@@ -409,9 +409,7 @@ const LocalGame = () => {
             ctx.fillStyle = 'white';
             const winner = gameState.winner === 'left' ? 'Left' : 'Right';
             ctx.textAlign = 'center';
-            ctx.fillText(`${winner} Player Wins!`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
-            ctx.font = '30px Arial';
-            ctx.fillText('Press Start to play again', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
+            ctx.fillText(`${winner} Player Wins!`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30);
         }
     }, [gameState]);
 
@@ -436,10 +434,11 @@ const LocalGame = () => {
             minHeight: '100vh'
         }}>
             <div className="game-return" style={{ marginBottom: '20px' }}>
-                <button onClick={handleReturnToMenu} style={{ marginRight: '10px' }}>Return to Menu</button>
-                <button onClick={toggleGame} disabled={!!gameState.connectionError}>
-                    {gameState.gameOver ? 'Play Again' : (gameState.isPlaying ? 'Pause' : 'Start')}
-                </button>
+                {!gameState.gameOver && (
+                    <button onClick={toggleGame} disabled={!!gameState.connectionError}>
+                        {gameState.isPlaying ? 'Pause' : 'Start'}
+                    </button>
+                )}
             </div>
             {gameState.connectionError && (
                 <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>
@@ -474,6 +473,32 @@ const LocalGame = () => {
                     Right Paddle: {Math.round(gameState.players.right.y)}<br/>
                     Playing: {gameState.isPlaying ? 'Yes' : 'No'}
                 </div>
+                {gameState.gameOver && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '60%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        textAlign: 'center',
+                        zIndex: 1
+                    }}>
+                        <button 
+                            onClick={handleReturnToMenu}
+                            style={{
+                                padding: '15px 30px',
+                                fontSize: '20px',
+                                backgroundColor: '#4CAF50',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '5px',
+                                cursor: 'pointer',
+                                marginTop: '20px'
+                            }}
+                        >
+                            Return to Menu
+                        </button>
+                    </div>
+                )}
             </div>
             <div className="game-controls" style={{ 
                 marginTop: '20px', 
@@ -482,7 +507,7 @@ const LocalGame = () => {
             }}>
                 <div className="controls-info">
                     <p>Left Player: W/S keys</p>
-                    <p>Right Player: ↑/↓ arrow keys</p>
+                    <p>Right Player: O/K keys</p>
                 </div>
             </div>
         </div>
