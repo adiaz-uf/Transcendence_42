@@ -1,18 +1,23 @@
 import React from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
+import '../styles/gameOverModal.css'
 
-export default function GameOverModal({ /* showModal, handleCloseModal, */ winner }) {
+export default function GameOverModal({ showModal, handleCloseModal, player1, player2, score1, score2}) {
   return (
-    <Modal /* show={showModal} onHide={handleCloseModal} */ dialogClassName="custom-modal">
-      <Modal.Header closeButton>
-        <Modal.Title>
-          {"Game Over!"}
-        </Modal.Title>
+    <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal" centered>
+      <Modal.Header closeButton className="custom-modal-header">
+        <Modal.Title>Game Over!</Modal.Title>
       </Modal.Header>
-      <Modal.Body>
-          <>
-            <p>Winner is: <strong>{winner}</strong></p>
-          </>
+      <Modal.Body className="custom-modal-body">
+        <p className="winner-text">
+          {player1} <strong>{score1}</strong> - <strong>{score2}</strong> {player2}
+        </p>
+        <p className="winner-text">
+          <strong>{score1 > score2 ? player1 : player2}</strong> is the winner! 🎉
+        </p>
+        <Button variant="primary" onClick={handleCloseModal} className="custom-close-button">
+          Close
+        </Button>
       </Modal.Body>
     </Modal>
   );
