@@ -21,10 +21,9 @@ export async function GETCurrentProfileInfo() {
     }
 }
 
-export async function GETCheckUsernameExists({username}){
+export async function GETCheckUsernameExists(username){
     // Get the JWT token from local storage
     const token = localStorage.getItem(ACCESS_TOKEN); 
-    
     if (!token) {
         return ;
     }

@@ -1,0 +1,45 @@
+/* Estilos del contenido del modal */
+.custom-modal .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    animation: bounceIn 0.6s ease-out; /* Animación Bounce */
+  }
+  
+  /* Animación Bounce */
+  @keyframes bounceIn {
+    0% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  
+  .custom-modal-header {
+    color: #fff;
+    text-align: center;
+  }
+  
+  .custom-modal-header .modal-title {
+    font-size: 1.75rem; 
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .custom-modal-body {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .winner-text {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+    color: #28a745;
+    /* font-weight: bold; */
+  }
+  
+  .custom-close-button {
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: none;
+    color: white;
+    transition: background-color 0.3s ease !important;
+  }
