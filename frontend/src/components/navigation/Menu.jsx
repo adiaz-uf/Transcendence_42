@@ -75,7 +75,8 @@ export const Menu = () => {
       <h1>Or start a Tournament!</h1>
       <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament")}>Start Tournament</Button>
       <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament")}>Join Tournament</Button>{/* TODO: Join tournament Logic?*/}
-      <h5>Our 4-player tournaments are designed for players to compete in a series of matches, 
+      <h5 className="tournament-info">
+        Our 4-player tournaments are designed for players to compete in a series of matches, 
         with the top two advancing to a final. The inviter must enter three usernames to set up the tournament, 
         and the other three players must join to complete the competition. 
         This ensures a structured and fair format for skill-based play.

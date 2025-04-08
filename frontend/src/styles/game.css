@@ -87,3 +87,11 @@ padding: 0;
         left: 10px;
     }
 }
+
+.tournament-info {
+    line-height: 1.5;
+}
+
+@media (min-width: 900px) {
+.tournament-info { padding-left: 10em; padding-right: 10em }
+}
