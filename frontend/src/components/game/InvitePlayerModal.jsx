@@ -66,15 +66,19 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           right_score: 0,
           is_started: false,
         };
+        console.log(newUsername1);
         const playerRight = await GETCheckUsernameExists(newUsername1);
-        console.log("recibiendo info de player right")
         console.log(playerRight);
-        payload.player_right = playerRight.get("id", null);
-        setOpponentUsername(newUsername1)
+        payload.player_right = playerRight.get("id", null); //TODO: TypeError: playerRight.get is not a function
+        setOpponentUsername(newUsername1);
+        const player3 = await GETCheckUsernameExists(newUsername2);
+        console.log(player3);
+        const player4= await GETCheckUsernameExists(newUsername3);
+        console.log(player4);
 
         if (gameMode === "local") {
           console.log("Creating match...");
-          // Enviar una solicitud POST para crear un nuevo partido
+          
           payload.is_multiplayer = false;
           const LocalMatchResponse = await POSTcreateMatch(payload);
           if (LocalMatchResponse){
@@ -95,7 +99,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           console.log("playerLeft:", id1);
           console.log("playerRight:", playerRight);
           console.log("Creating match...");
-          // Enviar una solicitud POST para crear un nuevo partido
+          // POST new match
           console.log("Payload antes de enviar:", payload);
           const OnlineMatchResponse = await POSTcreateMatch(payload);
           if (OnlineMatchResponse){
