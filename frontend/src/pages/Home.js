@@ -7,6 +7,7 @@ import { Routes, Route } from "react-router-dom";
 import { GameSettingProvider } from '../components/contexts/MenuContext';
 
 import GameApp from '../components/game/GameApp';
+import LocalGame from '../components/game/LocalGame';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import MessageBox from '../components/MessageBox';
@@ -51,6 +52,7 @@ const HomeRouter = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/pong" element={<GameApp />} />
+          <Route path="/local" element={<LocalGame />} />
         </Routes>
       </GameSettingProvider>
     </>
