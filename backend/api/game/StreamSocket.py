@@ -2,15 +2,14 @@ import json
 import uuid
 import asyncio
 import logging
+import random
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.http import JsonResponse
 from django.core.exceptions import ObjectDoesNotExist
-from .asyncDb import IsPlayerinMatch, IsMultiplayerMatch
-from .GameSessionManager import GameSessionManager
+from .session_manager import session_manager
+from .pongame import PongGame
 
-
-# from .game_manager import game_manager  # Import game session manager
-logger = logging.getLogger("django")
+logger = logging.getLogger(__name__)
 
 
     # Loop de interacion con el cliente, servidor = StreamSocketMultiplayer
@@ -24,125 +23,288 @@ logger = logging.getLogger("django")
 #3. cliente ws.send({'game_active':Id}) servidor reciben en servidor.__handle_game_active()
 
 
-session_manager = GameSessionManager() #Store active connections and games
-
-
 # Function that handles incoming new connections for matches
 class StreamSocket(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.matchId = None
         self.player_1 = None
+        self.game_task = None
         self.__message_handlers = {
             'connectToMatch': self.__handle_MatchSessionPairing,
             "update": self.__handle_update,
-            "game_active": self.__handle_game_active}
+            "game_active": self.__handle_game_active,
+            "reset_game": self.__handle_reset_game
+        }
 
     async def connect(self):
-        # logger.info(f"WS SCOPE: %s", json.dumps(self.scope, default=str, indent=4))
-        self.player_1 = self.scope["user"] # Unique ID for each player from User model since auth is used
-        logger.info("WS connectfrom: %s", self.player_1)
-        await self.accept()
-        await self.send(json.dumps({"message": "Connected"}))
+        """
+        Called when the websocket is handshaking as part of initial connection.
+        """
+        try:
+            # Accept the connection
+            await self.accept()
+            logger.info("New client connected")
+
+            # Create a new game session for this connection
+            self.matchId = f"local_{id(self)}"  # Unique ID for this connection
+            if not session_manager.createGame(self.matchId, str(id(self))):
+                raise Exception("Failed to create game")
+            self.player_1 = str(id(self))
+
+            # Add this connection to the game's group
+            await self.channel_layer.group_add(self.matchId, self.channel_name)
+
+            # Start the game loop
+            self.game_task = asyncio.create_task(self.game_loop())
+            if not session_manager.setGameTask(self.matchId, self.game_task):
+                raise Exception("Failed to set game task")
+            
+            logger.info("Game loop started")
+
+        except Exception as e:
+            logger.error(f"Error in connect: {str(e)}")
+            if hasattr(self, 'matchId'):
+                session_manager.removeGame(self.matchId)
+            await self.close(code=1011)  # Internal error
 
     async def disconnect(self, close_code):
-        logger.info("WS DISCONNECT: %s   %d", self.player_1, close_code)
-        #Cancel GameTask
-        session = session_manager.getSession(self.matchId)
-        if session:
-            session_manager.getGameTask(self.matchId).cancel()
-            await self.channel_layer.group_discard(self.matchId, self.channel_name)
-        await self.close()
+        """
+        Called when the WebSocket closes for any reason.
+        """
+        try:
+            logger.info(f"Client disconnected with code: {close_code}")
+            
+            if hasattr(self, 'matchId'):
+                # Cancel our game task if it exists
+                if self.game_task and not self.game_task.done():
+                    self.game_task.cancel()
+                    try:
+                        await self.game_task
+                    except asyncio.CancelledError:
+                        pass  # Expected when cancelling
+                    except Exception as e:
+                        logger.error(f"Error cancelling game task: {str(e)}")
+                
+                # Remove from session manager
+                session_manager.removeGameTask(self.matchId)
+                session_manager.removeGame(self.matchId)
+                
+                # Remove from the game group
+                await self.channel_layer.group_discard(self.matchId, self.channel_name)
+                
+                logger.info(f"Cleaned up game {self.matchId}")
+            
+        except Exception as e:
+            logger.error(f"Error in disconnect: {str(e)}")
+            # No need to re-raise as we're disconnecting anyway
 
     async def receive(self, text_data):
-        data = json.loads(text_data)
-        message_type = data.get("type", None)
-
-        # Route the message to the appropriate handler
-        if message_type in self.__message_handlers:
-            await self.__message_handlers[message_type](data)
-        else:
-            print(f"Unknown message: {data}")
-
-    async def __handle_MatchSessionPairing(self, data):
-        """Confirm socket session with a match"""
-        logger.info(data)
-        match_id = data.get('matchId', None)
-
-        if  match_id is None:
-            await self.send(json.dumps({"Error": "No matchId"}))
-            return
-
-        self.matchId = match_id
-
         try:
-            Ismultiplayermatch = IsMultiplayerMatch(self.matchId)
-        except ObjectDoesNotExist:
-            await self.send(json.dumps({"Error": "Match not found"}))
-            return
-        
-        # Check if the player is in the match and returns which user is opening conection
-        which_player = IsPlayerinMatch(self.matchId, self.player_1)
+            data = json.loads(text_data)
+            message_type = data.get("type", None)
 
-        if not Ismultiplayermatch and which_player == 1:
-            await self.channel_layer.group_add(self.matchId, self.channel_name)
-            session_manager.create_session(self.matchId, self.user_id, self.channel_name)
-            gameTask = await asyncio.create_task(self.game_loop())
-            session_manager.setGameTask(self.matchId, gameTask)
-        else:
-            if which_player == 1:
-                await self.channel_layer.group_add(self.matchId, self.channel_name)
-                session_manager.create_session(self.matchId, self.user_id, self.channel_name)
-                gameTask = await asyncio.create_task(self.game_loop())
-                session_manager.setGameTask(self.matchId, gameTask)
-                logger.info(f"WS Player 1: {self.player_1}")
-
-            elif which_player == 2:
-                await self.channel_layer.group_add(self.matchId, self.channel_name)
-                session_manager.join_session(self.matchId, self.user_id, self.channel_name)
-                logger.info(f"WS Player 2: {self.player_1}")
+            if message_type in self.__message_handlers:
+                await self.__message_handlers[message_type](data)
             else:
-                await self.send(json.dumps({"Error": "Not in Match"}))
-
-                return
-        logger.info("WS Match- JOINED")
-        await self.send(json.dumps({"joined": True}))
-
+                logger.warning(f"Unknown message type: {message_type}")
+                await self.send(json.dumps({"type": "error", "message": "Unknown message type"}))
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON received")
+            await self.send(json.dumps({"type": "error", "message": "Invalid JSON"}))
+        except Exception as e:
+            logger.error(f"Error processing message: {str(e)}")
+            await self.send(json.dumps({"type": "error", "message": "Internal server error"}))
 
     async def __handle_update(self, data):
         """Processes paddle movement updates"""
-        if self.matchId:
-            logger.info("handleGameUpdateWs: Game not found")
+        if not self.matchId:
+            logger.warning("No match ID for update")
             return
 
-        direction = data.get("direction", {})
-        userId = data.get("userId", {})
-
-        gameobject = session_manager.getGameObject(self.matchId)
-        if not gameobject:
-            logger.info("handleGameUpdateWs: Game not found")
+        direction = data.get("direction")
+        side = data.get("side")
+        if not direction or not side:
+            logger.warning(f"Invalid paddle update data: {data}")
             return
-        if session_manager.getSession(self.matchId)['player1'] == userId:
-            gameobject.move_players('left', direction)
-            await self.channel_layer.group_send(self.matchId, {"type": "game_update", 'left': gameobject.get_players('left')})
 
-        elif session_manager.getSession(self.matchId)['player2'] == userId:
-            gameobject.move_players('right', direction)
-            await self.channel_layer.group_send(self.matchId, {"type": "game_update", 'right': gameobject.get_players('right')})
+        game = session_manager.getGameObject(self.matchId)
+        if not game:
+            logger.warning("Game not found")
+            return
+
+        # Move the specified paddle and log the movement
+        logger.debug(f"Moving {side} paddle {direction}")
+        game.move_players(side, direction)
+        
+        # Send immediate paddle position update
+        state = game.get_gameState()
+        await self.channel_layer.group_send(
+            self.matchId,
+            {
+                "type": "game_update",
+                "message": {
+                    "type": "game_update",
+                    "players": state["players"],
+                    "ball": state["ball"],
+                    "active": state["active"]
+                }
+            }
+        )
 
     async def __handle_game_active(self, data):
-        gameobject = session_manager.getGameObject(self.matchId)
-        gameobject.SetGameActive(data.get("game_active", False))
+        """Handle game activation/deactivation"""
+        if not self.matchId:
+            logger.warning("No match ID for game_active update")
+            return
 
-    async def __game_loop(self):
-        print(f"[- LOOP STARTED - ", self.matchId)
-        gameobject = session_manager.getGameObject(self.matchId)
+        game = session_manager.getGameObject(self.matchId)
+        if not game:
+            logger.warning("Game not found for game_active update")
+            return
 
-        while 42:
-            if gameobject.IsGameActive():
-                self.game.update_ball()
-                self.game.endGame()
-                await self.channel_layer.group_send(self.matchId, {"type": "game_update", "players": self.game.players, "ball": self.game.ball})
-                await asyncio.sleep(0.01)  # 60ms delay for smooth updates
-    
-        print("[- LOOP ENDED - ", self.matchId)
+        try:
+            is_active = data.get("game_active", False)
+            logger.info(f"Setting game active state to: {is_active}")
+            
+            if is_active:
+                # Reset ball position and set initial velocity
+                game.reset_ball(random.choice(['left', 'right']))
+                game.SetGameActive(True)
+                
+                # Send immediate state update
+                state = game.get_gameState()
+                logger.info(f"Game activated with state: {state}")
+                logger.info(f"Ball velocity: rx={state['ball'].get('rx', 0)}, ry={state['ball'].get('ry', 0)}")
+                
+                await self.channel_layer.group_send(
+                    self.matchId,
+                    {
+                        "type": "game_update",
+                        "message": {
+                            "type": "game_update",
+                            "players": state["players"],
+                            "ball": state["ball"],
+                            "active": state["active"]
+                        }
+                    }
+                )
+            else:
+                # Stop the game
+                game.SetGameActive(False)
+                state = game.get_gameState()
+                
+                await self.channel_layer.group_send(
+                    self.matchId,
+                    {
+                        "type": "game_update",
+                        "message": {
+                            "type": "game_update",
+                            "players": state["players"],
+                            "ball": state["ball"],
+                            "active": False
+                        }
+                    }
+                )
+                
+        except Exception as e:
+            logger.error(f"Error handling game activation: {str(e)}")
+            await self.send(json.dumps({
+                "type": "error",
+                "message": "Failed to update game state"
+            }))
+
+    async def __handle_reset_game(self, data):
+        if not self.matchId:
+            return
+
+        game = session_manager.getGameObject(self.matchId)
+        if game:
+            game.reset_game()
+
+    async def game_loop(self):
+        """Main game loop that updates and broadcasts game state"""
+        logger.info(f"Game loop started for match {self.matchId}")
+        game = session_manager.getGameObject(self.matchId)
+        if not game:
+            logger.error(f"No game object found for match {self.matchId}")
+            await self.close(code=1011)  # Internal error
+            return
+
+        frame_count = 0
+        update_interval = 1.0 / 60  # 60 FPS
+        last_state = None
+        
+        try:
+            while True:
+                loop_start = asyncio.get_event_loop().time()
+                
+                if game.IsGameActive():
+                    try:
+                        # Update game state
+                        game.update_ball()
+                        state = game.get_gameState()
+                        frame_count += 1
+                        
+                        # Only send updates if the state has changed
+                        current_state = json.dumps({
+                            'ball': state['ball'],
+                            'players': state['players']
+                        })
+                        
+                        if current_state != last_state:
+                            last_state = current_state
+                            # Log every state change
+                            logger.debug(
+                                f"Game state update: "
+                                f"Ball pos=({state['ball']['x']:.1f}, {state['ball']['y']:.1f}), "
+                                f"Ball vel=({state['ball'].get('rx', 0):.1f}, {state['ball'].get('ry', 0):.1f}), "
+                                f"Left paddle={state['players']['left']['y']:.1f}, "
+                                f"Right paddle={state['players']['right']['y']:.1f}"
+                            )
+                            
+                            # Send update to all clients in the group
+                            await self.channel_layer.group_send(
+                                self.matchId,
+                                {
+                                    "type": "game_update",
+                                    "message": {
+                                        "type": "game_update",
+                                        "players": state["players"],
+                                        "ball": state["ball"],
+                                        "active": state["active"]
+                                    }
+                                }
+                            )
+                    except Exception as e:
+                        logger.error(f"Error updating game state: {str(e)}")
+                        continue  # Continue the loop even if there's an error
+                
+                # Calculate and maintain frame rate
+                elapsed = asyncio.get_event_loop().time() - loop_start
+                sleep_time = max(0, update_interval - elapsed)
+                await asyncio.sleep(sleep_time)
+                
+        except asyncio.CancelledError:
+            logger.info(f"Game loop cancelled for match {self.matchId}")
+            raise
+        except Exception as e:
+            logger.error(f"Fatal error in game loop: {str(e)}")
+            await self.send(json.dumps({
+                "type": "error",
+                "message": "Game stopped due to server error"
+            }))
+            raise
+
+    async def game_update(self, event):
+        """Handler for game update messages from group send"""
+        try:
+            logger.debug(f"Sending game update to client: {event['message']}")
+            await self.send(text_data=json.dumps(event["message"]))
+        except Exception as e:
+            logger.error(f"Error sending game update: {str(e)}")
+            # Don't close the connection here, just log the error
+
+    async def __handle_MatchSessionPairing(self, data):
+        """This is not used for local games"""
+        pass
