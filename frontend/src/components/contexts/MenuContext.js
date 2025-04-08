@@ -14,7 +14,13 @@ export const GameSettingProvider = ({ children }) => {
   // const [showBoard, setShowBoard] = useState(false); // Controls the visibility of the Board
   
   return (
-    <GameContext.Provider value={{ gameMode, setGameMode, matchId, setMatchId, isInviting, setIsInviting, opponentUsername, setOpponentUsername, isMultiplayer, setIsMultiplayer}}>
+    <GameContext.Provider 
+      value={{ 
+        gameMode, setGameMode, 
+        matchId, setMatchId, 
+        isInviting, setIsInviting, 
+        opponentUsername, setOpponentUsername, 
+        isMultiplayer, setIsMultiplayer}}>
       {children}
     </GameContext.Provider>
   );
