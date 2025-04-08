@@ -46,7 +46,7 @@ class PongGame:
                 'y': self.__height / 2 - 45,
                 'width': 15,
                 'height': 90,
-                'speed': 8,
+                'speed': 3,
                 'score': 0
             },
             'right': {
@@ -55,7 +55,7 @@ class PongGame:
                 'y': self.__height / 2 - 45,
                 'width': 15,
                 'height': 90,
-                'speed': 8,
+                'speed': 3,
                 'score': 0
             }
         }
@@ -97,21 +97,56 @@ class PongGame:
         # Collision with paddles
         for side, paddle in self.__players.items():
             if self.check_ball_paddle_collision(paddle):
-                # Reverse horizontal direction
-                self.__ball['rx'] *= -1
+                # First, handle potential paddle penetration by moving ball back
+                prev_x = self.__ball['x'] - self.__ball['rx']
+                prev_y = self.__ball['y'] - self.__ball['ry']
+                self.__ball['x'] = prev_x
+                self.__ball['y'] = prev_y
                 
-                # Increase speed up to max_ball_speed
-                current_speed = math.sqrt(self.__ball['rx']**2 + self.__ball['ry']**2)
-                if current_speed < self.__max_ball_speed:
-                    speed_multiplier = min(1.1, self.__max_ball_speed / current_speed)
-                    self.__ball['rx'] *= speed_multiplier
-                    self.__ball['ry'] *= speed_multiplier
+                # Calculate where on the paddle the ball hit (0 = top edge, 1 = bottom edge)
+                hit_position = (self.__ball['y'] - paddle['y']) / paddle['height']
                 
-                # Add slight vertical angle change based on where the ball hits the paddle
-                hit_position = (self.__ball['y'] - paddle['y']) / paddle['height']  # 0 to 1
-                angle_factor = (hit_position - 0.5) * 0.5  # -0.25 to 0.25
-                speed = math.sqrt(self.__ball['rx']**2 + self.__ball['ry']**2)
-                self.__ball['ry'] = speed * angle_factor
+                # Detect if we hit very close to the edges
+                edge_threshold = 0.1  # 10% from top or bottom
+                hit_edge = hit_position < edge_threshold or hit_position > (1 - edge_threshold)
+                
+                # Check if we're still colliding (edge case)
+                if self.check_ball_paddle_collision(paddle):
+                    # If still colliding and we hit an edge, ensure a good deflection
+                    if hit_edge:
+                        # Ensure strong vertical component away from edge
+                        speed = math.sqrt(self.__ball['rx']**2 + self.__ball['ry']**2)
+                        vertical_direction = -1 if hit_position < 0.5 else 1
+                        self.__ball['ry'] = vertical_direction * (speed * 0.7)  # 70% of speed goes to vertical
+                        self.__ball['rx'] = (self.__ball['rx'] / abs(self.__ball['rx'])) * (speed * 0.7)  # Maintain direction
+                    else:
+                        # Normal edge collision
+                        if side == 'left':
+                            self.__ball['x'] = paddle['x'] + paddle['width'] + self.__ball['radio']
+                        else:
+                            self.__ball['x'] = paddle['x'] - self.__ball['radio']
+                        self.__ball['ry'] *= -1
+                else:
+                    # Normal paddle collision handling
+                    self.__ball['rx'] *= -1
+                    
+                    # Increase speed up to max_ball_speed
+                    current_speed = math.sqrt(self.__ball['rx']**2 + self.__ball['ry']**2)
+                    if current_speed < self.__max_ball_speed:
+                        speed_multiplier = min(1.1, self.__max_ball_speed / current_speed)
+                        self.__ball['rx'] *= speed_multiplier
+                        self.__ball['ry'] *= speed_multiplier
+                    
+                    # Add slight vertical angle change based on where the ball hits the paddle
+                    angle_factor = (hit_position - 0.5) * 0.5  # -0.25 to 0.25
+                    speed = math.sqrt(self.__ball['rx']**2 + self.__ball['ry']**2)
+                    self.__ball['ry'] = speed * angle_factor
+                
+                # Ensure ball doesn't get stuck in paddle
+                if side == 'left':
+                    self.__ball['x'] = max(self.__ball['x'], paddle['x'] + paddle['width'] + self.__ball['radio'])
+                else:
+                    self.__ball['x'] = min(self.__ball['x'], paddle['x'] - self.__ball['radio'])
                 break
 
         # Points
@@ -119,19 +154,32 @@ class PongGame:
             self.__players['right']['score'] += 1
             if self.__players['right']['score'] >= self.__max_score:
                 self.__game_active = False
-            self.reset_ball('right')
+            self.reset_ball('left')  # Ball goes to the player who lost the point
         elif self.__ball['x'] >= self.__width:
             self.__players['left']['score'] += 1
             if self.__players['left']['score'] >= self.__max_score:
                 self.__game_active = False
-            self.reset_ball('left')
+            self.reset_ball('right')  # Ball goes to the player who lost the point
 
     def check_ball_paddle_collision(self, paddle):
+        # Consider the ball's radius in collision detection
+        ball_left = self.__ball['x'] - self.__ball['radio']
+        ball_right = self.__ball['x'] + self.__ball['radio']
+        ball_top = self.__ball['y'] - self.__ball['radio']
+        ball_bottom = self.__ball['y'] + self.__ball['radio']
+        
+        # Add a small buffer zone around the paddle (1 pixel)
+        buffer = 1
+        paddle_left = paddle['x'] - buffer
+        paddle_right = paddle['x'] + paddle['width'] + buffer
+        paddle_top = paddle['y'] - buffer
+        paddle_bottom = paddle['y'] + paddle['height'] + buffer
+
         return (
-            self.__ball['x'] >= paddle['x'] and
-            self.__ball['x'] <= paddle['x'] + paddle['width'] and
-            self.__ball['y'] >= paddle['y'] and
-            self.__ball['y'] <= paddle['y'] + paddle['height']
+            ball_right >= paddle_left and
+            ball_left <= paddle_right and
+            ball_bottom >= paddle_top and
+            ball_top <= paddle_bottom
         )
 
     def reset_ball(self, scoring_side):
