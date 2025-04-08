@@ -219,10 +219,10 @@ const LocalGame = () => {
             }
 
             // Right paddle (Arrow keys)
-            if (pressedKeys.has('ArrowUp')) {
+            if (pressedKeys.has('o')) {
                 wsRef.current.sendPlayerMove('right', 'up');
             }
-            if (pressedKeys.has('ArrowDown')) {
+            if (pressedKeys.has('k')) {
                 wsRef.current.sendPlayerMove('right', 'down');
             }
         }
@@ -322,10 +322,10 @@ const LocalGame = () => {
                     if (pressedKeys.has('s')) {
                         wsRef.current.sendPlayerMove('left', 'down');
                     }
-                    if (pressedKeys.has('ArrowUp')) {
+                    if (pressedKeys.has('o')) {
                         wsRef.current.sendPlayerMove('right', 'up');
                     }
-                    if (pressedKeys.has('ArrowDown')) {
+                    if (pressedKeys.has('k')) {
                         wsRef.current.sendPlayerMove('right', 'down');
                     }
                 }
