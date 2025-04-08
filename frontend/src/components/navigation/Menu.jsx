@@ -17,26 +17,7 @@ export const Menu = () => {
     if (mode === "local") {
       setGameMode("local");
       setIsMultiplayer(false);
-
-      setInvationBool(true);
-      // let response = await POSTcreateMatch({
-      //   'is_multiplayer':Ismultiplayer,
-      //   'is_started':IsStarted,
-      //   'left_score':left_score,
-      //   'right_score':right_score, 
-      //   'player_left_username':localStorage.getItem('userId'),
-      //   'player_right_username': right_username
-      // });//temporal 
-      // console.log(response);
-      //setMatchId(response['id']);
-
-      // Pasar por Invite Modal
-
-      // Pasar por send.msg(connectToMatch) Y send.msg(game_active)
-
-
-
-      //navigate("/game");
+      navigate("/local");
     } else if (mode === "online") {
       setOnlineButtons(true);
     } else if (mode === "online-create") {
