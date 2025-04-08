@@ -4,12 +4,14 @@ import { Button } from 'react-bootstrap';
 import {useGameSetting} from '../contexts/MenuContext'
 import '../../styles/game.css'
 import {InvitePlayer} from '../game/InvitePlayerModal';
+import GameOverModal from "../GameOverModal";
 
 export const Menu = () => {
   const { setGameMode, setIsMultiplayer, setPlayerType } = useGameSetting();
 
   const [OnlineButtons, setOnlineButtons] = useState(false);
   const [InvitationModal, setInvationBool] = useState(false);
+  const [InvitationModal2, setInvationBool2] = useState(false); //TODO: delete, just for test modal
   const [gameType, setGameType] = useState(null);  // "match | tournament" *TODO: Join to context??
 
   const navigate = useNavigate();
@@ -51,11 +53,15 @@ export const Menu = () => {
       setPlayerType("guest");
       navigate("/join");
     }
-    else if (mode === "tournament") {
-      setGameMode("local");
-      setIsMultiplayer(false);
+    else if (mode === "tournament-start") { 
+      setGameMode("local"); // TODO
+      setIsMultiplayer(false); // TODO
       setGameType("tournament");
       setInvationBool(true);
+    }
+    else if (mode === "tournament-join") {
+
+      setInvationBool2(true);
     }
   };
   return (
@@ -73,8 +79,8 @@ export const Menu = () => {
         </>)
       }
       <h1>Or start a Tournament!</h1>
-      <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament")}>Start Tournament</Button>
-      <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament")}>Join Tournament</Button>{/* TODO: Join tournament Logic?*/}
+      <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament-start")}>Start Tournament</Button>
+      <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament-join")}>Join Tournament</Button>{/* TODO: Join tournament Logic?*/}
       <h5 className="tournament-info">
         Our 4-player tournaments are designed for players to compete in a series of matches, 
         with the top two advancing to a final. The inviter must enter three usernames to set up the tournament, 
@@ -83,6 +89,9 @@ export const Menu = () => {
       </h5>
       { InvitationModal && (
         <InvitePlayer showModal={InvitationModal} handleCloseModal={()=>{setInvationBool(false)}} gameType={gameType}/>
+      )}
+      { InvitationModal2 && ( //TODO: delete this modal here, just for test 
+        <GameOverModal showModal={InvitationModal2} handleCloseModal={()=>{setInvationBool2(false)}} player1={"Alex"} player2={"suuu"} score1={10} score2={5}/>
       )}
     </div>
   );
