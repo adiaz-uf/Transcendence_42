@@ -6,7 +6,7 @@ from api.views.user.views import CreateUserView, UserProfileView, LoginView, Che
 from api.views.match.views import MatchCreationView, CreateOnlineMatchView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
 from api.views.auth.TwoFA import Setup2FAView
 from api.views.auth.auth42 import FTAuthCallbackView
-from api.views.tournament.views import CreateTournamentView
+from api.views.tournament.views import CreateTournamentView, AddMatchToTournamentView, AddWinnerToTournamentView, UserTournWinnerCountView
 
 urlpatterns = [
 
@@ -29,8 +29,8 @@ urlpatterns = [
     path('matches/available/', AvailableMatchView.as_view(), name='match-available'),
 
     path("tournament/", CreateTournamentView.as_view(), name="tournament"),
-#   path('tournaments/<int:pk>/', TournamentDetailView.as_view(), name='tournament-detail'),
-#   path('tournaments/<int:pk>/matches/', TournamentMatchesView.as_view(), name='tournament-matches'),
+    path('tournaments/<uuid:pkMatch>/add-matches/', AddMatchToTournamentView.as_view(), name='add-matches-to-tournament'),
+    path('tournaments/<uuid:pkUser>/add-winner/', AddWinnerToTournamentView.as_view(), name='add-winner-to-tournament'),
 ]
 
 
