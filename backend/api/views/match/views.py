@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 from api.models import UserProfile, Match
 from api.serializer.match.serializer import MatchSerializer
+from api.game.session_manager import session_manager
 
 # CreateAPIView (POST only)
 # ListAPIView (GET only)
@@ -61,7 +62,7 @@ class MatchCreationView(generics.CreateAPIView):
         """
         print("This is the request data", self.request.data)
         player_right_id = self.request.data.get("player_right", None)
-        
+        player_right = None  # Initialize player_right to None by default
 
         if player_right_id:
             try:
@@ -79,6 +80,15 @@ class MatchCreationView(generics.CreateAPIView):
             is_multiplayer=self.request.data.get("is_multiplayer", False),
             is_started=self.request.data.get("is_started", False),
         )
+
+        # Initialize the game in the session manager
+        player_right_username = player_right.username if player_right else None
+        if not session_manager.createGame(str(match.id), self.request.user.username, player_right_username):
+            logger.error(f"Failed to create game for match {match.id}")
+            return Response(
+                {"error": "Failed to initialize game"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
         return Response(
             {"message": "Match Created!", "match_id": match.id}, status=201
@@ -109,6 +119,14 @@ class CreateOnlineMatchView(generics.CreateAPIView):
             right_score=right_score,
             is_started=is_started,
         )
+
+        # Initialize the game in the session manager
+        if not session_manager.createGame(str(match.id), player_left, player_right):
+            logger.error(f"Failed to create game for match {match.id}")
+            return Response(
+                {"error": "Failed to initialize game"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
         serializer = MatchSerializer(match)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
