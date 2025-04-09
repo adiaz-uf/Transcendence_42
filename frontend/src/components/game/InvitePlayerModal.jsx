@@ -56,11 +56,16 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
     try {
         setIsInviting(true);
         let id1 = localStorage.getItem('userId');
+        const sessionUser = localStorage.getItem('username');
         console.log("playerLeft:", id1);
         const playerRight = await GETCheckUsernameExists(newUsername1);
+        if (playerRight.userProfile.username === sessionUser)
+        {
+          const error = new Error();
+          error.code = 94; 
+          throw error;
+        }
         const playerRightId = playerRight.userProfile.id;
-        console.log("This is the playerRight", playerRight);
-        console.log( "and this is the id", playerRight.userProfile.id);
         let payload = {
             player_left: id1,
             player_right: playerRightId,
@@ -117,6 +122,8 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         console.log(error);
         if (error.response && error.response.status === 404) {
             setErrorMessage('The username does not exist.');
+        }  else if (error.code === 94) {
+          setErrorMessage('this is you retarded.');
         } else {
             setErrorMessage('There was an error checking the username.');
         }
