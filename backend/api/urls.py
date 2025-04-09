@@ -6,8 +6,8 @@ from api.views.user.views import CreateUserView, UserProfileView, LoginView, Che
 from api.views.match.views import MatchCreationView, CreateOnlineMatchView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
 from api.views.auth.TwoFA import Setup2FAView
 from api.views.auth.auth42 import FTAuthCallbackView
-from api.views.tournament.views import CreateTournamentView
 from api.views.game.cli_views import GameStateView, GameControlView, PlayerMoveView, GameStatsView
+from api.views.tournament.views import CreateTournamentView, AddMatchToTournamentView, AddWinnerToTournamentView, UserTournWinnerCountView
 
 urlpatterns = [
     # User endpoints
@@ -32,6 +32,8 @@ urlpatterns = [
 
     # Tournament endpoints
     path('tournament/', CreateTournamentView.as_view(), name='tournament'),
+    path('tournaments/<uuid:pkMatch>/add-matches/', AddMatchToTournamentView.as_view(), name='add-matches-to-tournament'),
+    path('tournaments/<uuid:pkUser>/add-winner/', AddWinnerToTournamentView.as_view(), name='add-winner-to-tournament'),
 
     # Game CLI endpoints
     path('game/cli/state/<uuid:match_id>/', GameStateView.as_view(), name='game-cli-state'),
@@ -39,5 +41,3 @@ urlpatterns = [
     path('game/cli/move/<uuid:match_id>/', PlayerMoveView.as_view(), name='game-cli-move'),
     path('game/cli/stats/<uuid:match_id>/', GameStatsView.as_view(), name='game-cli-stats'),
 ]
-
-
