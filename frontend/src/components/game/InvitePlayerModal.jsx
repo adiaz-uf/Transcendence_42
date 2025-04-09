@@ -36,7 +36,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         console.log("MatchId set to: ", localMatchResponse.id);
         setMatchId(localMatchResponse.id);
         handleCloseModal();
-        navigate('/pong'); 
+        navigate('/local'); 
       } else {
         setErrorMessage(`Error creating local match`);
       }
@@ -110,7 +110,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
             setErrorMessage(`Error with new Match`);
           }
           handleCloseModal();
-          navigate('/pong');
+          navigate('/local');
         }
     } catch (error) {
         console.log(error);
