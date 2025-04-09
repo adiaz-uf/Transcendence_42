@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 from api.models import UserProfile, Match
 from api.serializer.match.serializer import MatchSerializer
 from api.game.session_manager import session_manager
+from api.views.blockchain.blockchain_utils import send_score_to_blockchain
 
 # CreateAPIView (POST only)
 # ListAPIView (GET only)
@@ -148,17 +149,20 @@ class MatchScoreUpdateView(generics.UpdateAPIView):
         updated = False
 
         for key in ["left_score", "right_score", "match_duration"]:
-            if key in data: 
-                received_value = data[key]
-                if getattr(match, key) != received_value:
-                    setattr(match, key, received_value)
-                    updated = True
+            if key in data:
+                setattr(match, key, data[key])
+                updated = True
 
         if updated:
             match.save()
-            return Response(
-                {"message": "Scores updated successfully!", "match": MatchSerializer(match).data})
-        else:
             
-            return Response(
-                {"message": "No changes detected."},)
+            # Check if match is part of a tournament and send score to blockchain
+            tournament = match.tournament_set.first()
+            if tournament:
+                send_score_to_blockchain(
+                    str(tournament.id),
+                    match.left_score,
+                    match.right_score
+                )
+        
+        return Response(self.get_serializer(match).data)
