@@ -190,4 +190,4 @@ class PongGame:
         self.__ball['rx'] = self.__initial_ball_speed if scoring_side == 'right' else -self.__initial_ball_speed
         
         # Add a small random vertical component
-        self.__ball['ry'] = self.__initial_ball_speed * (random.random() * 0.4 - 0.2)  # -0.2 to 0.2 of base speed
+        self.__ball['ry'] = self.__initial_ball_speed * (random.random() * 1.0 - 0.5)  # -0.5 to 0.5 of base speed

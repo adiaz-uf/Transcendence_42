@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ClientWebSocket from './ClientWebSocket';
+import GameOverModal from '../GameOverModal';
+import { useGameSetting } from '../contexts/MenuContext';
 
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 700;
@@ -14,6 +16,11 @@ const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 
 const LocalGame = () => {
     const navigate = useNavigate();
+    const { opponentUsername } = useGameSetting();
+    const [playerNames, setPlayerNames] = useState({
+        left: localStorage.getItem('username') || 'Guest',
+        right: opponentUsername || 'Opponent'
+    });
     const [gameState, setGameState] = useState({
         players: {
             left: {
@@ -424,6 +431,14 @@ const LocalGame = () => {
         };
     }, []);
 
+    // Add effect to update player names when needed
+    useEffect(() => {
+        setPlayerNames({
+            left: localStorage.getItem('username') || 'Guest',
+            right: opponentUsername || 'Opponent'
+        });
+    }, [opponentUsername]);
+
     return (
         <div className="gameplay-container" style={{ 
             display: 'flex', 
@@ -510,8 +525,21 @@ const LocalGame = () => {
                     <p>Right Player: O/K keys</p>
                 </div>
             </div>
+            {gameState.gameOver && (
+                <GameOverModal 
+                    showModal={gameState.gameOver} 
+                    handleCloseModal={handleReturnToMenu} 
+                    player1={playerNames.left} 
+                    player2={playerNames.right} 
+                    score1={gameState.players.left.score} 
+                    score2={gameState.players.right.score} 
+                />
+            )}
         </div>
+        
     );
 };
+
+
 
 export default LocalGame; 
