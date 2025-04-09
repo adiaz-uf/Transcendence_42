@@ -1,6 +1,8 @@
 import json
 import math
 import random
+import time
+from typing import Dict, Tuple, Optional
 
 class PongGame:
     def __init__(self, player1, player2=None, width=900, height=700):
@@ -186,8 +188,57 @@ class PongGame:
         self.__ball['x'] = self.__width / 2
         self.__ball['y'] = self.__height / 2
         
-        # Set initial velocity based on scoring side
+        # Set initial velocity based on who scored
         self.__ball['rx'] = self.__initial_ball_speed if scoring_side == 'right' else -self.__initial_ball_speed
         
         # Add a small random vertical component
         self.__ball['ry'] = self.__initial_ball_speed * (random.random() * 1.0 - 0.5)  # -0.5 to 0.5 of base speed
+
+    def get_ball_position(self) -> Dict[str, float]:
+        """Get the current ball position"""
+        return {
+            'x': self.__ball['x'],
+            'y': self.__ball['y']
+        }
+
+    def get_player_positions(self) -> Dict[str, Dict[str, float]]:
+        """Get the current paddle positions"""
+        return self.__players.copy()
+
+    def get_scores(self) -> Dict[str, int]:
+        """Get the current scores"""
+        return {side: player['score'] for side, player in self.__players.items()}
+
+    def is_active(self) -> bool:
+        """Check if the game is active"""
+        return self.__game_active
+
+    def get_last_update_time(self) -> float:
+        """Get the timestamp of the last update"""
+        return time.time()
+
+    def get_players(self) -> Tuple[Optional[str], Optional[str]]:
+        """Get the players in the game"""
+        return (self.__left_player, self.__right_player)
+
+    def get_winner(self) -> Optional[str]:
+        """Get the winner of the game"""
+        return None  # This method is not applicable in the new implementation
+
+    def get_game_duration(self) -> Optional[float]:
+        """Get the duration of the game in seconds"""
+        return None  # This method is not applicable in the new implementation
+
+    def get_game_state(self) -> Dict:
+        """Get the complete game state"""
+        return {
+            'active': self.__game_active,
+            'scores': self.get_scores(),
+            'ball_position': self.get_ball_position(),
+            'player_positions': self.get_player_positions(),
+            'players': {
+                'left': self.__left_player,
+                'right': self.__right_player
+            },
+            'last_update': self.get_last_update_time()
+        }
