@@ -287,7 +287,7 @@ export default function Profile() {
           <Stat title={"Loses"} value={matchesLosed} />
           <Stat title={"Win Rate"} value={winRatio} />
         </div>
-        <Button  className="m-5 btn-warning" variant={"success"} onClick={() => handleShowFriendProfile("s")}>
+        <Button  className="m-5 btn-warning" variant={"success"} onClick={() => handleShowFriendProfile("exampleuser")}>
           TEST FRIEND MODAL
         </Button>
       </div>
