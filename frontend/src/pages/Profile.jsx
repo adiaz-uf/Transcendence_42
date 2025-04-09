@@ -8,6 +8,7 @@ import Stat from '../components/Stat';
 import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
 import MessageBox from '../components/MessageBox';
+import FriendProfileModal from '../components/FriendProfileModal';
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -25,6 +26,7 @@ export default function Profile() {
 
   const [showModal, setShowModal] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
+  const [showFriendModal, setShowFriendModal] = useState(false);
   const [qrCode, setQrCode] = useState('');
   const [secret, setSecret] = useState('');
   const [twoFACode, setTwoFACode] = useState('');
@@ -32,16 +34,17 @@ export default function Profile() {
   const [newEmail, setNewEmail] = useState(email);
   const [newUsername, setNewUsername] = useState(username);
   const [newPassword, setNewPassword] = useState('');
+  const [friendUsername, setFriendUsername] = useState('');
+  
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const handleShow2FAModal = () => setShow2FAModal(true);
-  
   
   const [message, setMessage] = useState(null);
     
   // ########################################   Fetch API ################################################
 
-  useEffect(() => {
+/*   useEffect(() => {
     if (matchesPlayed > 0) {
       // Calculamos el número de partidas perdidas
       const calculatedMatchesLosed = matchesPlayed - matchesWon;
@@ -58,7 +61,7 @@ export default function Profile() {
     } else {
       setWinRatio(0); // Si no hay partidos jugados, el win ratio es 0
     }
-  }, [matchesPlayed, matchesWon]);  // Dependencias
+  }, [matchesPlayed, matchesWon]);  // Dependencias */
 
   const fetchProfileData = async () => {
     try {
@@ -84,7 +87,7 @@ export default function Profile() {
     }
   };
 
-    const matchesResponse = async () => {
+/*     const matchesResponse = async () => {
         await api.get('/api/user/matches-played/', {
               headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
           });
@@ -96,7 +99,7 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setMatchesWon(matchesWonResponse.data.matches_won); 
-    }
+    } */
   const handleChangeData = async (e) => {
     e.preventDefault();
 
@@ -195,6 +198,16 @@ export default function Profile() {
     }
   };
 
+  const handleShowFriendProfile = (user) => {
+    setFriendUsername(user);
+    setShowFriendModal(true);
+  };
+
+  const handleCloseFriendModal = () => {
+    setShowFriendModal(false);
+    setFriendUsername(''); // Reset the friend username when closing the modal
+  };
+
   const getAvatarLetter = (name) => name.charAt(0).toUpperCase();
 
   useEffect(() => {
@@ -241,7 +254,6 @@ export default function Profile() {
             </div>
           </div>
         </div>
-
         <EditProfileModal 
           showModal={showModal} 
           handleCloseModal={() => setShowModal(false)} 
@@ -264,17 +276,20 @@ export default function Profile() {
           setTwoFACode={setTwoFACode} 
           handleToggle2FA={handleToggle2FA} 
         />
-
+        <FriendProfileModal 
+          show={showFriendModal} 
+          handleClose={handleCloseFriendModal} 
+          user={friendUsername}
+        />
         <div className='stats-container'>
           <Stat title={"Matches Played"} value={matchesPlayed} />
           <Stat title={"Wins"} value={matchesWon} />
           <Stat title={"Loses"} value={matchesLosed} />
           <Stat title={"Win Rate"} value={winRatio} />
-          <Stat title={"stat"} value={"999"} />
-          <Stat title={"stat"} value={"999"} />
-          <Stat title={"stat"} value={"999"} />
-          <Stat title={"stat"} value={"999"} />
         </div>
+        <Button  className="m-5 btn-warning" variant={"success"} onClick={() => handleShowFriendProfile("s")}>
+          TEST FRIEND MODAL
+        </Button>
       </div>
     </>
   );
