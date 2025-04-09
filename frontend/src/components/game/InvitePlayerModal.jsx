@@ -71,14 +71,15 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           };
         //payload.player_right = playerRight.get("id", null); //TODO: TypeError: playerRight.get is not a function
         setOpponentUsername(newUsername1);
-       /*  const player3 = await GETCheckUsernameExists(newUsername2);
-        console.log(player3);
-        const player4= await GETCheckUsernameExists(newUsername3);
-        console.log(player4); */
+        if (gameType === "tournament") {
+          const player3 = await GETCheckUsernameExists(newUsername2);
+          console.log(player3);
+          const player4= await GETCheckUsernameExists(newUsername3);
+          console.log(player4);
+        }
 
         if (gameMode === "local") {
           console.log("Creating match...");
-          
           payload.is_multiplayer = false;
           const LocalMatchResponse = await POSTcreateMatch(payload);
           if (LocalMatchResponse){
