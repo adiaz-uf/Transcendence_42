@@ -12,7 +12,6 @@ export default function NavBar({ username }) {
                         <Nav className="me-auto">
                             <Nav.Link href="/">Home</Nav.Link>
                             <Nav.Link href="/profile">Profile</Nav.Link>
-                            <Nav.Link href="/tournament">Tournament</Nav.Link>
                         </Nav>
                         <Nav>
                             <Navbar.Text>
