@@ -48,9 +48,10 @@ class StreamSocket(AsyncWebsocketConsumer):
 
             # Create a new game session for this connection
             self.matchId = f"local_{id(self)}"  # Unique ID for this connection
-            if not session_manager.createGame(self.matchId, str(id(self))):
+            if not session_manager.createGame(self.matchId, self.scope['user'].username):
                 raise Exception("Failed to create game")
-            self.player_1 = str(id(self))
+            self.player_1 = self.scope['user'].username
+            logger.info(f"Game created for {self.player_1}")
 
             # Add this connection to the game's group
             await self.channel_layer.group_add(self.matchId, self.channel_name)

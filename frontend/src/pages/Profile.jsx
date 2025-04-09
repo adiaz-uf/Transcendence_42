@@ -18,8 +18,8 @@ export default function Profile() {
   const [messageType, setMessageType] = useState("");
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [is42user, setIs42user] = useState(false);
-  const [matchesPlayed] = useState(0);
-  const [matchesWon] = useState(0);
+  const [matchesPlayed, setMatchesPlayed] = useState(0);
+  const [matchesWon, setMatchesWon] = useState(0);
   const [matchesLosed, setMatchesLosed] = useState(0);
   const [winRatio, setWinRatio] = useState(0);
 
@@ -41,7 +41,7 @@ export default function Profile() {
     
   // ########################################   Fetch API ################################################
 
-  /* useEffect(() => {
+  useEffect(() => {
     if (matchesPlayed > 0) {
       // Calculamos el número de partidas perdidas
       const calculatedMatchesLosed = matchesPlayed - matchesWon;
@@ -58,7 +58,7 @@ export default function Profile() {
     } else {
       setWinRatio(0); // Si no hay partidos jugados, el win ratio es 0
     }
-  }, [matchesPlayed, matchesWon]);  // Dependencias */
+  }, [matchesPlayed, matchesWon]);  // Dependencias
 
   const fetchProfileData = async () => {
     try {
@@ -84,17 +84,19 @@ export default function Profile() {
     }
   };
 
-      //    // Number of matches played by user
-      //    const matchesResponse = await api.get('/api/user/matches-played/', {
-        //      headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-        //  });
-//    setMatchesPlayed(matchesResponse.data.matches_played); 
-//
-//    const matchesWonResponse = await api.get('/api/user/matches-won/', {
-  //      headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-  //    });
-  //    setMatchesWon(matchesWonResponse.data.matches_won); 
-  //
+    const matchesResponse = async () => {
+        await api.get('/api/user/matches-played/', {
+              headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+          });
+        setMatchesPlayed(matchesResponse.data.matches_played); 
+    }
+
+    const matchesWonResponse = async () => {
+        await api.get('/api/user/matches-won/', {
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+      });
+      setMatchesWon(matchesWonResponse.data.matches_won); 
+    }
   const handleChangeData = async (e) => {
     e.preventDefault();
 
