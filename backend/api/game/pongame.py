@@ -10,7 +10,7 @@ class PongGame:
         self.__height = height
         self.__initial_ball_speed = 5  # Base speed
         self.__max_ball_speed = 8      # Maximum speed
-        self.__max_score = 10
+        self.__max_score = 1
         self.reset_game()
 
     def get_gameState(self):
