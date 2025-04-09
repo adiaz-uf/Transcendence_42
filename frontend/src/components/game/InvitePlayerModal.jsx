@@ -7,7 +7,6 @@ import {useNavigate} from "react-router-dom";
 export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
   
   const {gameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername} = useGameSetting();
-  
   const [newUsername1, setNewUsername1] = useState('');
   const [newUsername2, setNewUsername2] = useState('');
   const [newUsername3, setNewUsername3] = useState('');
@@ -37,7 +36,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         console.log("MatchId set to: ", localMatchResponse.id);
         setMatchId(localMatchResponse.id);
         handleCloseModal();
-        navigate('/pong'); 
+        navigate('/local'); 
       } else {
         setErrorMessage(`Error creating local match`);
       }
@@ -58,23 +57,24 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         setIsInviting(true);
         let id1 = localStorage.getItem('userId');
         console.log("playerLeft:", id1);
-        let payload = {
-          player_left: id1,
-          player_right: null,
-          is_multiplayer: true,
-          left_score: 0,
-          right_score: 0,
-          is_started: false,
-        };
-        console.log(newUsername1);
         const playerRight = await GETCheckUsernameExists(newUsername1);
-        console.log(playerRight);
-        payload.player_right = playerRight.get("id", null); //TODO: TypeError: playerRight.get is not a function
+        const playerRightId = playerRight.userProfile.id;
+        console.log("This is the playerRight", playerRight);
+        console.log( "and this is the id", playerRight.userProfile.id);
+        let payload = {
+            player_left: id1,
+            player_right: playerRightId,
+            is_multiplayer: true,
+            left_score: 0,
+            right_score: 0,
+            is_started: false,
+          };
+        //payload.player_right = playerRight.get("id", null); //TODO: TypeError: playerRight.get is not a function
         setOpponentUsername(newUsername1);
-        const player3 = await GETCheckUsernameExists(newUsername2);
+       /*  const player3 = await GETCheckUsernameExists(newUsername2);
         console.log(player3);
         const player4= await GETCheckUsernameExists(newUsername3);
-        console.log(player4);
+        console.log(player4); */
 
         if (gameMode === "local") {
           console.log("Creating match...");
@@ -90,7 +90,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
             console.log("error creating local match");
           }
           handleCloseModal();
-          navigate('/pong');
+          navigate('/local');
         }
         else { // ONLINE
           if (!id1 || payload.player_right){
@@ -110,7 +110,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
             setErrorMessage(`Error with new Match`);
           }
           handleCloseModal();
-          navigate('/pong');
+          navigate('/local');
         }
     } catch (error) {
         console.log(error);

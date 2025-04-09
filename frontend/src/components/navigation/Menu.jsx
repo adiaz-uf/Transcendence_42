@@ -18,11 +18,11 @@ export const Menu = () => {
 
   const handleSelectMode = async (mode) => {
     if (mode === "local") {
-      setGameMode("local");
-      setGameType("match");
-      setIsMultiplayer(false);
-      navigate("/local");
-      setInvationBool(true);
+        setGameType("match");
+        setIsMultiplayer(false);
+        setInvationBool(true);
+        setGameMode("local");
+        /* navigate("/local"); */
       // let response = await POSTcreateMatch({
       //   'is_multiplayer':Ismultiplayer,
       //   'is_started':IsStarted,
@@ -80,7 +80,7 @@ export const Menu = () => {
         </>)
       }
       <h1>Or start a Tournament!</h1>
-      <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament-start")}>Start Tournament</Button>
+      <Button className="m-5 btn-info" onClick={() => handleSelectMode("local")}>Start Tournament</Button>
       <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament-join")}>Join Tournament</Button>{/* TODO: Join tournament Logic?*/}
       <h5 className="tournament-info">
         Our 4-player tournaments are designed for players to compete in a series of matches, 

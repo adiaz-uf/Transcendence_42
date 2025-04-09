@@ -59,8 +59,9 @@ class MatchCreationView(generics.CreateAPIView):
         Override perform_create to set the match host (player_left).
         Ensures `player_right` is either a valid UserProfile or None.
         """
+        print("This is the request data", self.request.data)
         player_right_id = self.request.data.get("player_right", None)
-        player_right = None
+        
 
         if player_right_id:
             try:

@@ -1,6 +1,21 @@
 import api from "../../api";
 import { ACCESS_TOKEN } from "../../constants"; 
 
+
+export async function PATCHMatchScore(matchId, right_score, left_score, match_duration) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) {
+        return null; // Return null if not logged in
+    }
+    const res = await api.patch(`/api/matches/${matchId}/`, {'right_score': right_score, 'left_score': left_score, 'match_duration': match_duration}, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return res.data;
+}
+
+
 export async function GETCurrentProfileInfo() {
     const token = localStorage.getItem(ACCESS_TOKEN);
 
@@ -42,7 +57,7 @@ export async function GETCheckUsernameExists(username){
     }
 };
 
-export async function POSTcreateMatch({payload}) {
+export async function POSTcreateMatch(payload) {
     // Get the JWT token from local storage
     const token = localStorage.getItem(ACCESS_TOKEN); 
 
