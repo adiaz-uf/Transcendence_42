@@ -78,7 +78,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           console.log(player4);
       }
                                                                                                                     //Creating local game
-      if (gameType === "local") {
+      if (gameType === "match") {
         console.log("Entering local game creation....");
         
         payload.is_multiplayer = false;
