@@ -149,20 +149,33 @@ class MatchScoreUpdateView(generics.UpdateAPIView):
         updated = False
 
         for key in ["left_score", "right_score", "match_duration"]:
-            if key in data:
-                setattr(match, key, data[key])
-                updated = True
+            if key in data: 
+                received_value = data[key]
+                if getattr(match, key) != received_value:
+                    setattr(match, key, received_value)
+                    updated = True
 
         if updated:
             match.save()
             
             # Check if match is part of a tournament and send score to blockchain
-            tournament = match.tournament_set.first()
-            if tournament:
-                send_score_to_blockchain(
-                    str(tournament.id),
-                    match.left_score,
-                    match.right_score
-                )
-        
-        return Response(self.get_serializer(match).data)
+            try:
+                tournament = match.tournament_set.first()
+                if tournament:
+                    # Convert UUID to a consistent integer representation for blockchain
+                    tournament_id_int = int(str(tournament.id).replace('-', '')[:8], 16)
+                    success = send_score_to_blockchain(
+                        tournament_id_int,
+                        match.left_score,
+                        match.right_score
+                    )
+                    if not success:
+                        logger.error(f"Failed to store score in blockchain for match {match.id}")
+            except Exception as e:
+                logger.error(f"Error storing score in blockchain: {str(e)}")
+            
+            return Response(
+                {"message": "Scores updated successfully!", "match": MatchSerializer(match).data})
+        else:
+            return Response(
+                {"message": "No changes detected."},)
