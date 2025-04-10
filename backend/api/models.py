@@ -13,6 +13,8 @@ class UserProfile(AbstractUser): # AbstractUser has fields password
     last_active = models.DateTimeField(null=True, blank=True)
     first_name  = None
     last_name   = None
+    friends     = models.ManyToManyField("self", symmetrical=True, blank=True)
+    active      = models.BooleanField(default=False)
 
     # 2FA Security
     totp_secret = models.CharField(max_length=64, blank=True, null=True)

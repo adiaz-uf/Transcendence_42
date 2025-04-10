@@ -1,6 +1,14 @@
 from rest_framework import serializers
 from api.models import UserProfile
 
+class FriendSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = [
+            "active",
+            "username", 
+]
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
@@ -10,9 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
             "username", 
             "given_name", 
             "surname",
-            "last_active",
             "password",
             "is_42user",
+            "friends",
             "is_2fa_enabled",
             "totp_secret"]
         extra_kwargs = {"password": {"write_only": True}}       #Write only means this field wont be returned and cant be read be users
@@ -32,7 +40,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ["email", "username", "given_name", "surname", "password"]
+        fields = ["email", "username", "given_name", "surname", "password", "friends"]
         extra_kwargs = {
             "email": {"required": False},
             "username": {"required": False},
@@ -43,6 +51,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Update user profile details safely."""
+
         if not isinstance(instance, UserProfile):
             raise TypeError("Expected a UserProfile instance")
 
@@ -56,3 +65,4 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+
