@@ -105,7 +105,7 @@ export default function Friends() {
                     variant="primary"
                     onClick={handleAddFriend}
                     disabled={loading}
-                    className="action-btn"
+                    className="addfriend-btn"
                 >
                     {loading ? <Spinner animation="border" size="sm" /> : "Add Friend"}
                 </Button>
