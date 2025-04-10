@@ -7,8 +7,10 @@ import {useNavigate} from "react-router-dom";
 
 export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
   
-  const {gameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername} = useGameSetting();
-  const {setTournamentId} = useTournamentSetting();
+  const {gameMode, setGameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername} = useGameSetting();
+  const {setTournamentId, 
+        setPlayer1, setPlayer2, setPlayer3, setPlayer4, 
+        setPlayer1username, setPlayer2username, setPlayer3username, setPlayer4username} = useTournamentSetting();
   const [newUsername1, setNewUsername1] = useState('');
   const [newUsername2, setNewUsername2] = useState('');
   const [newUsername3, setNewUsername3] = useState('');
@@ -57,159 +59,61 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
 
     try {
       setIsInviting(true);
-      const player_1_id = localStorage.getItem('userId');
-      console.log("playerLeft:", player_1_id);
+      const player1_id = localStorage.getItem('userId');
+      setPlayer1(player1_id);
+      setPlayer1username(localStorage.getItem('username'));
       const player_2 = await GETCheckUsernameExists(newUsername1);
-      console.log("This is the playerRight", player_2);
-      console.log( "and this is the id", player_2.userProfile.id);
-      let payload = {
-          player_left: player_1_id,
-          player_right: player_2.userProfile.id,
-          is_multiplayer: true,
-          left_score: 0,
-          right_score: 0,
-          is_started: false,
-        };
-      //payload.player_right = playerRight.get("id", null); //TODO: TypeError: playerRight.get is not a function
-      setOpponentUsername(newUsername1)
+      setPlayer2(player_2.userProfile.id);
+      setPlayer2username(player_2.userProfile.username);
+      setOpponentUsername(newUsername1);
                                                                                                                     //Creating local game
       if (gameType === "local") {
         console.log("Entering local game creation....");
-        
-        payload.is_multiplayer = false;
-        let payload1 = {
-          player_left: player_1_id,
+        setGameMode("local")
+
+        let payload_match = {
+          player_left: player1_id,
           player_right: player_2.userProfile.id,
-          is_multiplayer: true,
+          is_multiplayer: false,
           left_score: 0,
           right_score: 0,
           is_started: false,
         };
-        const LocalMatchResponse = await POSTcreateMatch(payload1);
+        const LocalMatchResponse = await POSTcreateMatch(payload_match);
         if (LocalMatchResponse){
           setMatchId(LocalMatchResponse.id);
-          console.log('Match created', LocalMatchResponse);
         }
         else{
           setErrorMessage(`Error with new Match`);
-          console.log("error creating local match");
-          }
-          handleCloseModal();
-          navigate('/local');
+        }
+        handleCloseModal();
+        navigate('/local');
       }
                                                                                                                   //Creating tournament games; logic needs to change
-      if (gameType === 'testing'){ 
-        const player_3 = await GETCheckUsernameExists(newUsername2);
-        console.log(player_3);
-        const player_4 = await GETCheckUsernameExists(newUsername3);
-        console.log(player_4);
-        console.log('Player 3 and 4 names checked');
-        console.log("Entering tournament creation....");
-        console.log("player 1. id:", {player_1_id});
-        console.log("player 2:", {player_2});
-        console.log("player 3:", {player_3});
-        console.log("player 4:", {player_4});
-        if (!player_1_id || !player_2){
-          setErrorMessage("One of both player are missing");
-          }
-        console.log("Both players in game....");
-        payload.is_multiplayer = false;
-        let payload2 = {
-          "owner": player_1_id,
-          "players": [player_1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
-        };
-        console.log("Payload created....");
-
-        let TournamentResponse = await POSTcreateTournament(payload2);
-        console.log("POST send....");
-        if (TournamentResponse){
-          console.log('Tournament', TournamentResponse);
-          console.log('Tournament Players', TournamentResponse.players);
-          console.log('Tournament Matches', TournamentResponse.matches);
-          console.log('Tournament Owner', TournamentResponse.owner);
-          console.log('Tournament created', TournamentResponse);
-          handleCloseModal(); 
-          navigate('/menu');
-        }
-        let payload3 = {
-          player_left: player_1_id,
-          player_right: player_2.userProfile.id,
-          is_multiplayer: true,
-          left_score: 0,
-          right_score: 0,
-          is_started: false,
-        };
-        let payload4 = {
-          player_left: player_3.userProfile.id,
-          player_right: player_4.userProfile.id,
-          is_multiplayer: true,
-          left_score: 0,
-          right_score: 0,
-          is_started: false,
-        };
-        console.log("Payload 3", payload3);
-        console.log("Payload 4", payload4);
-        const semifinal1 = await POSTcreateMatch(payload3);
-        if (semifinal1){
-          console.log('semifinal1 created', semifinal1);
-        }          
-        const semifinal2 = await POSTcreateMatch(payload4);
-        if (semifinal2){
-          console.log('semifinal2 created', semifinal2);
-        }
-        console.log("Tournament ID", TournamentResponse.id);
-        console.log("Match ID", semifinal1.id);
-        const result = await PATCHAddMatchToTournament(TournamentResponse.id, semifinal1.id);
-        if (result) {
-            console.log("Match successfully added to the tournament:", TournamentResponse.matches);
-        } else {
-            console.error("Failed to add match to tournament.");
-        }
-        console.log("Response from add match", TournamentResponse);
-        console.log("Tournament ID", TournamentResponse.id);
-        console.log("Check match value", TournamentResponse.matches);
-        const TournamentResponse4 = await GETTournamentDetails(TournamentResponse.id);
-        console.log("Updated Tournament", TournamentResponse4);
-        console.log("Check match value updated", TournamentResponse4.matches);
-        console.log("Check player 3 id", player_3.userProfile.id);
-        console.log("Tournament ID", TournamentResponse4.id);
-        const TournamentResponse2 =  await PATCHAddWinnerToTournament(TournamentResponse4.id, player_3.userProfile.id);
-        console.log("Winner successfully added to the tournament:", TournamentResponse2.winner);
-        const TournamentResponse3 = await GETTournamentDetails(TournamentResponse.id);
-        console.log("Winner successfully added to the tournament:", TournamentResponse3.winner);
-        //TournamentResponse = GETTournamentDetails(TournamentResponse.id);
-        //console.log("Winner successfully added to the tournament:", TournamentResponse.winner);
-
-
-
-
-      
-          //handleCloseModal();
-          //navigate('/local');
-        }
       if (gameType === 'tournament'){
-        
+        setGameMode("tournament")
         const player_3 = await GETCheckUsernameExists(newUsername2);
         const player_4 = await GETCheckUsernameExists(newUsername3);
-        let payload2 = {
-          "owner": player_1_id,
-          "players": [player_1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
-        };
-        console.log("Payload created....");
-        let TournamentResponse = await POSTcreateTournament(payload2);
-        setTournamentId(TournamentResponse.id)
-        navigate("/tournament")
+        console.log(player_3);
+        console.log(player_4);
+        setPlayer3(player_3.userProfile.id);
+        setPlayer4(player_4.userProfile.id);
+        setPlayer3username(player_3.userProfile.username);
+        setPlayer4username(player_4.userProfile.username);
 
+        let payload_tournament = {
+          "owner": player1_id,
+          "players": [player1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
+        };
+        console.log(payload_tournament);
+        let TournamentResponse = await POSTcreateTournament(payload_tournament);
+        console.log("Tournament Created", TournamentResponse);
+
+        setTournamentId(TournamentResponse.id);
+        navigate("/tournament");
       }
     } catch (error) {
         console.log(error);
-        if (error.response && error.response.status === 404)  {
-            setErrorMessage('The username does not exist.');
-        }  else if (error.code === 94) {
-          setErrorMessage('this is you retarded.');
-        } else {
-            setErrorMessage('This block is broken');
-        }
     } finally {
         setIsInviting(false);
     }
@@ -245,7 +149,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
                 onChange={(e) => setNewUsername1(e.target.value)}
                 placeholder="Username"
                 required />          
-            </Form.Group>]
+            </Form.Group>
             {(gameType === "tournament" | gameType === "testing") && (
             <Form.Group controlId="formName">
               <Form.Label>Player 3</Form.Label>
@@ -288,3 +192,46 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
   );
 };
 
+      /* if (gameType === 'testing'){ 
+        const player_3 = await GETCheckUsernameExists(newUsername2);
+        const player_4 = await GETCheckUsernameExists(newUsername3);
+        if (!player_1_id || !player_2){
+          setErrorMessage("One of both player are missing");
+          }
+        payload.is_multiplayer = false;
+        let payload2 = {
+          "owner": player_1_id,
+          "players": [player_1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
+        };
+        let TournamentResponse = await POSTcreateTournament(payload2);
+        if (TournamentResponse){
+          handleCloseModal(); 
+          navigate('/menu');
+        }
+        let payload3 = {
+          player_left: player_1_id,
+          player_right: player_2.userProfile.id,
+          is_multiplayer: true,
+          left_score: 0,
+          right_score: 0,
+          is_started: false,
+        };
+        let payload4 = {
+          player_left: player_3.userProfile.id,
+          player_right: player_4.userProfile.id,
+          is_multiplayer: true,
+          left_score: 0,
+          right_score: 0,
+          is_started: false,
+        };
+        const semifinal1 = await POSTcreateMatch(payload3);
+        
+        const semifinal2 = await POSTcreateMatch(payload4);
+
+        const result = await PATCHAddMatchToTournament(TournamentResponse.id, semifinal1.id);
+        if (result) {
+        const TournamentResponse4 = await GETTournamentDetails(TournamentResponse.id);
+        const TournamentResponse2 =  await PATCHAddWinnerToTournament(TournamentResponse4.id, player_3.userProfile.id);
+        const TournamentResponse3 = await GETTournamentDetails(TournamentResponse.id);
+
+        } */
