@@ -17,8 +17,7 @@ class CreateTournamentView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        user_profile = self.request.user.userprofile
-        serializer.save(owner=user_profile)
+        serializer.save(owner=self.request.user)
 
 
 class AddMatchToTournamentView(generics.UpdateAPIView):
