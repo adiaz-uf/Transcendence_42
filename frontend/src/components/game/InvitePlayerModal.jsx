@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament} from "../api-consumer/fetch";
 import { useGameSetting } from '../contexts/GameContext';
+import { useTournamentSetting } from '../tournament/TournamentContext';
 import {useNavigate} from "react-router-dom";
 
 export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
   
   const {gameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername} = useGameSetting();
+  const {setTournamentId} = useTournamentSetting();
   const [newUsername1, setNewUsername1] = useState('');
   const [newUsername2, setNewUsername2] = useState('');
   const [newUsername3, setNewUsername3] = useState('');
@@ -70,12 +72,6 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         };
       //payload.player_right = playerRight.get("id", null); //TODO: TypeError: playerRight.get is not a function
       setOpponentUsername(newUsername1)
-      if (gameType === "tournament") {
-          const player3 = await GETCheckUsernameExists(newUsername2);
-          console.log(player3);
-          const player4= await GETCheckUsernameExists(newUsername3);
-          console.log(player4);
-      }
                                                                                                                     //Creating local game
       if (gameType === "local") {
         console.log("Entering local game creation....");
@@ -90,7 +86,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           is_started: false,
         };
         const LocalMatchResponse = await POSTcreateMatch(payload1);
-        if (LocalMatchResponse){
+        if (LocalMatchResponse){m
           setMatchId(LocalMatchResponse.id);
           console.log('Match created', LocalMatchResponse);
         }
@@ -195,6 +191,14 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         
         const player_3 = await GETCheckUsernameExists(newUsername2);
         const player_4 = await GETCheckUsernameExists(newUsername3);
+        let payload2 = {
+          "owner": player_1_id,
+          "players": [player_1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
+        };
+        console.log("Payload created....");
+        let TournamentResponse = await POSTcreateTournament(payload2);
+        setTournamentId(TournamentResponse.id)
+        navigate("/tournament")
 
       }
     } catch (error) {
@@ -240,8 +244,8 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
                 value={newUsername1}
                 onChange={(e) => setNewUsername1(e.target.value)}
                 placeholder="Username"
-                required />
-            </Form.Group>
+                required />          
+            </Form.Group>]
             {(gameType === "tournament" | gameType === "testing") && (
             <Form.Group controlId="formName">
               <Form.Label>Player 3</Form.Label>
