@@ -455,21 +455,24 @@ const LocalGame = () => {
     const updateMatchScore = () => {
         console.log("🔄 updateMatchScore called with matchId:", matchId);
         
-        const currentTime = Math.floor(Date.now() / 1000);
-        const duration = currentTime - gameStartTime;
+        const currentTime = Date.now();
+        const gameStartTimeMs = gameStartTime * 1000; // Convert gameStartTime from seconds to milliseconds
+        const durationMs = currentTime - gameStartTimeMs;
         
-        // Convert seconds to a duration string in the format Django expects (HH:MM:SS)
-        const hours = Math.floor(duration / 3600);
-        const minutes = Math.floor((duration % 3600) / 60);
-        const seconds = duration % 60;
+        // Convert milliseconds to a duration string in the format MM:SS.MS
+        const totalSeconds = Math.floor(durationMs / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const milliseconds = Math.floor((durationMs % 1000) / 10); // Get centiseconds (1/100 of a second)
+        
         const formattedDuration = 
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}.${seconds.toString().padStart(2, '0')}`;
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
         
         console.log("📊 Updating match scores:", {
             matchId,
             left_score: gameState.players.left.score,
             right_score: gameState.players.right.score,
-            duration: duration,
+            duration: durationMs,
             formattedDuration: formattedDuration
         });
         
@@ -575,8 +578,8 @@ const LocalGame = () => {
                 textAlign: 'center' 
             }}>
                 <div className="controls-info">
-                    <p>Left Player: W/S keys</p>
-                    <p>Right Player: O/K keys</p>
+                    <p>{playerNames.left}: W/S keys</p>
+                    <p>{playerNames.right}: O/K keys</p>
                 </div>
             </div>
             {gameState.gameOver && (
