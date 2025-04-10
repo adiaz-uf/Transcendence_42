@@ -9,7 +9,7 @@ import { TournamentSettingProvider } from '../components/contexts/TournamentCont
 
 import GameApp from '../components/game/GameApp';
 import LocalGame from '../components/game/LocalGame';
-import Tournament from '../components/tournament/Tournament';
+import Tourna from '../components/tournament/Tournament';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import MessageBox from '../components/MessageBox';
@@ -55,8 +55,8 @@ const HomeRouter = () => {
         <TournamentSettingProvider>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/pong" element={<GameApp />} />
-            <Route path="/tournament" element={<Tournament />} />
+            <Route path="/pong" element={<GameApp />} /> {'Not used anymore i think'}
+            <Route path="/tournament" element={<Tourna />} />
             <Route path="/local" element={<LocalGame />} />
             <Route path="/friends" element={<Friend/>} />
           </Routes>

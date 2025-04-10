@@ -19,20 +19,21 @@ export const Menu = () => {
   const { setGameMode, setIsMultiplayer} = useGameSetting();
 
   const [InvitationModal, setInvationBool] = useState(false);
-  const [gameType, setGameType] = useState(null);  // "match | tournament" *TODO: Join to context??
+  const [gameType, setGameType] = useState(null);  // "match | tournament" *TODO: Join to context?? Why not yas
 
   const navigate = useNavigate();
   
   const handleSelectMode = async (mode) => {
+
     if (mode === "local") {
-        setGameType("match");
+        setGameType("match"); // For specifying if game is Match or Tournament
+        setGameMode("local"); // For specifying if game is Local or Remote (not impl yet)
         setIsMultiplayer(false);
         setInvationBool(true);
-        setGameMode("local");
     } else if (mode === "tournament") { 
+      setGameType("tournament");
       setGameMode("local"); // TODO
       setIsMultiplayer(false); // TODO
-      setGameType("tournament");
       setInvationBool(true);
     }
   };
@@ -52,7 +53,6 @@ export const Menu = () => {
       )}
       <MyComponent/>
     </div>
-    
   );
 };
 
