@@ -6,7 +6,12 @@ class TournamentSerializer(serializers.ModelSerializer):
     players = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=UserProfile.objects.all(),
-        write_only=True,
+        required=False
+    )
+
+    matches = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Match.objects.all(),
         required=False
     )
     matches = serializers.PrimaryKeyRelatedField(

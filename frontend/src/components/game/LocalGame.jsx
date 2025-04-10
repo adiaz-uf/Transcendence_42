@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ClientWebSocket from './ClientWebSocket';
 import GameOverModal from '../GameOverModal';
-import { useGameSetting } from '../contexts/MenuContext';
+import { useGameSetting } from '../contexts/GameContext';
 
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 700;

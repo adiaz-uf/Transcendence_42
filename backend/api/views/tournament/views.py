@@ -1,13 +1,14 @@
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_otp.plugins.otp_totp.models import TOTPDevice
 
 import logging
 logger = logging.getLogger(__name__)
 
-from api.models import Tournament, Match
+from api.models import Tournament, Match, UserProfile
 from api.serializer.tournament.serializer import TournamentSerializer
 
 
@@ -15,10 +16,23 @@ class CreateTournamentView(generics.CreateAPIView):
     serializer_class = TournamentSerializer
     queryset = Tournament.objects.all()
     permission_classes = [IsAuthenticated]
+    
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
+class TournamentDetailView(APIView):
+    serializer_class = TournamentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, tournament_id):
+        try:
+            tournament = Tournament.objects.get(id=tournament_id)
+            serializer = TournamentSerializer(tournament)
+            return Response(serializer.data)
+
+        except Tournament.DoesNotExist:
+            return Response({"error": "Tournament not found"}, status=404)
 
 class AddMatchToTournamentView(generics.UpdateAPIView):
     queryset = Tournament.objects.all()
@@ -43,7 +57,10 @@ class AddMatchToTournamentView(generics.UpdateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        logger.info(f"Received match ID: {match_id} for tournament {tournament.id}")
+        logger.info(f"Adding match to tournament: {tournament.id}, current matches: {tournament.matches.all()}")
         tournament.matches.add(match)
+        logger.info(f"Match added to tournament: {tournament.matches.all()}")
 
         return Response(
             {"message": "Match added to tournament successfully."},
@@ -71,10 +88,13 @@ class AddWinnerToTournamentView(generics.UpdateAPIView):
             return Response(
                 {"error": "Invalid winner ID provided."},
                 status=status.HTTP_400_BAD_REQUEST
-            )
+               )
 
+        logger.info(f"Received winner ID: {winner} for tournament {tournament.id}")
+        logger.info(f"Setting winner for tournament {tournament.id} to {winner.id}")
         tournament.winner = winner
         tournament.save()
+        logger.info(f"Winner added to tournament: {tournament.matches.all()}")
 
         return Response(
             {"message": "Winner added to tournament successfully."},
@@ -90,7 +110,7 @@ class UserTournWinnerCountView(generics.ListAPIView):
     
     def get_queryset(self):
 
-        user_id = self.request.data.get('Userd', None)
+        user_id = self.request.data.get('UserID', None)
 
         if not user_id:
             return Tournament.objects.none()
@@ -113,7 +133,7 @@ class UserParticipationCountView(generics.ListAPIView):
     
     def get_queryset(self):
 
-        user_id = self.request.data.get('id', None)
+        user_id = self.request.data.get('UserID', None)
 
         if not user_id:
             return Tournament.objects.none()
