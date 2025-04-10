@@ -11,12 +11,12 @@ const PADDLE_HEIGHT = 90;
 const BALL_RADIUS = 10;
 const PADDLE_SPEED = 8;
 const INITIAL_BALL_SPEED = 8;
-const WINNING_SCORE = 10;
+const WINNING_SCORE = 1;
 const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 
 const LocalGame = () => {
     const navigate = useNavigate();
-    const { opponentUsername } = useGameSetting();
+    const { opponentUsername, gameType, gameMode} = useGameSetting();
     const [playerNames, setPlayerNames] = useState({
         left: localStorage.getItem('username') || 'Guest',
         right: opponentUsername || 'Opponent'
@@ -279,6 +279,12 @@ const LocalGame = () => {
         }
         navigate('/');
     };
+    const handleReturnToTournament = () => {
+        if (wsRef.current) {
+            wsRef.current.close();
+        }
+        navigate('/tournament');
+    };
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -525,10 +531,20 @@ const LocalGame = () => {
                     <p>Right Player: O/K keys</p>
                 </div>
             </div>
-            {gameState.gameOver && (
+            {gameState.gameOver && gameMode == "local" && (
                 <GameOverModal 
                     showModal={gameState.gameOver} 
                     handleCloseModal={handleReturnToMenu} 
+                    player1={playerNames.left} 
+                    player2={playerNames.right} 
+                    score1={gameState.players.left.score} 
+                    score2={gameState.players.right.score} 
+                />
+            )}
+            {gameState.gameOver && gameType == "tournament" && (
+                <GameOverModal 
+                    showModal={gameState.gameOver} 
+                    handleCloseModal={handleReturnToTournament} 
                     player1={playerNames.left} 
                     player2={playerNames.right} 
                     score1={gameState.players.left.score} 
