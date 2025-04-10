@@ -18,7 +18,7 @@ export const GameSettingProvider = ({ children }) => {
         gameMode, setGameMode, 
         matchId, setMatchId, 
         isInviting, setIsInviting, 
-        opponentUsername, setOpponentUsername, 
+        opponentUsername, setOpponentUsername,
         isMultiplayer, setIsMultiplayer}}>
       {children}
     </GameContext.Provider>
