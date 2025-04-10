@@ -2,7 +2,7 @@ from django.urls import path
 
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from api.views.user.views import CreateUserView, UserProfileView, LoginView, CheckUserExistsView, UserFriendsView, OthersProfileView
+from api.views.user.views import CreateUserView, UserProfileView, LoginView, CheckUserExistsView, UserFriendsView, OthersProfileView, MatchesPlayedView, MatchesWonView
 from api.views.match.views import MatchCreationView, CreateOnlineMatchView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
 from api.views.auth.TwoFA import Setup2FAView
 from api.views.auth.auth42 import FTAuthCallbackView
@@ -21,6 +21,8 @@ urlpatterns = [
     path('user/profile/<str:username>', OthersProfileView.as_view(), name='profile'), #UPDT & GET #AUTH
     path('user/exists/<str:username>', CheckUserExistsView.as_view(), name='check_username'), #GET #AUTH
     path('user/friends/<str:username>', UserFriendsView.as_view(), name='friends'), #GET POST DELETE #AUTH
+    path('user/matches-played/<str:username>/', MatchesPlayedView.as_view(), name='matches-played'), #GET
+    path('user/matches-won/<str:username>/', MatchesWonView.as_view(), name='matches-won'), #GET
 
     # 2FA endpoints
     path('setup-2fa/', Setup2FAView.as_view(), name='setup2fa'),# GET & POST
