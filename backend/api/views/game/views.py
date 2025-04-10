@@ -3,30 +3,39 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from api.views.blockchain.blockchain_utils import send_score_to_blockchain, get_tournament_scores
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 @permission_classes([IsAuthenticated])
 def test_blockchain(request):
     """
     Test endpoint for blockchain functionality.
-    Adds a test score and then retrieves it.
+    POST: Adds a test score
+    GET: Retrieves scores for the test tournament
     """
     try:
-        # Test data
-        tournament_id = "123"  # Using a simple numeric ID for testing
-        score_left = 10
-        score_right = 5
+        tournament_id = 123  # Using a simple numeric ID for testing
 
-        # Add score
-        success = send_score_to_blockchain(tournament_id, score_left, score_right)
-        if not success:
-            return Response({"error": "Failed to add score"}, status=500)
+        if request.method == 'POST':
+            # Test data for adding score
+            score_left = 10
+            score_right = 5
 
-        # Get scores
-        scores = get_tournament_scores(tournament_id)
-        
-        return Response({
-            "message": "Blockchain test successful",
-            "scores": scores
-        })
+            # Add score
+            success = send_score_to_blockchain(tournament_id, score_left, score_right)
+            if not success:
+                return Response({"error": "Failed to add score"}, status=500)
+
+            return Response({
+                "message": "Score added successfully",
+                "tournament_id": tournament_id,
+                "score_left": score_left,
+                "score_right": score_right
+            })
+        else:  # GET request
+            # Get scores
+            scores = get_tournament_scores(tournament_id)
+            return Response({
+                "tournament_id": tournament_id,
+                "scores": scores
+            })
     except Exception as e:
-        return Response({"error": str(e)}, status=500) 
+        return Response({"error": str(e)}, status=500)

@@ -39,13 +39,24 @@ contract = w3.eth.contract(
     abi=contract_abi
 )
 
-def send_score_to_blockchain(tournament_id, score_left, score_right):
+def send_score_to_blockchain(tournament_id: int, score_left: int, score_right: int) -> bool:
+    """
+    Send a tournament match score to the blockchain.
+    
+    Args:
+        tournament_id (int): The tournament ID (already converted to integer)
+        score_left (int): Left player's score
+        score_right (int): Right player's score
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
     try:
         account = w3.eth.account.from_key(settings.ETHEREUM_PRIVATE_KEY)
         
         # Build transaction
         transaction = contract.functions.addScore(
-            int(tournament_id),  # Convert string to int for blockchain
+            tournament_id,
             score_left,
             score_right
         ).build_transaction({
@@ -65,9 +76,18 @@ def send_score_to_blockchain(tournament_id, score_left, score_right):
         logger.error(f"Blockchain error: {str(e)}")
         return False
 
-def get_tournament_scores(tournament_id):
+def get_tournament_scores(tournament_id: int) -> list:
+    """
+    Get all scores for a tournament from the blockchain.
+    
+    Args:
+        tournament_id (int): The tournament ID (already converted to integer)
+        
+    Returns:
+        list: List of scores for the tournament
+    """
     try:
-        scores = contract.functions.getScores(int(tournament_id)).call()
+        scores = contract.functions.getScores(tournament_id).call()
         return [
             {
                 "player": score[0],

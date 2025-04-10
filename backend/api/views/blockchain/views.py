@@ -8,7 +8,9 @@ class TournamentBlockchainScoresView(APIView):
 
     def get(self, request, tournament_id):
         try:
-            scores = get_tournament_scores(tournament_id)
+            # Convert tournament ID to integer (first 8 characters of hex)
+            tournament_id_int = int(tournament_id[:8], 16)
+            scores = get_tournament_scores(tournament_id_int)
             return Response({"scores": scores})
         except Exception as e:
             return Response({"error": str(e)}, status=500) 
