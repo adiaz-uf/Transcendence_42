@@ -37,7 +37,6 @@ export async function GETCurrentProfileInfo() {
 }
 
 export async function GETCheckUsernameExists(username){
-    // Get the JWT token from local storage
     const token = localStorage.getItem(ACCESS_TOKEN); 
     if (!token) {
         return ;
@@ -58,7 +57,6 @@ export async function GETCheckUsernameExists(username){
 };
 
 export async function POSTcreateMatch(payload) {
-    // Get the JWT token from local storage
     const token = localStorage.getItem(ACCESS_TOKEN); 
 
     if (!token) {
@@ -79,4 +77,88 @@ export async function POSTcreateMatch(payload) {
 }
 
 
+
+export async function POSTcreateTournament(payload) {
+    const token = localStorage.getItem(ACCESS_TOKEN); 
+
+    if (!token) {
+        return ;
+    }
+    try{
+        const tournamentResponse = await api.post('/api/tournament/', payload, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+        return tournamentResponse.data;
+    } catch (error){
+        console.log("Error creating tournament ", error);
+        return { error: error.response?.data || "An error occurred" }; // Return error details
+
+    }
+}
+
+
+
+export async function PATCHAddMatchToTournament(tournamentId, matchId) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+
+    if (!token) {
+        return null; 
+    }
+
+    try {
+        const response = await api.patch(`/api/tournaments/${tournamentId}/add-matches/`, 
+            { pkMatch: matchId }, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Include the JWT token in the header
+                },
+            });
+
+        return response.data; // Return the response data if successful
+    } catch (error) {
+        console.log("Error adding match to tournament:", error);
+        return { error: error.response?.data || "An error occurred" }; // Handle error and return response
+    }
+}
+
+export async function PATCHAddWinnerToTournament(tournamentId, userID) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+
+    if (!token) {
+        return null; 
+    }
+
+    try {
+        const response = await api.patch(`/api/tournaments/${tournamentId}/add-winner/`, 
+            { pkUser: userID }, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Include the JWT token in the header
+                },
+            });
+
+        return response.data; // Return the response data if successful
+    } catch (error) {
+        console.log("Error adding winner to tournament:", error);
+        return { error: error.response?.data || "An error occurred" }; // Handle error and return response
+    }
+}
+
+export async function GETTournamentDetails(tournamentId) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) {
+        return null; 
+    }
+    try {
+        const response = await api.get(`/api/tournaments/${tournamentId}/`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.log('Error fetching tournament details:', error);
+        return { error: error.response?.data || 'An error occurred' };
+    }
+}
 

@@ -58,5 +58,14 @@ class Tournament(models.Model):
     class Meta:
         db_table = 'tournament'
 
+    #TODO Debugging
+    #def __str__(self):
+    #    return self.name
     def __str__(self):
-        return self.name
+        return (
+            f"Tournament(id={self.id}, "
+            f"owner={self.owner}, "
+            f"winner={self.winner}, "
+            f"players={[player.id for player in self.players.all()]}, "
+            f"matches={[match.id for match in self.matches.all()]})"
+        )
