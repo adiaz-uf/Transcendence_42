@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament} from "../api-consumer/fetch";
 import { useGameSetting } from '../contexts/GameContext';
-import { useTournamentSetting } from '../tournament/TournamentContext';
+import { useTournamentSetting } from '../contexts/TournamentContext';
 import {useNavigate} from "react-router-dom";
 
 export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
@@ -86,7 +86,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           is_started: false,
         };
         const LocalMatchResponse = await POSTcreateMatch(payload1);
-        if (LocalMatchResponse){m
+        if (LocalMatchResponse){
           setMatchId(LocalMatchResponse.id);
           console.log('Match created', LocalMatchResponse);
         }
