@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament} from "../api-consumer/fetch";
-import { useGameSetting } from '../contexts/MenuContext';
+import { useGameSetting } from '../contexts/GameContext';
 import {useNavigate} from "react-router-dom";
 
 export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
@@ -97,7 +97,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           navigate('/local');
       }
                                                                                                                   //Creating tournament games; logic needs to change
-      if (gameType === 'tournament'){ 
+      if (gameType === 'testing'){ 
         const player_3 = await GETCheckUsernameExists(newUsername2);
         console.log(player_3);
         const player_4 = await GETCheckUsernameExists(newUsername3);
@@ -186,14 +186,15 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           //handleCloseModal();
           //navigate('/local');
         }
-      if (gameType === 'testing'){
+      if (gameType === 'tournament'){
+        
         const player_3 = await GETCheckUsernameExists(newUsername2);
         const player_4 = await GETCheckUsernameExists(newUsername3);
-        
+
       }
     } catch (error) {
         console.log(error);
-        if (error.response && error.response.status === 404) {
+        if (error.response && error.response.status === 404)  {
             setErrorMessage('The username does not exist.');
         } else {
             setErrorMessage('This block is broken');

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
 import { Button } from 'react-bootstrap';
-import {useGameSetting} from '../contexts/MenuContext'
+import {useGameSetting} from '../contexts/GameContext'
 import '../../styles/game.css'
 import {InvitePlayer} from '../game/InvitePlayerModal';
 import GameOverModal from "../GameOverModal";
@@ -22,10 +22,10 @@ export const Menu = () => {
   
   const handleSelectMode = async (mode) => {
     if (mode === "local") {
-        setGameType("local"); 
-        setIsMultiplayer(false);
-        setInvationBool(true);
-        setGameMode("local");
+      setGameType("local"); 
+      setIsMultiplayer(false);
+      setInvationBool(true);
+      setGameMode("local");
     }
     if (mode === "tournament") {
       setGameType("tournament");                                             {/*This triggers 3 invitations instead of one*/}     
@@ -34,7 +34,7 @@ export const Menu = () => {
       setGameMode("local");
     }
     if (mode === "tournament - testing") {
-      setGameType("testing");                                             {/*This triggers 3 invitations instead of one*/}     
+      setGameType("testing");                                               {/*This triggers 3 invitations instead of one*/}     
       setIsMultiplayer(false);
       setInvationBool(true);
       setGameMode("local");
@@ -53,7 +53,7 @@ export const Menu = () => {
     <div className="menu-container">
       <h1>Do you want a 2 player game or a tournament?!</h1>
       <Button className="m-5" onClick={() => handleSelectMode("local")}>2 Player Game</Button>
-      <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament")}>Tournament</Button>
+      <Button className="m-5 btn-info" onClick={() => handleSelectMode("tournament")}>Tournament Logic Attempt</Button>
       <h5 className="tournament-info">
         Our 4-player tournaments are designed for players to compete in a series of matches, 
         with the top two advancing to a final. The inviter must enter three usernames to set up the tournament.
@@ -68,8 +68,8 @@ export const Menu = () => {
 
 
       {/* TODO: DELETEME*/}
-      <Button className="m-5" onClick={() => handleSelectMode("tournament - testing")}>Bel Tournament API Testing</Button>
-      <Button className="m-5 btn-info" onClick={() => handleSelectMode("test gameover modal")}>Also a Test Button</Button>
+      <Button className="m-5" onClick={() => handleSelectMode("tournament - testing")}>Tournament API Testing</Button>
+      <Button className="m-5 btn-info" onClick={() => handleSelectMode("test gameover modal")}>GameOverModal</Button>
       { TestVar1 && (
         <InvitePlayer showModal={TestVar1} handleCloseModal={()=>{setInvationBool(false)}} gameType={gameType}/>
       )}
