@@ -36,6 +36,26 @@ export async function GETCurrentProfileInfo() {
     }
 }
 
+export async function GETOthersProfileInfo(username) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+
+    if (!token) {
+        return null; // Return null if not logged in
+    }
+
+    try {
+        const response = await api.get(`/api/user/profile/${username}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data; // Return the JSON data directly
+    } catch (error) {
+        console.error("Error fetching profile info:", error);
+        return { error: error.response?.data || "An error occurred" }; // Return error details
+    }
+}
+
 export async function GETCheckUsernameExists(username){
     const token = localStorage.getItem(ACCESS_TOKEN); 
     if (!token) {
@@ -43,7 +63,7 @@ export async function GETCheckUsernameExists(username){
     }
     // Call the Django API to check if the username exists
     try{
-        const PlayerLeftresponse = await api.get(`/api/user/${username}/`, {
+        const PlayerLeftresponse = await api.get(`/api/user/exists/${username}`, {
             headers: {
                 Authorization: `Bearer ${token}`,// Include the JWT token in the header
             },
@@ -72,10 +92,68 @@ export async function POSTcreateMatch(payload) {
     } catch (error){
         console.log("Error creating match ", error);
         return { error: error.response?.data || "An error occurred" }; // Return error details
-
     }
 }
 
+export async function GETfriends(username=null)
+{
+        // Get the JWT token from local storage
+        const token = localStorage.getItem(ACCESS_TOKEN); 
+        if (!token) {
+            return ;
+        }
+        try{
+            if (username === null)
+                username =  localStorage.getItem('username')
+            const response = await api.get(`/api/user/friends/${username}`, {
+                headers: {Authorization: `Bearer ${token}`}
+            })
+            console.log("Received friends  for Authed user: ", response);
+            return response.data;
+        } catch (error){
+            console.log("Error listing friends ", error);
+            return { error: error.response?.data || "An error occurred" }; // Return error details
+        }
+}
+
+export async function POSTfriend(friendName){
+    // Get the JWT token from local storage
+    const token = localStorage.getItem(ACCESS_TOKEN); 
+
+    if (!token) {
+        return ;
+    }
+    try{
+        const response = await api.post(`/api/user/friends/${friendName}`,  {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+        return response;
+    } catch (error){
+        console.log("Error listing friends ", error);
+        return { error: error.response?.data || "An error occurred" }; // Return error details
+    }
+}
+
+export async function DELETEfriend(friendName) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+
+    if (!token) {
+        return;
+    }
+    try { //friend id as query
+        const response = await api.delete(`/api/user/friends/${friendName}`,{
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.log("Error removing friend", error);
+        return { error: error.response?.data || "An error occurred" };
+    }
+}
 
 
 export async function POSTcreateTournament(payload) {
@@ -161,4 +239,3 @@ export async function GETTournamentDetails(tournamentId) {
         return { error: error.response?.data || 'An error occurred' };
     }
 }
-

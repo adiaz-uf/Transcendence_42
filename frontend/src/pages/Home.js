@@ -12,6 +12,7 @@ import Tournament from '../components/tournament/Tournament';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import MessageBox from '../components/MessageBox';
+import Friend from '../components/Friends';
 
 function Home() {
   return (
@@ -54,7 +55,7 @@ const HomeRouter = () => {
           <Route path="/" element={<Home />} />
           <Route path="/pong" element={<GameApp />} />
           <Route path="/local" element={<LocalGame />} />
-          {/*<Route path="/tournament" element={<Tournament />} />*/}
+          <Route path="/friends" element={<Friend/>} />
         </Routes>
       </GameSettingProvider>
     </>

@@ -10,6 +10,7 @@ import HomeRouter from '../../pages/Home'
 
 function Logout() {
     localStorage.clear()
+	
     return <Navigate to="/login" />
 }
 

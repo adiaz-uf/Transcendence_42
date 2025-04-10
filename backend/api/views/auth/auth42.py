@@ -82,8 +82,10 @@ class FTAuthCallbackView(APIView):
         # Connect user
         authenticate(request, username=user.username)
         login(request, user)
-        refresh = RefreshToken.for_user(user)
-
+        refresh = RefreshToken.for_user(user)    
+        user.active = True
+        user.save(update_fields=['active'])
+        
         # Redirect to frontend
         callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
         redirect_url = f"{callback_uri}?access={refresh.access_token}"

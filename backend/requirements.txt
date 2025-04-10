@@ -19,3 +19,6 @@ pillow
 #Django channels for WebSocket
 channels
 django-channels-jwt
+
+# Blockchain
+web3==6.15.1

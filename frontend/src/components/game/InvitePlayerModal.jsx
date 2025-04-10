@@ -70,7 +70,12 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         };
       //payload.player_right = playerRight.get("id", null); //TODO: TypeError: playerRight.get is not a function
       setOpponentUsername(newUsername1)
-
+      if (gameType === "tournament") {
+          const player3 = await GETCheckUsernameExists(newUsername2);
+          console.log(player3);
+          const player4= await GETCheckUsernameExists(newUsername3);
+          console.log(player4);
+      }
                                                                                                                     //Creating local game
       if (gameType === "local") {
         console.log("Entering local game creation....");
@@ -88,7 +93,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         if (LocalMatchResponse){
           setMatchId(LocalMatchResponse.id);
           console.log('Match created', LocalMatchResponse);
-          }
+        }
         else{
           setErrorMessage(`Error with new Match`);
           console.log("error creating local match");
@@ -196,6 +201,8 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         console.log(error);
         if (error.response && error.response.status === 404)  {
             setErrorMessage('The username does not exist.');
+        }  else if (error.code === 94) {
+          setErrorMessage('this is you retarded.');
         } else {
             setErrorMessage('This block is broken');
         }
