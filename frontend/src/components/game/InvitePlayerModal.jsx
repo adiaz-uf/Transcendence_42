@@ -12,6 +12,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
   const [newUsername3, setNewUsername3] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isInvited, setIsInvited] = useState('');
+  
   const navigate = useNavigate(); 
 
   const handleSkip = async () => {
@@ -78,7 +79,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           console.log(player4);
       }
                                                                                                                     //Creating local game
-      if (gameType === "local") {
+      if (gameType === "match") {
         console.log("Entering local game creation....");
         
         payload.is_multiplayer = false;

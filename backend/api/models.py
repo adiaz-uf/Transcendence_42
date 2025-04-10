@@ -30,12 +30,25 @@ class UserProfile(AbstractUser): # AbstractUser has fields password
         
     def __str__(self):
         return self.username
-    
+
+# Custom Duration Field for Match Duration
+class CustomDurationField(models.DurationField):
+    def value_to_string(self, obj):
+        value = self.value_from_object(obj)
+        if value is None:
+            return ''
+        total_seconds = int(value.total_seconds())
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+        hundredths = int(value.microseconds / 10000)  # 10000 microseconds = 1 hundredth
+        return f"{minutes:02}:{seconds:02}.{hundredths:02}"
+
+
 #match Info
 class Match(models.Model):
     id              = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     date            = models.DateTimeField(auto_now_add=True)
-    match_duration  = models.DurationField(null=True)
+    match_duration  = CustomDurationField(null=True, blank=True)
     player_left     = models.ForeignKey("UserProfile", on_delete=models.CASCADE, related_name="player_left", null=True)
     player_right    = models.ForeignKey("UserProfile", on_delete=models.CASCADE, related_name="player_right", null=True)
     left_score      = models.PositiveIntegerField(default=0)
