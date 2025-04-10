@@ -20,6 +20,7 @@ export default function Profile() {
   const [messageType, setMessageType] = useState("");
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [is42user, setIs42user] = useState(false);
+
   const [matchesPlayed, setMatchesPlayed] = useState(0);
   const [matchesWon, setMatchesWon] = useState(0);
   const [matchesLosed, setMatchesLosed] = useState(0);
@@ -44,24 +45,24 @@ export default function Profile() {
     
   // ########################################   Fetch API ################################################
 
-/*   useEffect(() => {
+  useEffect(() => {
     if (matchesPlayed > 0) {
-      // Calculamos el número de partidas perdidas
+      
       const calculatedMatchesLosed = matchesPlayed - matchesWon;
       setMatchesLosed(calculatedMatchesLosed);
       
       if (calculatedMatchesLosed === 0) {
-        // Si no hay partidos perdidos, el win ratio será igual a matchesWon
+        
         setWinRatio(matchesWon > 0 ? matchesWon.toFixed(1) : "0.0");
       } else {
-        // Si hay partidas perdidas, calculamos el win ratio
+       
         const calculatedWinRatio = matchesWon / calculatedMatchesLosed;
-        setWinRatio(calculatedWinRatio.toFixed(2)); // Limitar a 2 decimales
+        setWinRatio(calculatedWinRatio.toFixed(2));
       }
     } else {
-      setWinRatio(0); // Si no hay partidos jugados, el win ratio es 0
+      setWinRatio(0);
     }
-  }, [matchesPlayed, matchesWon]);  // Dependencias */
+  }, [matchesPlayed, matchesWon]);
 
   const fetchProfileData = async () => {
     try {
@@ -77,6 +78,7 @@ export default function Profile() {
       localStorage.setItem("username", username);
       localStorage.setItem("userId", id);
       setLoading(false);
+
     } catch (error)
     {
       setError(error?.response?.data || "Fetch failed");
@@ -84,19 +86,30 @@ export default function Profile() {
     }
   };
 
-/*     const matchesResponse = async () => {
-        await api.get('/api/user/matches-played/', {
-              headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-          });
-        setMatchesPlayed(matchesResponse.data.matches_played); 
-    }
-
-    const matchesWonResponse = async () => {
-        await api.get('/api/user/matches-won/', {
+  const matchesResponse = async () => {
+    try {
+      const response = await api.get(`/api/user/matches-played/${username}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-      setMatchesWon(matchesWonResponse.data.matches_won); 
-    } */
+      setMatchesPlayed(response.data.matches_played);  // Asegúrate de que `response.data` tenga `matches_played`
+    } catch (error) {
+      console.error("Error fetching matches played", error);
+    }
+  };
+  
+  const matchesWonResponse = async () => {
+    try {
+      const response = await api.get(`/api/user/matches-won/${username}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+      });
+      setMatchesWon(response.data.matches_won);  // Asegúrate de que `response.data` tenga `matches_won`
+    } catch (error) {
+      console.error("Error fetching matches won", error);
+    }
+  };
+  console.log(matchesWon);
+  console.log(matchesPlayed);
+
   const handleChangeData = async (e) => {
     e.preventDefault();
 
@@ -200,6 +213,13 @@ export default function Profile() {
   useEffect(() => {
     fetchProfileData();
   }, []);
+
+  useEffect(() => {
+    if (username) {
+      matchesResponse();
+      matchesWonResponse();
+    }
+  }, [username]);  // Se ejecuta cada vez que el `username` cambie
 
   if (loading) return <div>Loading...</div>;
 /*   if (error) return <div><NavBar></NavBar><div className='app-body'>{error}</div></div>; */

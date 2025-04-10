@@ -12,8 +12,9 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 import logging
 logger = logging.getLogger('django')
 
-from api.models import UserProfile
+from api.models import UserProfile, Match
 from api.serializer.user.serializer import (UserSerializer, UserProfileUpdateSerializer, FriendSerializer)
+from api.serializer.match.serializer import (MatchSerializer)
 
 
 #CLASS BASED VIEWS: (Remember List)
@@ -191,3 +192,39 @@ class LoginView(generics.CreateAPIView):
                 login(request, user)
                 return Response(self.__RefreshToken_And_ActiveFieldOnDB(user))
         return Response({'error': 'Invalid identifiers'}, status=401)
+
+class MatchesPlayedView(APIView):
+    def get(self, request, *args, **kwargs):
+        username = self.kwargs.get('username')
+        try:
+            user = UserProfile.objects.get(username=username)
+        except UserProfile.DoesNotExist:
+            return Response({"detail": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Contar partidos donde el usuario es player_left
+        left_count = Match.objects.filter(player_left=user).count()
+        # Contar partidos donde el usuario es player_right
+        right_count = Match.objects.filter(player_right=user).count()
+        
+        # Sumar ambas cuentas para obtener el total de partidos
+        total_matches = left_count + right_count
+        
+        return Response({"total_matches": total_matches})
+
+class MatchesWonView(APIView):
+    def get(self, request, *args, **kwargs):
+        username = self.kwargs.get('username')
+        try:
+            user = UserProfile.objects.get(username=username)
+        except UserProfile.DoesNotExist:
+            return Response({"detail": "Usuario no encontrado"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Contar victorias donde el usuario es player_left
+        left_wins = Match.objects.filter(player_left=user, left_score__gt=F('right_score')).count()
+        # Contar victorias donde el usuario es player_right
+        right_wins = Match.objects.filter(player_right=user, right_score__gt=F('left_score')).count()
+        
+        # Sumar ambas cuentas para obtener el total de victorias
+        total_wins = left_wins + right_wins
+        
+        return Response({"total_wins": total_wins})
