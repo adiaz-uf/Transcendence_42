@@ -14,6 +14,12 @@ class TournamentSerializer(serializers.ModelSerializer):
         queryset=Match.objects.all(),
         required=False
     )
+    matches = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Match.objects.all(),
+        write_only=True,
+        required=False
+    )
 
     class Meta:
         model = Tournament
@@ -21,6 +27,8 @@ class TournamentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         players = validated_data.pop('players', [])
+        matches = validated_data.pop('matches', [])
         tournament = Tournament.objects.create(**validated_data)
         tournament.players.set(players)
+        tournament.matches.set(matches)
         return tournament

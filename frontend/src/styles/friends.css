@@ -1,0 +1,101 @@
+/* Friends Panel */
+.friends-panel {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #26292d;
+    padding: 16px;
+    background-color: #26292d;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 50%;
+    align-self: center;
+    min-height: 900px;
+    height: 100%;
+}
+
+/* Title */
+.friends-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+/* Add Friend Form */
+.add-friend-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.friend-input {
+    flex: 1;
+    border-radius: 6px;
+    padding: 8px;
+    border: 1px solid #26292d;
+}
+
+
+
+.action-btn {
+    white-space: nowrap;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+/* Friends List */
+.friends-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    /* max-height: 500px; */
+    overflow-y: auto;
+}
+
+.friend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #26292d;
+    border-radius: 6px;
+    background-color: #26292d;
+    transition: background-color 0.2s ease;
+    margin: 1em;
+}
+
+.friend-item:hover {
+    background-color: #866262;
+}
+
+.friend-name {
+    font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    color: #26292d;
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .friends-panel {
+        padding: 12px;
+        width: 100%;
+    }
+
+    .friend-item {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .add-friend-form {
+        display: block;
+    }
+    .addfriend-btn {
+        margin-top: 1em;
+        width: 100%;
+    }
+}
