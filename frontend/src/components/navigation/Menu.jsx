@@ -16,7 +16,7 @@ export const Menu = () => {
   
   const handleSelectMode = async (mode) => {
     if (mode === "local") {
-        setGameType("match");
+        setGameType("local");
         setIsMultiplayer(false);
         setInvationBool(true);
         setGameMode("local");
