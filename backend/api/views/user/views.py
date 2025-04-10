@@ -10,10 +10,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django_otp.plugins.otp_totp.models import TOTPDevice
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('django')
 
 from api.models import UserProfile
-from api.serializer.user.serializer import (UserSerializer, UserProfileUpdateSerializer)
+from api.serializer.user.serializer import (UserSerializer, UserProfileUpdateSerializer, FriendSerializer)
 
 
 #CLASS BASED VIEWS: (Remember List)
@@ -60,40 +60,75 @@ class CreateUserView(generics.CreateAPIView):
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_object(self):
-        """Retrieve the user profile object."""
-        try:
-            return UserProfile.objects.get(pk=self.request.user.id)
-        except UserProfile.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-
     def get(self, request):
-        user = self.get_object()  # Retrieve user object
-        serializer = UserSerializer(user)  # Serialize user object
+        serializer = UserSerializer(request.user)  # Serialize user object
         return Response(serializer.data)  # Get serialized user object
 
     def patch(self, request):
-        user = self.get_object()
-        serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)
+        serializer = UserProfileUpdateSerializer(request.user, data=request.data, partial=True)
         
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-#class CheckUserExistsView(generics.RetrieveAPIView):
-#    serializer_class = UserSerializer
-#    permission_classes = [IsAuthenticated]
-#    lookup_field = "username"
-#    def get_queryset(self):
-#        """Filter UserProfile by username from URL parameter."""
-#        username = self.kwargs.get("username", None)
-#        return UserProfile.objects.filter(username=username) if username else UserProfile.objects.none()
-#    
-#    def retrieve(self, request, *args, **kwargs):
-#        """Return user existence status."""
-#        user = self.get_queryset().first()
-#        return Response({"exists": bool(user), "user":user}, status=status.HTTP_200_OK)
+
+class OthersProfileView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, username):
+        """Retrieve the user profile object."""
+        try:
+            return UserProfile.objects.get(username=username)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, username):
+        user = self.get_object(username)
+        serializer = UserSerializer(user)  # Serialize user object
+        return Response(serializer.data)  # Get serialized user object
+
+
+
+class UserFriendsView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get_object(self, username):
+        """Retrieve the user profile object."""
+        try:
+            return UserProfile.objects.get(username=username)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, username):
+        user = self.get_object(username)  # Retrieve user object
+        friends = user.friends.all() #get friends
+        logger.info(friends)  # Logs the queryset of friends
+        if not friends.exists():
+            return Response({}, status=status.HTTP_200_OK)
+        serializer = FriendSerializer(friends, many=True)  # Serialize friends array
+        return Response(serializer.data, status=status.HTTP_200_OK)  # send serialized array
+
+    def post(self, request, username=False):
+        """Add a friend to the authenticated user's friend list."""
+        user = request.user
+        try:
+            friend = self.get_object(username)
+            if friend == user:
+                return Response({"error": "You cannot add yourself as a friend."}, status=status.HTTP_400_BAD_REQUEST)
+            user.friends.add(friend)
+            return Response({"message": "Friend added successfully."}, status=status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, username=False):
+        """Remove a friend from the authenticated user's friend list."""
+        user = request.user
+        try:
+            friend = self.get_object(username)
+            user.friends.remove(friend)
+            return Response({"message": "Friend removed successfully."}, status=status.HTTP_200_OK)
+
+        except UserProfile.DoesNotExist:
+            return Response({"error": "bruh User not found."}, status=status.HTTP_404_NOT_FOUND)
 
 class CheckUserExistsView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]

@@ -8,7 +8,8 @@ import Stat from '../components/Stat';
 import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
 import MessageBox from '../components/MessageBox';
-import FriendProfileModal from '../components/FriendProfileModal';
+import Friends from '../components/Friends';
+import { GETCurrentProfileInfo } from '../components/api-consumer/fetch';
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -65,10 +66,7 @@ export default function Profile() {
 
   const fetchProfileData = async () => {
     try {
-      const response = await api.get('/api/user/profile/', {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      });
-      const { id, username, email, given_name, surname, is_42user, is_2fa_enabled } = response.data;
+      const { id, username, email, given_name, surname, is_42user, is_2fa_enabled } = await GETCurrentProfileInfo(localStorage.getItem('username'));
       setUsername(username);
       setEmail(email);
       setName(`${given_name} ${surname}`);
@@ -276,11 +274,9 @@ export default function Profile() {
           setTwoFACode={setTwoFACode} 
           handleToggle2FA={handleToggle2FA} 
         />
-        <FriendProfileModal 
-          show={showFriendModal} 
-          handleClose={handleCloseFriendModal} 
-          user={friendUsername}
-        />
+
+            <Friends />
+
         <div className='stats-container'>
           <Stat title={"Matches Played"} value={matchesPlayed} />
           <Stat title={"Wins"} value={matchesWon} />
