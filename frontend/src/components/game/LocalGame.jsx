@@ -445,7 +445,6 @@ const LocalGame = () => {
             flexDirection: 'column', 
             alignItems: 'center', 
             padding: '20px',
-            backgroundColor: '#1a1a1a',
             minHeight: '100vh'
         }}>
             <div className="game-return" style={{ marginBottom: '20px' }}>
