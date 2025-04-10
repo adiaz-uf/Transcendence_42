@@ -12,6 +12,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
   const [newUsername3, setNewUsername3] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isInvited, setIsInvited] = useState('');
+  
   const navigate = useNavigate(); 
 
   const handleSkip = async () => {

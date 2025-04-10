@@ -31,7 +31,6 @@ urlpatterns = [
 
     # Match endpoints
     path('matches/',                              MatchCreationView.as_view(), name='match-create'), #POST create match
-    path('matches/online-create/',                CreateOnlineMatchView.as_view(), name='match-online-create'),
     path('matches/<uuid:pk>',                     MatchScoreUpdateView.as_view(), name='match-update'),#UPDT Updates Matches scores and duration
     path('matches/list',                          UserMatchListView.as_view(), name='list-match'), # GET Can specify match-id or list all user matches
     path('matches/available/',                    AvailableMatchView.as_view(), name='match-available'),

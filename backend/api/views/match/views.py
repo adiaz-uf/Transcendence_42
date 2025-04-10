@@ -144,6 +144,7 @@ class MatchScoreUpdateView(generics.UpdateAPIView):
         Override update method to restrict updates to only scores and duration.
         Saves only if values are modified.
         """
+        logger.info(f"Updating match {kwargs['pk']} with data: {request.data}")
         match = self.get_object()  
         data = request.data 
         updated = False
