@@ -10,7 +10,7 @@ const PADDLE_WIDTH = 15;
 const PADDLE_HEIGHT = 90;
 const BALL_RADIUS = 10;
 const PADDLE_SPEED = 8;
-const INITIAL_BALL_SPEED = 5;
+const INITIAL_BALL_SPEED = 8;
 const WINNING_SCORE = 10;
 const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 

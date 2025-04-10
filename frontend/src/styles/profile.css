@@ -9,8 +9,8 @@
   padding-right: 3em;
   text-align: center;
   align-items: center;
-/*   flex-direction: column;
-  display: flex; */
+  flex-direction: column;
+  display: flex;
 }
 
 .profile-container {
