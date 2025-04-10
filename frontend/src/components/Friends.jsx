@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Spinner } from 'react-bootstrap';
 import { GETfriends, POSTfriend, DELETEfriend, GETCheckUsernameExists } from '../components/api-consumer/fetch';
+import FriendProfileModal from '../components/FriendProfileModal';
 import '../styles/friends.css';
 
 export default function Friends() {
@@ -8,6 +9,7 @@ export default function Friends() {
     const [newFriendUsername, setNewFriendUsername] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showFriendModal, setShowFriendModal] = useState(false);
 
     // Fetch friends on component load
     const fetchFriends = async () => {
@@ -73,6 +75,14 @@ export default function Friends() {
         }
     };
 
+    const handleShowFriendProfile = () => {
+        setShowFriendModal(true);
+      };
+    
+      const handleCloseFriendModal = () => {
+        setShowFriendModal(false);
+      };
+
     useEffect(() => {
         fetchFriends();
     }, []);
@@ -111,14 +121,27 @@ export default function Friends() {
                     friends.map((friend) => (
                         <div key={friend.id} className="friend-item">
                             <span className="friend-name">{friend.username} {friend.active ? "online":"offline"}</span>
+                            <div style={{"display":"flex"}}>
+                            <Button
+                                variant="outline-info"
+                                size="sm"
+                                onClick={() => handleShowFriendProfile()}
+                                className="action-btn m-3">
+                                View Profile
+                            </Button>
                             <Button
                                 variant="outline-danger"
                                 size="sm"
                                 onClick={() => handleRemoveFriend(friend.username, friend.id)}
-                                className="action-btn">
-                                
+                                className="action-btn m-3">
                                 Remove
                             </Button>
+                            </div>
+                            <FriendProfileModal 
+                                show={showFriendModal} 
+                                handleClose={handleCloseFriendModal} 
+                                user={friend.username}
+                            />
                         </div>
                     ))
                 ) : (
