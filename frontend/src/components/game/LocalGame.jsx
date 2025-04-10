@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ClientWebSocket from './ClientWebSocket';
 import GameOverModal from '../GameOverModal';
-import { useGameSetting } from '../contexts/GameContext';
+import { useGameSetting } from '../contexts/MenuContext';
+import { PATCHMatchScore } from '../api-consumer/fetch';
+
 
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 700;
@@ -16,7 +18,8 @@ const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 
 const LocalGame = () => {
     const navigate = useNavigate();
-    const { opponentUsername } = useGameSetting();
+    const { opponentUsername, matchId } = useGameSetting();
+    const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
     const [playerNames, setPlayerNames] = useState({
         left: localStorage.getItem('username') || 'Guest',
         right: opponentUsername || 'Opponent'
@@ -439,6 +442,74 @@ const LocalGame = () => {
         });
     }, [opponentUsername]);
 
+    // Initialize gameStartTime when the game starts playing
+    useEffect(() => {
+        if (gameState.isPlaying && !gameStartTime) {
+            const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
+            console.log("🕒 Game started at:", new Date(currentTime * 1000).toISOString());
+            setGameStartTime(currentTime);
+        }
+    }, [gameState.isPlaying, gameStartTime]);
+
+    // Add a standalone function to update match scores when a game ends
+    const updateMatchScore = () => {
+        console.log("🔄 updateMatchScore called with matchId:", matchId);
+        
+        if (!matchId) {
+            console.error("❌ No match ID available. Cannot update score.");
+            return;
+        }
+        
+        if (!gameStartTime) {
+            console.error("❌ No game start time available. Cannot calculate duration.");
+            return;
+        }
+        
+        const currentTime = Math.floor(Date.now() / 1000);
+        const duration = currentTime - gameStartTime;
+        
+        // Convert seconds to a duration string in the format Django expects (HH:MM:SS)
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        const seconds = duration % 60;
+        const formattedDuration = 
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        console.log("📊 Updating match scores:", {
+            matchId,
+            left_score: gameState.players.left.score,
+            right_score: gameState.players.right.score,
+            duration: duration,
+            formattedDuration: formattedDuration
+        });
+        
+        // Call PATCHMatchScore to update the match in the database
+        PATCHMatchScore(
+            matchId,
+            gameState.players.right.score, // right_score
+            gameState.players.left.score,  // left_score
+            formattedDuration             // match_duration
+        ).then(response => {
+            console.log("✅ Match score updated successfully:", response);
+        }).catch(error => {
+            console.error("❌ Error updating match score:", error);
+        });
+    };
+
+    // Call updateMatchScore when the game ends
+    useEffect(() => {
+        console.log("🔎 Game state changed:", {
+            gameOver: gameState.gameOver,
+            matchId: matchId,
+            gameStartTime: gameStartTime
+        });
+        
+        if (gameState.gameOver && matchId && gameStartTime) {
+            console.log("🏁 Game over detected - calling updateMatchScore");
+            updateMatchScore();
+        }
+    }, [gameState.gameOver, matchId, gameStartTime]);
+
     return (
         <div className="gameplay-container" style={{ 
             display: 'flex', 
@@ -531,14 +602,14 @@ const LocalGame = () => {
                     player1={playerNames.left} 
                     player2={playerNames.right} 
                     score1={gameState.players.left.score} 
-                    score2={gameState.players.right.score} 
+                    score2={gameState.players.right.score}
+                    matchId={matchId}
+                    gameStartTime={gameStartTime}
+                    updateMatchScore={updateMatchScore}
                 />
             )}
         </div>
-        
     );
 };
-
-
 
 export default LocalGame; 
