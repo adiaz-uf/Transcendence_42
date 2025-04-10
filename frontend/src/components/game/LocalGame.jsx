@@ -13,7 +13,7 @@ const PADDLE_HEIGHT = 90;
 const BALL_RADIUS = 10;
 const PADDLE_SPEED = 8;
 const INITIAL_BALL_SPEED = 8;
-const WINNING_SCORE = 10;
+const WINNING_SCORE = 1;
 const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 
 const LocalGame = () => {
@@ -455,16 +455,6 @@ const LocalGame = () => {
     const updateMatchScore = () => {
         console.log("🔄 updateMatchScore called with matchId:", matchId);
         
-        if (!matchId) {
-            console.error("❌ No match ID available. Cannot update score.");
-            return;
-        }
-        
-        if (!gameStartTime) {
-            console.error("❌ No game start time available. Cannot calculate duration.");
-            return;
-        }
-        
         const currentTime = Math.floor(Date.now() / 1000);
         const duration = currentTime - gameStartTime;
         
@@ -473,7 +463,7 @@ const LocalGame = () => {
         const minutes = Math.floor((duration % 3600) / 60);
         const seconds = duration % 60;
         const formattedDuration = 
-            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}.${seconds.toString().padStart(2, '0')}`;
         
         console.log("📊 Updating match scores:", {
             matchId,
@@ -488,7 +478,7 @@ const LocalGame = () => {
             matchId,
             gameState.players.right.score, // right_score
             gameState.players.left.score,  // left_score
-            formattedDuration             // match_duration
+            formattedDuration            // match_duration
         ).then(response => {
             console.log("✅ Match score updated successfully:", response);
         }).catch(error => {
@@ -498,17 +488,11 @@ const LocalGame = () => {
 
     // Call updateMatchScore when the game ends
     useEffect(() => {
-        console.log("🔎 Game state changed:", {
-            gameOver: gameState.gameOver,
-            matchId: matchId,
-            gameStartTime: gameStartTime
-        });
-        
-        if (gameState.gameOver && matchId && gameStartTime) {
+        if (gameState.gameOver && matchId) {
             console.log("🏁 Game over detected - calling updateMatchScore");
             updateMatchScore();
         }
-    }, [gameState.gameOver, matchId, gameStartTime]);
+    }, [gameState.gameOver, matchId]);
 
     return (
         <div className="gameplay-container" style={{ 
@@ -603,9 +587,6 @@ const LocalGame = () => {
                     player2={playerNames.right} 
                     score1={gameState.players.left.score} 
                     score2={gameState.players.right.score}
-                    matchId={matchId}
-                    gameStartTime={gameStartTime}
-                    updateMatchScore={updateMatchScore}
                 />
             )}
         </div>

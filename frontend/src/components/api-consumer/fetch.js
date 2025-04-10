@@ -7,7 +7,7 @@ export async function PATCHMatchScore(matchId, right_score, left_score, match_du
     if (!token) {
         return null; // Return null if not logged in
     }
-    const res = await api.patch(`/api/matches/${matchId}/`, {'right_score': right_score, 'left_score': left_score, 'match_duration': match_duration}, {
+    const res = await api.patch(`/api/matches/${matchId}`, {'right_score': right_score, 'left_score': left_score, 'match_duration': match_duration}, {
         headers: {
             Authorization: `Bearer ${token}`,
         },
