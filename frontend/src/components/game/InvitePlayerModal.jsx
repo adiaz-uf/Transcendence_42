@@ -68,6 +68,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
           right_score: 0,
           is_started: false,
         };
+        console.log(gameType)
       //payload.player_right = playerRight.get("id", null); //TODO: TypeError: playerRight.get is not a function
       setOpponentUsername(newUsername1)
       if (gameType === "tournament") {
@@ -93,13 +94,16 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         if (LocalMatchResponse){
           setMatchId(LocalMatchResponse.id);
           console.log('Match created', LocalMatchResponse);
+          
         }
-        else{
+        else
+        {
           setErrorMessage(`Error with new Match`);
           console.log("error creating local match");
-          }
-          handleCloseModal();
-          navigate('/local');
+        }
+        console.log("we here boiiiiii");
+        navigate('/local');
+        handleCloseModal();  
       }
                                                                                                                   //Creating tournament games; logic needs to change
       if (gameType === 'testing'){ 
