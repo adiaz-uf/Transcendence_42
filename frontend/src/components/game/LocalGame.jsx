@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import ClientWebSocket from './ClientWebSocket';
 import GameOverModal from '../GameOverModal';
 import { useGameSetting } from '../contexts/GameContext';
+import { PATCHMatchScore } from '../api-consumer/fetch';
+
 
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 700;
@@ -11,12 +13,13 @@ const PADDLE_HEIGHT = 90;
 const BALL_RADIUS = 10;
 const PADDLE_SPEED = 8;
 const INITIAL_BALL_SPEED = 8;
-const WINNING_SCORE = 10;
+const WINNING_SCORE = 1;
 const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 
 const LocalGame = () => {
     const navigate = useNavigate();
-    const { opponentUsername } = useGameSetting();
+    const { opponentUsername, matchId } = useGameSetting();
+    const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
     const [playerNames, setPlayerNames] = useState({
         left: localStorage.getItem('username') || 'Guest',
         right: opponentUsername || 'Opponent'
@@ -439,6 +442,61 @@ const LocalGame = () => {
         });
     }, [opponentUsername]);
 
+    // Initialize gameStartTime when the game starts playing
+    useEffect(() => {
+        if (gameState.isPlaying && !gameStartTime) {
+            const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
+            console.log("🕒 Game started at:", new Date(currentTime * 1000).toISOString());
+            setGameStartTime(currentTime);
+        }
+    }, [gameState.isPlaying, gameStartTime]);
+
+    // Add a standalone function to update match scores when a game ends
+    const updateMatchScore = () => {
+        console.log("🔄 updateMatchScore called with matchId:", matchId);
+        
+        const currentTime = Date.now();
+        const gameStartTimeMs = gameStartTime * 1000; // Convert gameStartTime from seconds to milliseconds
+        const durationMs = currentTime - gameStartTimeMs;
+        
+        // Convert milliseconds to a duration string in the format MM:SS.MS
+        const totalSeconds = Math.floor(durationMs / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const milliseconds = Math.floor((durationMs % 1000) / 10); // Get centiseconds (1/100 of a second)
+        
+        const formattedDuration = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+        
+        console.log("📊 Updating match scores:", {
+            matchId,
+            left_score: gameState.players.left.score,
+            right_score: gameState.players.right.score,
+            duration: durationMs,
+            formattedDuration: formattedDuration
+        });
+        
+        // Call PATCHMatchScore to update the match in the database
+        PATCHMatchScore(
+            matchId,
+            gameState.players.right.score, // right_score
+            gameState.players.left.score,  // left_score
+            formattedDuration            // match_duration
+        ).then(response => {
+            console.log("✅ Match score updated successfully:", response);
+        }).catch(error => {
+            console.error("❌ Error updating match score:", error);
+        });
+    };
+
+    // Call updateMatchScore when the game ends
+    useEffect(() => {
+        if (gameState.gameOver && matchId) {
+            console.log("🏁 Game over detected - calling updateMatchScore");
+            updateMatchScore();
+        }
+    }, [gameState.gameOver, matchId]);
+
     return (
         <div className="gameplay-container" style={{ 
             display: 'flex', 
@@ -520,8 +578,8 @@ const LocalGame = () => {
                 textAlign: 'center' 
             }}>
                 <div className="controls-info">
-                    <p>Left Player: W/S keys</p>
-                    <p>Right Player: O/K keys</p>
+                    <p>{playerNames.left}: W/S keys</p>
+                    <p>{playerNames.right}: O/K keys</p>
                 </div>
             </div>
             {gameState.gameOver && (
@@ -531,14 +589,11 @@ const LocalGame = () => {
                     player1={playerNames.left} 
                     player2={playerNames.right} 
                     score1={gameState.players.left.score} 
-                    score2={gameState.players.right.score} 
+                    score2={gameState.players.right.score}
                 />
             )}
         </div>
-        
     );
 };
-
-
 
 export default LocalGame; 
