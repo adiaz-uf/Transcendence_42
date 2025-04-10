@@ -161,6 +161,18 @@ class LoginView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
+
+    def __RefreshToken_And_ActiveFieldOnDB(self, user):
+        refresh = RefreshToken.for_user(user)    
+        user.active = True
+        user.save(update_fields=['active'])
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'id': user.id
+        }
+
+
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -171,21 +183,11 @@ class LoginView(generics.CreateAPIView):
                 if code:
                     device = TOTPDevice.objects.filter(user=user, name='default').first()
                     if device and device.verify_token(code):
-                        refresh = RefreshToken.for_user(user)
                         login(request, user)
-                        return Response({
-                            'refresh': str(refresh),
-                            'access': str(refresh.access_token),
-                            'id': str(id),
-                        })
+                        return Response(self.__RefreshToken_And_ActiveFieldOnDB(user))
                     return Response({'error': 'Invalide 2FA code'}, status=400)
                 return Response({'message': '2FA code is required'}, status=206)
             else:
                 login(request, user)
-                refresh = RefreshToken.for_user(user)
-                return Response({
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                    'id': user.id
-                })
+                return Response(self.__RefreshToken_And_ActiveFieldOnDB(user))
         return Response({'error': 'Invalid identifiers'}, status=401)
