@@ -35,7 +35,6 @@ export default function Profile() {
   const [newEmail, setNewEmail] = useState(email);
   const [newUsername, setNewUsername] = useState(username);
   const [newPassword, setNewPassword] = useState('');
-  const [friendUsername, setFriendUsername] = useState('');
   
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -196,16 +195,6 @@ export default function Profile() {
     }
   };
 
-  const handleShowFriendProfile = (user) => {
-    setFriendUsername(user);
-    setShowFriendModal(true);
-  };
-
-  const handleCloseFriendModal = () => {
-    setShowFriendModal(false);
-    setFriendUsername(''); // Reset the friend username when closing the modal
-  };
-
   const getAvatarLetter = (name) => name.charAt(0).toUpperCase();
 
   useEffect(() => {
@@ -274,18 +263,13 @@ export default function Profile() {
           setTwoFACode={setTwoFACode} 
           handleToggle2FA={handleToggle2FA} 
         />
-
-            <Friends />
-
         <div className='stats-container'>
           <Stat title={"Matches Played"} value={matchesPlayed} />
           <Stat title={"Wins"} value={matchesWon} />
           <Stat title={"Loses"} value={matchesLosed} />
           <Stat title={"Win Rate"} value={winRatio} />
         </div>
-        <Button  className="m-5 btn-warning" variant={"success"} onClick={() => handleShowFriendProfile("exampleuser")}>
-          TEST FRIEND MODAL
-        </Button>
+      <Friends />
       </div>
     </>
   );
