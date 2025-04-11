@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import ClientWebSocket from './ClientWebSocket';
-import GameOverModal from '../GameOverModal';
-import { useGameSetting } from '../contexts/GameContext';
+import React, { useState, useEffect, useRef }   from 'react';
+
+import { useNavigate }                          from 'react-router-dom';
+import { useGameSetting }      from '../contexts/GameContext';
+
+import ClientWebSocket                          from './ClientWebSocket';
+import GameOverModal                            from '../GameOverModal';
+
 
 const CANVAS_WIDTH = 900;
 const CANVAS_HEIGHT = 700;
@@ -18,15 +21,14 @@ const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 const LocalGame = ({player1, player2, OnWinnerSelect}) => {
     const navigate = useNavigate();
 
-    const { gameType} = useGameSetting();
+    const { gameType, gameMode, getUsernameById} = useGameSetting();
        // If no player names provided via props, use context
+
     const resolvePlayerNames = () => {
-        // For tournament mode
-        if (gameType === "tournament" && player1 && player2) {
-            return { left: player1, right: player2 };
+        if (gameType === "tournament" && player1 && player2) 
+        {
+            return {left: getUsernameById(player1), right: getUsernameById(player2) };
         }
-        
-        // For standalone mode with auth
         return { left: localStorage.getItem('username'), right: "Guest" };
     };
 
@@ -447,6 +449,7 @@ const LocalGame = ({player1, player2, OnWinnerSelect}) => {
     }, []);
 
     return (
+
         <div className="gameplay-container" style={{ 
             display: 'flex', 
             flexDirection: 'column', 
@@ -457,7 +460,7 @@ const LocalGame = ({player1, player2, OnWinnerSelect}) => {
         }}>
             <div className="game-return" style={{ marginBottom: '20px' }}>
                 {!gameState.gameOver && (
-                    <button onClick={toggleGame} disabled={!!gameState.connectionError}>
+                    <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',}} onClick={toggleGame} disabled={!!gameState.connectionError}>
                         {gameState.isPlaying ? 'Pause' : 'Start'}
                     </button>
                 )}
@@ -532,27 +535,17 @@ const LocalGame = ({player1, player2, OnWinnerSelect}) => {
                     <p>Right Player: O/K keys</p>
                 </div>
             </div>
-            {gameState.gameOver && gameType == "local" && ToggleGameOverModal &&(
+            {console.log("Just before modal", gameMode, gameType)}
+            {gameState.gameOver && ToggleGameOverModal &&(
                 <GameOverModal 
-                    showModal={gameState.gameOver} 
-                    handleCloseModal={handleCloseModal} 
-                    player1={playerNames.left} 
-                    player2={playerNames.right} 
-                    score1={gameState.players.left.score} 
-                    score2={gameState.players.right.score} 
+                showModal={gameState.gameOver} 
+                handleCloseModal={handleCloseModal} 
+                player1={playerNames.left} 
+                player2={playerNames.right} 
+                score1={gameState.players.left.score} 
+                score2={gameState.players.right.score} 
                 />
-            )}
-            {gameState.gameOver && gameType == "tournament" && ToggleGameOverModal && (
-                <GameOverModal 
-                    showModal={gameState.gameOver}
-                    handleCloseModal={handleCloseModal} 
-                    player1={playerNames.left} 
-                    player2={playerNames.right} 
-                    score1={gameState.players.left.score} 
-                    score2={gameState.players.right.score}
-                    
-                />
-            ) }
+                )}
         </div>
         
     );
