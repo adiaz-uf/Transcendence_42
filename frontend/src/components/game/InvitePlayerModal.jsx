@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Form, Button, Modal } from 'react-bootstrap';
+import React, { useState }                                                from 'react';
+import { Form, Button, Modal }                                            from 'react-bootstrap';
+import {useNavigate}                                                      from "react-router-dom";
+import { useGameSetting }                                                 from '../contexts/GameContext';
 import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament} from "../api-consumer/fetch";
-import { useGameSetting } from '../contexts/GameContext';
-import {useNavigate} from "react-router-dom";
 
 export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   
@@ -98,27 +98,17 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
         setGameMode("tournament")
         const player_3 = await GETCheckUsernameExists(newUsername2);
         const player_4 = await GETCheckUsernameExists(newUsername3);
-        console.log(player_3);
-        console.log(player_4);
         updateTournamentSetting('Player3', player_3.userProfile.id);
         updateTournamentSetting('Player3username', player_3.userProfile.username);
         updateTournamentSetting('Player4', player_4.userProfile.id);
         updateTournamentSetting('Player4username', player_4.userProfile.username);
 
-        // setPlayer3(player_3.userProfile.id);
-        // setPlayer4(player_4.userProfile.id);
-        // setPlayer3username(player_3.userProfile.username);
-        // setPlayer4username(player_4.userProfile.username);
-
         let payload_tournament = {
           "owner": player1_id,
           "players": [player1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
         };
-        console.log(payload_tournament);
         let TournamentResponse = await POSTcreateTournament(payload_tournament);
-        console.log("Tournament Created", TournamentResponse);
-
-        setTournamentId(TournamentResponse.id);
+        updateTournamentSetting('tournamentId', TournamentResponse.id);
         navigate("/tournament");
       }
     } catch (error) {
@@ -139,10 +129,10 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       <Modal.Body>
         {isInvited ? (
           <div className="d-flex flex-column text-center align-items-center justify-content-center">                                    {/* TODO */}
-            <div className="loader">
-              <div class="wall-left"></div>
-              <div class="wall-right"></div>
-            </div> 
+            {/*<div className="loader">*/}
+              {/*<div class="wall-left"></div>*/}
+              {/*<div class="wall-right"></div>*/}
+            {/*</div> */}
             <h4>Waiting for opponent to join...</h4>
             <Button variant="danger" className="mt-3" onClick={handleCloseModal}>
               Go back

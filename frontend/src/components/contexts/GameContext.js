@@ -10,7 +10,6 @@ export const GameSettingProvider = ({ children }) => {
   const [isInviting, setIsInviting] = useState(""); // "host" | "invitado"
   const [opponentUsername, setOpponentUsername] = useState(""); // Username for invitation
   const [isMultiplayer, setIsMultiplayer] = useState(false); // Multiplayer game
-  const [tournamentId, setTournamentId] = useState("");
   const [TournamentSettings, setTournamentSettings] = useState({
       Player1: null,
       Player2: null,
@@ -20,11 +19,19 @@ export const GameSettingProvider = ({ children }) => {
       Player2username: '',
       Player3username: '',
       Player4username: '',
-      winner1:null,
-      winner2:null,
       tournamentId: null,
   });
+  
 
+  const getUsernameById = (playerId) => {
+    const playerMap = {
+      [TournamentSettings.Player1]: TournamentSettings.Player1username,
+      [TournamentSettings.Player2]: TournamentSettings.Player2username,
+      [TournamentSettings.Player3]: TournamentSettings.Player3username,
+      [TournamentSettings.Player4]: TournamentSettings.Player4username,
+    };
+    return playerMap[playerId] || "Unknown Player";
+  };
 
   
   // const [showModal, setShowModal] = useState(false); // Controla el estado del modal
@@ -43,9 +50,9 @@ export const GameSettingProvider = ({ children }) => {
         isInviting, setIsInviting, 
         opponentUsername, setOpponentUsername,
         isMultiplayer, setIsMultiplayer,
-        tournamentId, setTournamentId,
         TournamentSettings, updateTournamentSetting,
-        gameType, setGameType}}>
+        gameType, setGameType,
+        getUsernameById}}>
       {children}
     </GameContext.Provider>
   );
@@ -53,3 +60,4 @@ export const GameSettingProvider = ({ children }) => {
 
 
 export const useGameSetting = () => useContext(GameContext);
+

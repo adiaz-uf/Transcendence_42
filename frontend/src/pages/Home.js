@@ -1,18 +1,23 @@
-import React from 'react';
-import NavBar from '../components/navigation/Navbar';
 import '../styles/App.css';
-import { Menu } from '../components/navigation/Menu';
 
-import { Routes, Route } from "react-router-dom";
-import { GameSettingProvider } from '../components/contexts/GameContext';
-
-import GameApp from '../components/game/GameApp';
-import LocalGame from '../components/game/LocalGame';
-import Tourna from '../components/tournament/Tourna';
+import React                        from 'react';
+import { useEffect, useState }      from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import MessageBox from '../components/MessageBox';
-import Friend from '../components/Friends'
+import { Routes, Route }            from "react-router-dom";
+
+
+import { GameSettingProvider }      from '../components/contexts/GameContext';
+    
+import { Menu }                     from '../components/navigation/Menu';
+import NavBar                       from '../components/navigation/Navbar';
+    
+import GameApp                      from '../components/game/GameApp';
+import LocalGame                    from '../components/game/LocalGame';
+    
+import Tournament                   from '../components/tournament/Tournament';
+import MessageBox                   from '../components/MessageBox';
+import Friend                       from '../components/Friends'
+
 
 function Home() {
   return (
@@ -51,12 +56,13 @@ const HomeRouter = () => {
         />
       )}
       <GameSettingProvider>
-=          <Routes>
+          <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/pong" element={<GameApp />} /> {'Not used anymore i think'}
-            <Route path="/tournament" element={<Tourna />} />
+            <Route path="/tournament" element={<Tournament/>} />
             <Route path="/local" element={<LocalGame/>} />
             <Route path="/friends" element={<Friend/>} />
+            <Route path="/menu" element={<Menu/>} />
           </Routes>
       </GameSettingProvider>
     </>
