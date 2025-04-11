@@ -13,7 +13,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 
 from django.urls import path
-from api.game.StreamSocket import StreamSocket
+from api.game.stream_socket import StreamSocket
 import os, django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
