@@ -3,16 +3,17 @@ import math
 import random
 import time
 from typing import Dict, Tuple, Optional
+from api.game.game_constants import GAME_SETTINGS
 
 class PongGame:
-    def __init__(self, player1, player2=None, width=900, height=700):
+    def __init__(self, player1, player2=None):
         self.__left_player = player1
         self.__right_player = player2
-        self.__width = width
-        self.__height = height
-        self.__initial_ball_speed = 5  # Base speed
-        self.__max_ball_speed = 8      # Maximum speed
-        self.__max_score = 1
+        self.__width = GAME_SETTINGS['CANVAS_WIDTH']
+        self.__height = GAME_SETTINGS['CANVAS_HEIGHT']
+        self.__initial_ball_speed = GAME_SETTINGS['INITIAL_BALL_SPEED']  # Base speed
+        self.__max_ball_speed = GAME_SETTINGS['MAX_BALL_SPEED']      # Maximum speed
+        self.__max_score = GAME_SETTINGS['WINNING_SCORE']
         self.reset_game()
 
     def get_gameState(self):
