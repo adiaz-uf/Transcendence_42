@@ -71,6 +71,25 @@
 
 .friend-name {
     font-weight: 500;
+    /* background-color: rgb(54, 56, 56); */
+    padding-left: 0.6em !important;
+    padding-right: 0.6em !important;
+    padding: 0.3em;
+    border-radius: 8px;
+    border: 1px solid #FFF;
+}
+
+.friend-state {
+    font-weight: 500;
+    margin-left: 1em;
+}
+
+.friend-state.online {
+    color: green;
+  }
+  
+.friend-state.offline {
+color: red;
 }
 
 /* Empty State */
