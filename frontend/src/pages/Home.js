@@ -62,7 +62,6 @@ const HomeRouter = () => {
             <Route path="/tournament" element={<Tournament/>} />
             <Route path="/local" element={<LocalGame/>} />
             <Route path="/friends" element={<Friend/>} />
-            <Route path="/menu" element={<Menu/>} />
           </Routes>
       </GameSettingProvider>
     </>
