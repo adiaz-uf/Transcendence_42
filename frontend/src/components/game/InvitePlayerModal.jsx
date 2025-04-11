@@ -25,7 +25,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       return false;
     }
 
-    if ((gameType === "tournament" || gameType === "testing") && (!newUsername2.trim() || !newUsername3.trim())) {
+    if ((gameType === "tournament") && (!newUsername2.trim() || !newUsername3.trim())) {
       setMessage('Please enter all opponent usernames for tournament');
       setMessageType('info');
       return false;
@@ -40,7 +40,10 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
 
     return true;
   };
-
+      //                      //
+      //      LOCAL GAME      //
+      //        W GUEST       //
+      //                      //
   const handleSkip = async () => {
     try {
       setIsInviting(true);
@@ -54,14 +57,14 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
         right_score: 0,
         is_started: false,
       };
-
+      
       const localMatchResponse = await POSTcreateMatch(payload);
       if (localMatchResponse) {
         setMatchId(localMatchResponse.id);
         
+        updateTournamentSetting('Player1', localStorage.getItem("userId"));
         updateTournamentSetting('Player1username', localStorage.getItem('username'));
         updateTournamentSetting('Player2username', "Marvin");
-
         handleCloseModal();
         navigate('/local', { 
           state: { 
@@ -86,19 +89,12 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
     console.log("Gametype: ", gameType);
     e.preventDefault();
     setMessage(null);
-
-    // Validate form fields before proceeding
     if (!validateForm()) {
       return;
     }
 
     try {
       setIsInviting(true);
-
-
-
-
-
       const player1_id = localStorage.getItem("userId");
       updateTournamentSetting('Player1', player1_id);
       updateTournamentSetting('Player1username', localStorage.getItem("username"));
@@ -110,12 +106,13 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
         return;
       }
       console.log("inviting User player 2 ", player_2);
-      // setPlayer2(player_2.userProfile.id);
-      // setPlayer2username(player_2.userProfile.username);
       updateTournamentSetting('Player2', player_2.userProfile.id);
       updateTournamentSetting('Player2username', player_2.userProfile.username);
 
-      //Creating local game
+      //                      //
+      //      LOCAL GAME      //
+      //        W USER        //
+      //                      //
       if (gameType === "match") {
         console.log("Entering local game creation....");
         setGameMode("local")
@@ -138,9 +135,13 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
         handleCloseModal();
         navigate('/local');
       }
-                                                                                                                  //Creating tournament games; logic needs to change
+      
 
-      if (gameType === 'testing' || gameType === 'tournament') {
+      //                      //
+      //      TOURNAMENT      //
+      //                      //
+      if (gameType === 'tournament') {
+        
         const player_3 = await GETCheckUsernameExists(newUsername2);
         if (!player_3?.userProfile?.id) {
           setMessage(`Player '${newUsername2}' not found`);
@@ -240,7 +241,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
                 placeholder="Username"
                 required />          
             </Form.Group>
-            {(gameType === "tournament" || gameType === "testing") && (
+            {(gameType === "tournament") && (
               <Form.Group controlId="formName">
                 <Form.Label>Player 3</Form.Label>
                 <Form.Control
@@ -251,7 +252,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
                   required />
               </Form.Group>
             )}
-            {(gameType === "tournament" || gameType === "testing") && (
+            {(gameType === "tournament") && (
               <Form.Group controlId="formName">
                 <Form.Label>Player 4</Form.Label>
                 <Form.Control

@@ -10,16 +10,20 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
     console.log("LocalGame component rendered");
     const navigate = useNavigate();
     const location = useLocation();
-    const { opponentUsername, matchId, gameSettings, gameType, gameMode, getUsernameById } = useGameSetting();
+    const { opponentUsername, matchId, gameSettings, gameType, TournamentSettings, getUsernameById } = useGameSetting();
     const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
     const [showself, setShowSelf] = useState(true);
     const [toggleGameOverModal, setToggleGameOverModal] = useState(false);
     
     const resolvePlayerNames = () => {
         if (gameType === "tournament" && player1 && player2) {
-            return {left: getUsernameById(player1), right: getUsernameById(player2)};
+            return {left: TournamentSettings.Player1username, right: TournamentSettings.Player2username};
         }
-        return { left: localStorage.getItem('username'), right: opponentUsername || "Guest" };
+        if (gameType === "match" && TournamentSettings.Player1 && TournamentSettings.Player2) {
+            return {left: TournamentSettings.Player1username, right: TournamentSettings.Player2username};
+        }
+        return {left: TournamentSettings.Player1username, right: "Marvin"
+        };
     };
     
     const [playerNames, setPlayerNames] = useState(resolvePlayerNames());
@@ -529,7 +533,7 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                     onClose={() => setMessage(null)}
                 />
             )}
-            <div className="game-return" style={{ marginBottom: '20px' }}>
+            <div className="game-return" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                 {!gameState.gameOver && (
                     <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={toggleGame} disabled={!!gameState.connectionError}>
                         {gameState.isPlaying ? 'Pause' : 'Start'}
