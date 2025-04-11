@@ -11,6 +11,9 @@ from api.models import UserProfile, Match
 from api.serializer.match.serializer import MatchSerializer
 from api.game.session_manager import session_manager
 from api.views.blockchain.blockchain_utils import send_score_to_blockchain
+from api.game.game_constants import GAME_SETTINGS
+
+from django.http import JsonResponse
 
 # CreateAPIView (POST only)
 # ListAPIView (GET only)
@@ -21,6 +24,12 @@ from api.views.blockchain.blockchain_utils import send_score_to_blockchain
 # RetrieveUpdateAPIView (GET + PUT/PATCH)
 # RetrieveDestroyAPIView (GET + DELETE)
 # RetrieveUpdateDestroyAPIView (GET + PUT/PATCH + DELETE)
+
+#------------------------------------Game Settings -----------------------------------------
+def game_settings(request):
+    return JsonResponse(GAME_SETTINGS)
+
+
 
 #------------------------------------MAtches views -----------------------------------------
 
