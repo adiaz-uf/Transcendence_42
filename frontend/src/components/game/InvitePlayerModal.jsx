@@ -3,6 +3,9 @@ import { Form, Button, Modal }                                            from '
 import {useNavigate}                                                      from "react-router-dom";
 import { useGameSetting }                                                 from '../contexts/GameContext';
 import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament} from "../api-consumer/fetch";
+import { useGameSetting } from '../contexts/GameContext';
+import {useNavigate} from "react-router-dom";
+import MessageBox from '../MessageBox';
 
 export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   
@@ -11,9 +14,34 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   const [newUsername1, setNewUsername1] = useState('');
   const [newUsername2, setNewUsername2] = useState('');
   const [newUsername3, setNewUsername3] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState('info');
   const [isInvited, setIsInvited] = useState('');
+  
   const navigate = useNavigate(); 
+
+  const validateForm = () => {
+    if (!newUsername1.trim()) {
+      setMessage('Please enter an opponent username');
+      setMessageType('info');
+      return false;
+    }
+
+    if ((gameType === "tournament" || gameType === "testing") && (!newUsername2.trim() || !newUsername3.trim())) {
+      setMessage('Please enter all opponent usernames for tournament');
+      setMessageType('info');
+      return false;
+    }
+
+    // Check if player is trying to invite themselves
+    if (newUsername1 === localStorage.getItem('username')) {
+      setMessage("You cannot invite yourself to a game");
+      setMessageType('error');
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSkip = async () => {
     try {
@@ -22,32 +50,34 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
 
       let payload = {
         player_left: player_1_id,
-        player_right: null, // No second player
+        player_right: null,
         is_multiplayer: false, 
         left_score: 0,
         right_score: 0,
         is_started: false,
       };
 
-      console.log("Skipping invite, starting local game...");
       const localMatchResponse = await POSTcreateMatch(payload);
-      console.log("Match local response");
-      console.log(localMatchResponse)
       if (localMatchResponse) {
-        console.log("MatchId set to: ", localMatchResponse.id);
         setMatchId(localMatchResponse.id);
         
         updateTournamentSetting('Player1username', localStorage.getItem('username'));
         updateTournamentSetting('Player2username', "Marvin");
 
         handleCloseModal();
-        navigate('/local'); 
+        navigate('/local', { 
+          state: { 
+            message: 'Local game created successfully!',
+            type: 'success'
+          }
+        }); 
       } else {
-        setErrorMessage(`Error creating local match`);
+        setMessage('Error creating local match');
+        setMessageType('error');
       }
     } catch (error) {
-      console.log(error);
-      setErrorMessage('Error starting local game');
+      setMessage('Error starting local game: ' + (error.response?.data?.error || error.message || 'Unknown error'));
+      setMessageType('error');
     } finally {
       setIsInviting(false);
     }
@@ -55,16 +85,30 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
 
   const handleUsernameInvite = async (e) => {
     e.preventDefault();
+    setMessage(null);
 
-    setErrorMessage('');
+    // Validate form fields before proceeding
+    if (!validateForm()) {
+      return;
+    }
 
     try {
       setIsInviting(true);
+
+
+
+
+
       const player1_id = localStorage.getItem("userId");
       updateTournamentSetting('Player1', player1_id);
       updateTournamentSetting('Player1username', localStorage.getItem("username"));
 
       const player_2 = await GETCheckUsernameExists(newUsername1);
+      if (!player_2?.userProfile?.id) {
+        setMessage(`Player '${newUsername1}' not found`);
+        setMessageType('error');
+        return;
+      }
       console.log("inviting User player 2 ", player_2);
       // setPlayer2(player_2.userProfile.id);
       // setPlayer2username(player_2.userProfile.username);
@@ -88,38 +132,85 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           setMatchId(LocalMatchResponse.id);
         }
         else{
-          setErrorMessage(`Error with new Match`);
+          setMessage('Error creating match');
+          setMessageType('error');
         }
         handleCloseModal();
         navigate('/local');
       }
                                                                                                                   //Creating tournament games; logic needs to change
-      if (gameType === 'tournament'){
-        setGameMode("tournament")
+
+      if (gameType === 'testing' || gameType === 'tournament') {
         const player_3 = await GETCheckUsernameExists(newUsername2);
+        if (!player_3?.userProfile?.id) {
+          setMessage(`Player '${newUsername2}' not found`);
+          setMessageType('error');
+          return;
+        }
         const player_4 = await GETCheckUsernameExists(newUsername3);
+        if (!player_4?.userProfile?.id) {
+          setMessage(`Player '${newUsername3}' not found`);
+          setMessageType('error');
+          return;
+        }
         updateTournamentSetting('Player3', player_3.userProfile.id);
+        
         updateTournamentSetting('Player3username', player_3.userProfile.username);
         updateTournamentSetting('Player4', player_4.userProfile.id);
         updateTournamentSetting('Player4username', player_4.userProfile.username);
+        const usernames = [newUsername1, newUsername2, newUsername3];
+        if (new Set(usernames).size !== usernames.length) {
+          setMessage('All players must be different');
+          setMessageType('error');
+          return;
+        }
 
         let payload_tournament = {
           "owner": player1_id,
           "players": [player1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
         };
-        let TournamentResponse = await POSTcreateTournament(payload_tournament);
+        const TournamentResponse = await POSTcreateTournament(tournamentPayload);
+        if (!TournamentResponse) {
+          setMessage('Error creating tournament');
+          setMessageType('error');
+          return;
+        }
         updateTournamentSetting('tournamentId', TournamentResponse.id);
-        navigate("/tournament");
+        handleCloseModal();
+        navigate('/tournament', { 
+          state: { 
+            message: 'Tournament created successfully!',
+            type: 'success'
+          }
+        });
       }
     } catch (error) {
-        console.log(error);
+      if (error.response?.status === 404) {
+        setMessage(error.response.data?.error || 'One or more players do not exist');
+      } else if (error.response?.status === 400) {
+        setMessage(error.response.data?.error || 'Invalid request');
+      } else if (error.response?.status === 409) {
+        setMessage(error.response.data?.error || 'Conflict: Game or tournament already exists');
+      } else if (error.response?.status === 403) {
+        setMessage(error.response.data?.error || 'You are not authorized to perform this action');
+      } else {
+        setMessage(error.response?.data?.error || error.message || 'An unexpected error occurred');
+      }
+      setMessageType('error');
     } finally {
-        setIsInviting(false);
+      setIsInviting(false);
     }
   };
 
   return (
     <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal">
+      {message && (
+        <MessageBox
+          message={message}
+          type={messageType}
+          onClose={() => setMessage(null)}
+        />
+      )}
       <Modal.Header closeButton>
         {gameType === "tournament" ?
           (<Modal.Title>{isInvited ? 'Waiting Opponent' :  'Enter your opponents usernames'}</Modal.Title>):
@@ -128,11 +219,11 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       </Modal.Header>
       <Modal.Body>
         {isInvited ? (
-          <div className="d-flex flex-column text-center align-items-center justify-content-center">                                    {/* TODO */}
-            {/*<div className="loader">*/}
-              {/*<div class="wall-left"></div>*/}
-              {/*<div class="wall-right"></div>*/}
-            {/*</div> */}
+          <div className="d-flex flex-column text-center align-items-center justify-content-center">
+            <div className="loader">
+              <div className="wall-left"></div>
+              <div className="wall-right"></div>
+            </div> 
             <h4>Waiting for opponent to join...</h4>
             <Button variant="danger" className="mt-3" onClick={handleCloseModal}>
               Go back
@@ -149,88 +240,53 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
                 placeholder="Username"
                 required />          
             </Form.Group>
-            {(gameType === "tournament" | gameType === "testing") && (
-            <Form.Group controlId="formName">
-              <Form.Label>Player 3</Form.Label>
-              <Form.Control
-                type="text"
-                value={newUsername2}
-                onChange={(e) => setNewUsername2(e.target.value)}
-                placeholder="Username"
-                required />
-            </Form.Group>
+            {(gameType === "tournament" || gameType === "testing") && (
+              <Form.Group controlId="formName">
+                <Form.Label>Player 3</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newUsername2}
+                  onChange={(e) => setNewUsername2(e.target.value)}
+                  placeholder="Username"
+                  required />
+              </Form.Group>
             )}
-            {(gameType === "tournament" | gameType === "testing") && (
-            <Form.Group controlId="formName">
-              <Form.Label>Player 4</Form.Label>
-              <Form.Control
-                type="text"
-                value={newUsername3}
-                onChange={(e) => setNewUsername3(e.target.value)}
-                placeholder="Username"
-                required />
-            </Form.Group>
+            {(gameType === "tournament" || gameType === "testing") && (
+              <Form.Group controlId="formName">
+                <Form.Label>Player 4</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newUsername3}
+                  onChange={(e) => setNewUsername3(e.target.value)}
+                  placeholder="Username"
+                  required />
+              </Form.Group>
             )}
-          <Button 
-            variant="warning" 
-            className="mt-3 w-100" 
-            onClick={handleSkip} 
-            disabled={isInviting}>
-            Skip (Start Local Game)
-          </Button>
-          <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isInviting}>
-          {gameType === "tournament" ?
-            ( isInviting ? 'Inviting...' : 'Invite Users' ):
-            ( isInviting ? 'Inviting...' : 'Invite User' )
-          }
-          </Button>
-        </Form>)}
-        {errorMessage && <div className="mt-3 text-danger">{errorMessage}</div>}
+            <Button 
+              variant="warning" 
+              className="mt-3 w-100" 
+              onClick={handleSkip} 
+              disabled={isInviting}>
+              Skip (Start Local Game)
+            </Button>
+            <Button 
+              variant="primary" 
+              type="button" 
+              className="mt-3 w-100" 
+              disabled={isInviting}
+              onClick={() => {
+                if (validateForm()) {
+                  handleUsernameInvite({ preventDefault: () => {} });
+                }
+              }}>
+              {gameType === "tournament" ?
+                (isInviting ? 'Inviting...' : 'Invite Players') :
+                (isInviting ? 'Inviting...' : 'Invite Player')
+              }
+            </Button>
+          </Form>
+        )}
       </Modal.Body>
     </Modal>
   );
 };
-
-      /* if (gameType === 'testing'){ 
-        const player_3 = await GETCheckUsernameExists(newUsername2);
-        const player_4 = await GETCheckUsernameExists(newUsername3);
-        if (!player_1_id || !player_2){
-          setErrorMessage("One of both player are missing");
-          }
-        payload.is_multiplayer = false;
-        let payload2 = {
-          "owner": player_1_id,
-          "players": [player_1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
-        };
-        let TournamentResponse = await POSTcreateTournament(payload2);
-        if (TournamentResponse){
-          handleCloseModal(); 
-          navigate('/menu');
-        }
-        let payload3 = {
-          player_left: player_1_id,
-          player_right: player_2.userProfile.id,
-          is_multiplayer: true,
-          left_score: 0,
-          right_score: 0,
-          is_started: false,
-        };
-        let payload4 = {
-          player_left: player_3.userProfile.id,
-          player_right: player_4.userProfile.id,
-          is_multiplayer: true,
-          left_score: 0,
-          right_score: 0,
-          is_started: false,
-        };
-        const semifinal1 = await POSTcreateMatch(payload3);
-        
-        const semifinal2 = await POSTcreateMatch(payload4);
-
-        const result = await PATCHAddMatchToTournament(TournamentResponse.id, semifinal1.id);
-        if (result) {
-        const TournamentResponse4 = await GETTournamentDetails(TournamentResponse.id);
-        const TournamentResponse2 =  await PATCHAddWinnerToTournament(TournamentResponse4.id, player_3.userProfile.id);
-        const TournamentResponse3 = await GETTournamentDetails(TournamentResponse.id);
-
-        } */

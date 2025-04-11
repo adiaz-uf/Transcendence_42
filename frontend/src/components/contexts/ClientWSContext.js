@@ -71,7 +71,7 @@ export const WebSocketProvider = ({ children }) => {
     useEffect(() => {
         // Initialize WebSocket instance only once
         if (!WSref) {
-            const instance = new ClientWebSocket(`ws://${window.location.host}:8000/game/`, matchId);
+            const instance = new ClientWebSocket(`wss://${window.location.host}:8000/game/`, matchId);
             setWSref(instance); // Set the WebSocket instance
             console.log("WebSocket instance created:", instance);
 

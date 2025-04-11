@@ -12,8 +12,9 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 import logging
 logger = logging.getLogger('django')
 
-from api.models import UserProfile
+from api.models import UserProfile, Match
 from api.serializer.user.serializer import (UserSerializer, UserProfileUpdateSerializer, FriendSerializer)
+from api.serializer.match.serializer import (MatchSerializer)
 
 
 #CLASS BASED VIEWS: (Remember List)
@@ -135,7 +136,6 @@ class CheckUserExistsView(generics.RetrieveAPIView):
 
     def get(self, request, username, format=None):
         try:
-            # Verifica si el usuario existe en la base de datos
             user = UserProfile.objects.get(username=username)
 
             # Devuelve la información del usuario junto con "exists: True"
@@ -191,3 +191,30 @@ class LoginView(generics.CreateAPIView):
                 login(request, user)
                 return Response(self.__RefreshToken_And_ActiveFieldOnDB(user))
         return Response({'error': 'Invalid identifiers'}, status=401)
+
+class MatchesPlayedView(APIView):
+    def get(self, request, username):
+        user = UserProfile.objects.get(username=username)
+
+        played_as_left = Match.objects.filter(player_left=user).count()
+        played_as_right = Match.objects.filter(player_right=user).count()
+
+        total_played = played_as_left + played_as_right
+
+        return Response({'username': username, 'matches_played': total_played}, status=status.HTTP_200_OK)
+    
+from django.db.models import F
+
+class MatchesWonView(APIView):
+    def get(self, request, username):
+        user = UserProfile.objects.get(username=username)
+
+        # Partidos donde el usuario jugó como player_left y ganó
+        left_wins = Match.objects.filter(player_left=user, left_score__gt=F('right_score')).count()
+
+        # Partidos donde el usuario jugó como player_right y ganó
+        right_wins = Match.objects.filter(player_right=user, right_score__gt=F('left_score')).count()
+
+        total_wins = left_wins + right_wins
+
+        return Response({'username': username, 'matches_won': total_wins}, status=status.HTTP_200_OK)

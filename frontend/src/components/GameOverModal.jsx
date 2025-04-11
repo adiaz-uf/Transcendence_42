@@ -1,11 +1,17 @@
-import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import '../styles/gameOverModal.css'
 
-export default function GameOverModal({ showModal, handleCloseModal, player1, player2, score1, score2}) {
-
+export default function GameOverModal({ 
+  showModal, 
+  handleCloseModal, 
+  player1, 
+  player2, 
+  score1, 
+  score2, 
+}) {
     const Player1Name = (player1 || 'Guest');
     const Player2Name = (player2 || 'Bot');
+
     return (
       <Modal show={showModal} onHide={handleCloseModal} dialogClassName="custom-modal" centered>
         <Modal.Header closeButton className="custom-modal-header">

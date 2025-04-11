@@ -2,8 +2,9 @@ from django.urls import path
 
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from api.views.user.views import CreateUserView, UserProfileView, LoginView, CheckUserExistsView, UserFriendsView, OthersProfileView
-from api.views.match.views import MatchCreationView, CreateOnlineMatchView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
+
+from api.views.user.views import CreateUserView, UserProfileView, LoginView, CheckUserExistsView, UserFriendsView, OthersProfileView, MatchesPlayedView, MatchesWonView
+from api.views.match.views import game_settings, MatchCreationView, CreateOnlineMatchView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
 from api.views.auth.TwoFA import Setup2FAView
 from api.views.auth.auth42 import FTAuthCallbackView
 from api.views.auth.jwt import CustomTokenRefreshView
@@ -19,6 +20,13 @@ urlpatterns = [
     path('user/profile/',                         UserProfileView.as_view(), name='profile'), #UPDT & GET #AUTH
     path('user/refresh/',                         CustomTokenRefreshView.as_view(), name='refresh'), #GET? #AUTH 
     
+    path('user/refresh/', CustomTokenRefreshView.as_view(), name='refresh'), #GET? #AUTH 
+    
+    path('user/profile/<str:username>', OthersProfileView.as_view(), name='profile'), #UPDT & GET #AUTH
+    path('user/exists/<str:username>', CheckUserExistsView.as_view(), name='check_username'), #GET #AUTH
+    path('user/friends/<str:username>', UserFriendsView.as_view(), name='friends'), #GET POST DELETE #AUTH
+    path('user/matches-played/<str:username>/', MatchesPlayedView.as_view(), name='matches-played'), #GET
+    path('user/matches-won/<str:username>/', MatchesWonView.as_view(), name='matches-won'), #GET
     path('user/profile/<str:username>',           OthersProfileView.as_view(), name='profile'), #UPDT & GET #AUTH
     path('user/exists/<str:username>',            CheckUserExistsView.as_view(), name='check_username'), #GET #AUTH
     path('user/friends/<str:username>',           UserFriendsView.as_view(), name='friends'), #GET POST DELETE #AUTH
@@ -31,7 +39,6 @@ urlpatterns = [
 
     # Match endpoints
     path('matches/',                              MatchCreationView.as_view(), name='match-create'), #POST create match
-    path('matches/online-create/',                CreateOnlineMatchView.as_view(), name='match-online-create'),
     path('matches/<uuid:pk>',                     MatchScoreUpdateView.as_view(), name='match-update'),#UPDT Updates Matches scores and duration
     path('matches/list',                          UserMatchListView.as_view(), name='list-match'), # GET Can specify match-id or list all user matches
     path('matches/available/',                    AvailableMatchView.as_view(), name='match-available'),
@@ -53,4 +60,7 @@ urlpatterns = [
 
     # Blockchain test endpoint
     path('game/test-blockchain/',                             test_blockchain, name='test-blockchain'),
+
+    # Game Settings Endpoint
+    path('game-settings/', game_settings, name='game-settings')
 ]
