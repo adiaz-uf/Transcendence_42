@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ClientWebSocket from './ClientWebSocket';
 import GameOverModal from '../GameOverModal';
 import { useGameSetting } from '../contexts/GameContext';
-import { PATCHMatchScore, GETGameSettings } from '../api-consumer/fetch';
+import { PATCHMatchScore } from '../api-consumer/fetch';
 
 
 /* const settings.CANVAS_WIDTH = 900;
@@ -17,33 +17,24 @@ const settings.WINNING_SCORE = 1;
 const settings.PADDLE_MARGIN = 20; // Reduced from 50 to 20
  */
 
-const [settings, setSettings] = useState(null);
-useEffect(() => {
-    async function fetchSettings() {
-      try {
-        const fetchedSettings = await GETGameSettings();
-        setSettings(fetchedSettings);
-      } catch (err) {
-        console.error("Error fetching game settings:", err);
-      }
-    }
-    fetchSettings();
-}, []); 
+
 
 const LocalGame = () => {
+    console.log("LocalGame component rendered");
     const navigate = useNavigate();
-    const { opponentUsername, matchId } = useGameSetting();
+    const { opponentUsername, matchId, settings } = useGameSetting();
     const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
     const [playerNames, setPlayerNames] = useState({
         left: localStorage.getItem('username') || 'Guest',
         right: opponentUsername || 'Opponent'
     });
-   
+    const [pressedKeys, setPressedKeys] = useState(new Set());
+    const canvasRef = useRef(null);
+    const wsRef = useRef(null);
+    const animationFrameRef = useRef(null);
 
-    if (!settings) {
-        return <div>Loading game settings...</div>;
-    }
-
+    // Add connection state tracking
+    const [isConnected, setIsConnected] = useState(false);
     const [gameState, setGameState] = useState({
         players: {
             left: {
@@ -74,13 +65,7 @@ const LocalGame = () => {
         connectionError: null
     });
 
-    const [pressedKeys, setPressedKeys] = useState(new Set());
-    const canvasRef = useRef(null);
-    const wsRef = useRef(null);
-    const animationFrameRef = useRef(null);
-
-    // Add connection state tracking
-    const [isConnected, setIsConnected] = useState(false);
+    
 
     // Initialize WebSocket connection
     useEffect(() => {
@@ -176,13 +161,13 @@ const LocalGame = () => {
                                 }
                             },
                             ball: {
-                                x: data.ball.x,
-                                y: data.ball.y,
+                                x: data.ball.x || prevState.ball.x,
+                                y: data.ball.y || prevState.ball.y,
                                 radio: settings.BALL_RADIUS,
                                 rx: data.ball.rx || 0,
                                 ry: data.ball.ry || 0
                             },
-                            isPlaying: data.active,
+                            isPlaying: data.active || false,
                             connectionError: null
                         };
                         
