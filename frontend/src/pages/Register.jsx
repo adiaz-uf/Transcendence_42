@@ -44,8 +44,11 @@ export default function Register({route}) {
             if (err.response && err.response.data) {
                 const djangoErrors = err.response.data;
                 const errorMessages = Object.entries(djangoErrors)
-                    .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
-                    .join("\n");
+                .map(([field, messages]) => {
+                    const msgArray = Array.isArray(messages) ? messages : [messages];
+                    return `${field}: ${msgArray.join(", ")}`;
+                  })
+                  .join("\n");
                 setError(errorMessages);
             } else {
                 setError(err.message || "An error occurred");

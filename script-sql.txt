@@ -22,5 +22,8 @@ VALUES
 -- )
 -- 4. Insertar un partido en la tabla "match" usando el id del torneo recién insertado (id del partido)
 -- INSERT INTO match (date, tournament_id_id, team_left_id, team_right_id, left_score, right_score, is_multiplayer)
-INSERT INTO match (date, team_left_id, team_right_id, left_score, right_score, is_multiplayer)
-SELECT NOW(), 1, 2, 5, 3, TRUE
+INSERT INTO match (date, player_left_id, player_right_id, left_score, right_score, is_multiplayer)
+SELECT NOW(), e424f757-911f-4fb9-a7e4-ee0f2b969851, dfa8bb74-b06b-451f-87d9-673a7adb75e8, 5, 3, TRUE
+
+INSERT INTO match (date, player_left_id, player_right_id, left_score, right_score, is_multiplayer, is_started)
+VALUES (NOW(), 'e424f757-911f-4fb9-a7e4-ee0f2b969851', 'dfa8bb74-b06b-451f-87d9-673a7adb75e8', 5, 3, TRUE, TRUE)
