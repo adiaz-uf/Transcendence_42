@@ -7,36 +7,34 @@ import { PATCHMatchScore } from '../api-consumer/fetch';
 import MessageBox from '../MessageBox';
 
 
-/* const settings.CANVAS_WIDTH = 900;
-const settings.CANVAS_HEIGHT = 700;
-const settings.PADDLE_WIDTH = 15;
-const settings.PADDLE_HEIGHT = 90;
-const settings.BALL_RADIUS = 10;
-const PADDLE_SPEED = 8;
-const settings.INITIAL_BALL_SPEED = 8;
-const settings.WINNING_SCORE = 1;
-const settings.PADDLE_MARGIN = 20; // Reduced from 50 to 20
- */
-
-
-
 const LocalGame = () => {
     console.log("LocalGame component rendered");
     const navigate = useNavigate();
     const location = useLocation();
-    const { opponentUsername, matchId, gameSettings, gameType } = useGameSetting();
     const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
-    const [playerNames, setPlayerNames] = useState({
-        left: localStorage.getItem('username') || 'Guest',
-        right: opponentUsername || 'Opponent'
-    });
+   
     const [message, setMessage] = useState(location.state?.message || null);
     const [messageType, setMessageType] = useState(location.state?.type || 'info');
     const [pressedKeys, setPressedKeys] = useState(new Set());
     const canvasRef = useRef(null);
     const wsRef = useRef(null);
     const animationFrameRef = useRef(null);
+
+     /* const [playerNames, setPlayerNames] = useState({
+        left: localStorage.getItem('username') || 'Guest',
+        right: opponentUsername || 'Opponent'
+        }); */
+    const { opponentUsername, matchId, gameSettings, gameType, gameMode, getUsernameById } = useGameSetting();
     const [showself, setShowSelf] = useState(true);
+    
+    const resolvePlayerNames = () => {
+        if (gameType === "tournament" && player1 && player2) 
+        {
+            return {left: getUsernameById(player1), right: getUsernameById(player2) };
+        }
+        return { left: localStorage.getItem('username'), right: "Guest" };
+    };
+    const [playerNames, setPlayerNames] = useState(resolvePlayerNames());
     const [toggleGameOverModal, setToggleGameOverModal] = useState(false);
 
     // Add connection state tracking
@@ -89,42 +87,7 @@ const LocalGame = () => {
                 }
             };
 
-            // Debug state tracking
-            let lastState = null;
-            const debugStateChanges = (data) => {
-                if (data.type === 'game_update') {
-                    //console.log('Raw game update received:', data);
-                    if (JSON.stringify(data) !== JSON.stringify(lastState)) {
-                        // console.log('Game state changed:', {
-                        //     ball: {
-                        //         x: data.ball.x,
-                        //         y: data.ball.y,
-                        //         rx: data.ball.rx,
-                        //         ry: data.ball.ry
-                        //     },
-                        //     players: {
-                        //         left: {
-                        //             y: data.players.left.y,
-                        //             score: data.players.left.score
-                        //         },
-                        //         right: {
-                        //             y: data.players.right.y,
-                        //             score: data.players.right.score
-                        //         }
-                        //     },
-                        //     active: data.active
-                        // });
-                        lastState = data;
-                    } else {
-                        console.log('Game state unchanged');
-                    }
-                }
-            };
-
             wsRef.current.listenForGameUpdates((data) => {
-                // Call debug function
-                debugStateChanges(data);
-
                 if (data.type === 'error') {
                     console.error('Received error:', data.message);
                     setGameState(prevState => ({
@@ -297,6 +260,9 @@ const LocalGame = () => {
         }
         setToggleGameOverModal(false);
         setShowSelf(false);
+        if (gameType === 'match'){
+            handleReturnToMenu();
+        }
     };
 
     const handleReturnToMenu = () => {
@@ -532,23 +498,17 @@ const LocalGame = () => {
             }, [location]);
             
     if (!showself) return null;
-    
     return (
+
 
         <div className="gameplay-container" style={{ 
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'center', 
             padding: '20px',
+            backgroundColor: '#1a1a1a',
             minHeight: '100vh'
         }}>
-            {message && (
-                <MessageBox
-                    message={message}
-                    type={messageType}
-                    onClose={() => setMessage(null)}
-                />
-            )}
             <div className="game-return" style={{ marginBottom: '20px' }}>
                 {!gameState.gameOver && (
                     <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',}} onClick={toggleGame} disabled={!!gameState.connectionError}>
@@ -599,7 +559,7 @@ const LocalGame = () => {
                         zIndex: 1
                     }}>
                         <button 
-                            onClick={handleReturnToMenu}
+                            onClick={()=>{navigate('/')}}
                             style={{
                                 padding: '15px 30px',
                                 fontSize: '20px',
@@ -622,22 +582,23 @@ const LocalGame = () => {
                 textAlign: 'center' 
             }}>
                 <div className="controls-info">
-                    <p>{playerNames.left}: W/S keys</p>
-                    <p>{playerNames.right}: O/K keys</p>
+                    <p>Left Player: W/S keys</p>
+                    <p>Right Player: O/K keys</p>
                 </div>
             </div>
-            {console.log("Just before modal", gameType)}
-            {gameState.gameOver && toggleGameOverModal &&(
+            {console.log("Just before modal", gameMode, gameType)}
+            {gameState.gameOver && ToggleGameOverModal &&(
                 <GameOverModal 
-                    showModal={gameState.gameOver} 
-                    handleCloseModal={handleCloseModal} 
-                    player1={playerNames.left} 
-                    player2={playerNames.right} 
-                    score1={gameState.players.left.score} 
-                    score2={gameState.players.right.score}
+                showModal={gameState.gameOver} 
+                handleCloseModal={handleCloseModal} 
+                player1={playerNames.left} 
+                player2={playerNames.right} 
+                score1={gameState.players.left.score} 
+                score2={gameState.players.right.score} 
                 />
                 )}
         </div>
+        
     );
 };
 

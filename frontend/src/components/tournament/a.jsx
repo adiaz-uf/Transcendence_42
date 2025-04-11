@@ -2,13 +2,17 @@ import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddM
 import { useGameSetting } from '../contexts/GameContext';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import LocalGame from "../game/LocalGame";
 import myImage from '../navigation/bright-neon-colors-shining-wild-chameleon_23-2151682784.jpg';
+import MessageBox from '../MessageBox';
 
 
 export default function Tournament () {
     const {TournamentSettings, getUsernameById} = useGameSetting();
+    const location = useLocation();
+    const [message, setMessage] = useState(location.state?.message || null);
+    const [messageType, setMessageType] = useState(location.state?.type || 'info');
     
     // General state of tournament only on frontend
     const [matches, setMatches] = useState({
@@ -21,6 +25,14 @@ export default function Tournament () {
     const [tournamentComplete, setTournamentComplete] = useState(false); // End >(
     const navigate = useNavigate();// to the stars
   
+    // Extract message from navigation state
+    useEffect(() => {
+        if (location.state?.message) {
+            setMessage(location.state.message);
+            setMessageType(location.state.type || 'info');
+        }
+    }, [location]);
+
     // Create a match and get its ID
     const createMatch = async (player1, player2) => {
       console.log(`Creating match between ${player1} and ${player2}`);
@@ -79,6 +91,7 @@ export default function Tournament () {
             }
           };
         });
+
       // If both semifinals have winners, set up the final
         if (matchKey.startsWith('semifinal') && matches.semifinal1.winner && !matches.semifinal2.winner) {
         setCurrentStage('final');
@@ -122,12 +135,42 @@ export default function Tournament () {
       initTournament();
     }, [TournamentSettings]);
   
+        useEffect(() => {
+      if (matches.final.winner) {
+        setTournamentComplete(true);
+      }
+    }, [matches.final.winner]);
     // Get username by player ID
-    
+
+    useEffect(() => {
+      const initTournament = async () => {
+        const semifinal1Id = await createMatch(TournamentSettings.Player1, TournamentSettings.Player2);
+        const semifinal2Id = await createMatch(TournamentSettings.Player3, TournamentSettings.Player4);
+
+        setMatches(prev => ({
+          ...prev,
+          semifinal1: { ...prev.semifinal1, id: semifinal1Id },
+          semifinal2: { ...prev.semifinal2, id: semifinal2Id }
+        }));
+        // PATCH TO DB TOURNAMENTS
+      };
+
+      initTournament();
+    }, [TournamentSettings]);
+
+
+
     console.log('Tournament Complete: ', tournamentComplete);
     console.log('Current Stage: ', currentStage);
     return (
       <div className="tournament-container p-4 max-w-4xl mx-auto">
+        {message && (
+          <MessageBox
+            message={message}
+            type={messageType}
+            onClose={() => setMessage(null)}
+          />
+        )}
         <h1 className="text-2xl font-bold mb-6 text-center">Tournament</h1>
         
         {/* Tournament Bracket Visualization */}
@@ -152,7 +195,7 @@ export default function Tournament () {
                   {/* Text in the center */}
                   <div className="col-md-4 text-center">
                     <div className="card-body" style={{ backgroundColor: 'transparent' }}>
-                      <h5 className="card-title">Semifinal 2</h5>
+                      <h5 className="card-title">Semifinal 1</h5>
                       <p className="card-text">
                       {getUsernameById(matches.semifinal1.player1)} vs {getUsernameById(matches.semifinal1.player2)}
                       </p>
@@ -262,7 +305,9 @@ export default function Tournament () {
 
 
 
-
+          {console.log("TournamentComplete", tournamentComplete)}
+          {console.log("matches", matches)}
+        
         {/* Current Match */}
         <div className="current-match-container">
           
@@ -302,7 +347,6 @@ export default function Tournament () {
               />
             </div>
           )}
-          {console.log("TournamentComplete", tournamentComplete)}
           {tournamentComplete && (
             <div className="tournament-results text-center p-6 bg-green-50 rounded-lg">
               <h3 className="text-2xl font-bold mb-4">Tournament Complete!</h3>

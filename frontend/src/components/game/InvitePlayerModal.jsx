@@ -82,6 +82,8 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   };
 
   const handleUsernameInvite = async (e) => {
+
+    console.log("Gametype: ", gameType);
     e.preventDefault();
     setMessage(null);
 
@@ -114,7 +116,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       updateTournamentSetting('Player2username', player_2.userProfile.username);
 
       //Creating local game
-      if (gameType === "local") {
+      if (gameType === "match") {
         console.log("Entering local game creation....");
         setGameMode("local")
         let payload_match = {
@@ -260,13 +262,13 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
                   required />
               </Form.Group>
             )}
-            <Button 
+            {!(gameType == "tournament") &&(<Button 
               variant="warning" 
               className="mt-3 w-100" 
               onClick={handleSkip} 
               disabled={isInviting}>
               Skip (Start Local Game)
-            </Button>
+            </Button>)}
             <Button 
               variant="primary" 
               type="button" 
