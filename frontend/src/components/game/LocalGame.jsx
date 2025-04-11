@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef }   from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ClientWebSocket from './ClientWebSocket';
 import GameOverModal from '../GameOverModal';
@@ -6,36 +6,29 @@ import { useGameSetting } from '../contexts/GameContext';
 import { PATCHMatchScore } from '../api-consumer/fetch';
 import MessageBox from '../MessageBox';
 
-
-const LocalGame = () => {
+const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
     console.log("LocalGame component rendered");
     const navigate = useNavigate();
     const location = useLocation();
+    const { opponentUsername, matchId, gameSettings, gameType, gameMode, getUsernameById } = useGameSetting();
     const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
-   
+    const [showself, setShowSelf] = useState(true);
+    const [toggleGameOverModal, setToggleGameOverModal] = useState(false);
+    
+    const resolvePlayerNames = () => {
+        if (gameType === "tournament" && player1 && player2) {
+            return {left: getUsernameById(player1), right: getUsernameById(player2)};
+        }
+        return { left: localStorage.getItem('username'), right: opponentUsername || "Guest" };
+    };
+    
+    const [playerNames, setPlayerNames] = useState(resolvePlayerNames());
     const [message, setMessage] = useState(location.state?.message || null);
     const [messageType, setMessageType] = useState(location.state?.type || 'info');
     const [pressedKeys, setPressedKeys] = useState(new Set());
     const canvasRef = useRef(null);
     const wsRef = useRef(null);
     const animationFrameRef = useRef(null);
-
-     /* const [playerNames, setPlayerNames] = useState({
-        left: localStorage.getItem('username') || 'Guest',
-        right: opponentUsername || 'Opponent'
-        }); */
-    const { opponentUsername, matchId, gameSettings, gameType, gameMode, getUsernameById } = useGameSetting();
-    const [showself, setShowSelf] = useState(true);
-    
-    const resolvePlayerNames = () => {
-        if (gameType === "tournament" && player1 && player2) 
-        {
-            return {left: getUsernameById(player1), right: getUsernameById(player2) };
-        }
-        return { left: localStorage.getItem('username'), right: "Guest" };
-    };
-    const [playerNames, setPlayerNames] = useState(resolvePlayerNames());
-    const [toggleGameOverModal, setToggleGameOverModal] = useState(false);
 
     // Add connection state tracking
     const [isConnected, setIsConnected] = useState(false);
@@ -69,8 +62,6 @@ const LocalGame = () => {
         connectionError: null
     });
 
-    
-
     // Initialize WebSocket connection
     useEffect(() => {
         try {
@@ -87,7 +78,42 @@ const LocalGame = () => {
                 }
             };
 
+            // Debug state tracking
+            let lastState = null;
+            const debugStateChanges = (data) => {
+                if (data.type === 'game_update') {
+                    console.log('Raw game update received:', data);
+                    if (JSON.stringify(data) !== JSON.stringify(lastState)) {
+                        console.log('Game state changed:', {
+                            ball: {
+                                x: data.ball.x,
+                                y: data.ball.y,
+                                rx: data.ball.rx,
+                                ry: data.ball.ry
+                            },
+                            players: {
+                                left: {
+                                    y: data.players.left.y,
+                                    score: data.players.left.score
+                                },
+                                right: {
+                                    y: data.players.right.y,
+                                    score: data.players.right.score
+                                }
+                            },
+                            active: data.active
+                        });
+                        lastState = data;
+                    } else {
+                        console.log('Game state unchanged');
+                    }
+                }
+            };
+
             wsRef.current.listenForGameUpdates((data) => {
+                // Call debug function
+                debugStateChanges(data);
+
                 if (data.type === 'error') {
                     console.error('Received error:', data.message);
                     setGameState(prevState => ({
@@ -215,9 +241,9 @@ const LocalGame = () => {
 
     const toggleGame = async () => {
         try {
-            console.log("Toggling game. Current state:", gameState);  // Debug log
+            console.log("Toggling game. Current state:", gameState);
             if (gameState.gameOver) {
-                console.log("Resetting game after game over");  // Debug log
+                console.log("Resetting game after game over");
                 await wsRef.current.sendMessage({
                     type: 'reset_game'
                 });
@@ -230,7 +256,7 @@ const LocalGame = () => {
                 }));
             } else {
                 const newIsPlaying = !gameState.isPlaying;
-                console.log("Setting game active state to:", newIsPlaying);  // Debug log
+                console.log("Setting game active state to:", newIsPlaying);
                 if (newIsPlaying) {
                     await wsRef.current.sendPlayGame();
                 } else {
@@ -255,23 +281,18 @@ const LocalGame = () => {
         if (wsRef.current) {
             wsRef.current.close();
         }
-        if (gameType === 'tournament'){
+        if (gameType === 'tournament') {
             OnWinnerSelect(gameState.winner);
         }
         setToggleGameOverModal(false);
         setShowSelf(false);
-        if (gameType === 'match'){
+        if (gameType === 'match') {
             handleReturnToMenu();
         }
     };
 
     const handleReturnToMenu = () => {
         navigate('/');
-    };
-
-    const OnWinnerSelect = (winner) => {
-        // This function would be implemented to handle tournament winner selection
-        console.log("Winner selected:", winner);
     };
 
     useEffect(() => {
@@ -388,7 +409,7 @@ const LocalGame = () => {
             gameSettings.PADDLE_WIDTH,
             gameSettings.PADDLE_HEIGHT
         );
-
+        
         // Draw ball
         if (gameState.ball) {
             ctx.beginPath();
@@ -415,7 +436,6 @@ const LocalGame = () => {
     }, [gameState]);
 
     // Remove the duplicate WebSocket message handler
-    // The one we added earlier is redundant and might cause issues
     useEffect(() => {
         if (!wsRef.current) return;
         return () => {
@@ -424,41 +444,36 @@ const LocalGame = () => {
             }
         };
     }, []);
-    
-    
+
     // Add effect to update player names when needed
     useEffect(() => {
-        setPlayerNames({
-            left: localStorage.getItem('username') || 'Guest',
-            right: opponentUsername || 'Opponent'
-            });
-            }, [opponentUsername]);
-            
-            // Initialize gameStartTime when the game starts playing
-            useEffect(() => {
-                if (gameState.isPlaying && !gameStartTime) {
-                    const currentTime = Math.floor(Date.now() / 1000); // Get current time in seconds
-                    console.log("🕒 Game started at:", new Date(currentTime * 1000).toISOString());
-                    setGameStartTime(currentTime);
-                    }
-                    }, [gameState.isPlaying, gameStartTime]);
-                    
-                    // Add a standalone function to update match scores when a game ends
-                    const updateMatchScore = () => {
-                        console.log("🔄 updateMatchScore called with matchId:", matchId);
+        setPlayerNames(resolvePlayerNames());
+    }, [opponentUsername, gameType]);
+
+    // Initialize gameStartTime when the game starts playing
+    useEffect(() => {
+        if (gameState.isPlaying && !gameStartTime) {
+            const currentTime = Math.floor(Date.now() / 1000);
+            console.log("🕒 Game started at:", new Date(currentTime * 1000).toISOString());
+            setGameStartTime(currentTime);
+        }
+    }, [gameState.isPlaying, gameStartTime]);
+
+    // Add a standalone function to update match scores when a game ends
+    const updateMatchScore = () => {
+        console.log("🔄 updateMatchScore called with matchId:", matchId);
         
-                        const currentTime = Date.now();
-                        const gameStartTimeMs = gameStartTime * 1000; // Convert gameStartTime from seconds to milliseconds
-                        const durationMs = currentTime - gameStartTimeMs;
-                        
-                        // Convert milliseconds to a duration string in the format MM:SS.MS
-                        const totalSeconds = Math.floor(durationMs / 1000);
-                        const minutes = Math.floor(totalSeconds / 60);
-                        const seconds = totalSeconds % 60;
-                        const milliseconds = Math.floor((durationMs % 1000) / 10); // Get centiseconds (1/100 of a second)
-                        
-                        const formattedDuration = 
-                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+        const currentTime = Date.now();
+        const gameStartTimeMs = gameStartTime * 1000;
+        const durationMs = currentTime - gameStartTimeMs;
+        
+        const totalSeconds = Math.floor(durationMs / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const milliseconds = Math.floor((durationMs % 1000) / 10);
+        
+        const formattedDuration = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
         
         console.log("📊 Updating match scores:", {
             matchId,
@@ -466,27 +481,26 @@ const LocalGame = () => {
             right_score: gameState.players.right.score,
             duration: durationMs,
             formattedDuration: formattedDuration
-            });
-            
-            // Call PATCHMatchScore to update the match in the database
-            PATCHMatchScore(
-                matchId,
-                gameState.players.right.score, // right_score
-                gameState.players.left.score,  // left_score
-                formattedDuration            // match_duration
-                ).then(response => {
-                    console.log("✅ Match score updated successfully:", response);
-                    }).catch(error => {
-                        console.error("❌ Error updating match score:", error);
-                        });
-                        };
-                        
-                        // Call updateMatchScore when the game ends
-                        useEffect(() => {
+        });
+        
+        PATCHMatchScore(
+            matchId,
+            gameState.players.right.score,
+            gameState.players.left.score,
+            formattedDuration
+        ).then(response => {
+            console.log("✅ Match score updated successfully:", response);
+        }).catch(error => {
+            console.error("❌ Error updating match score:", error);
+        });
+    };
+
+    // Call updateMatchScore when the game ends
+    useEffect(() => {
         if (gameState.gameOver && matchId) {
             console.log("🏁 Game over detected - calling updateMatchScore");
             updateMatchScore();
-            }
+        }
     }, [gameState.gameOver, matchId]);
 
     // Extract message from navigation state
@@ -494,13 +508,12 @@ const LocalGame = () => {
         if (location.state?.message) {
             setMessage(location.state.message);
             setMessageType(location.state.type || 'info');
-            }
-            }, [location]);
-            
+        }
+    }, [location]);
+
     if (!showself) return null;
+
     return (
-
-
         <div className="gameplay-container" style={{ 
             display: 'flex', 
             flexDirection: 'column', 
@@ -509,9 +522,16 @@ const LocalGame = () => {
             backgroundColor: '#1a1a1a',
             minHeight: '100vh'
         }}>
+            {message && (
+                <MessageBox
+                    message={message}
+                    type={messageType}
+                    onClose={() => setMessage(null)}
+                />
+            )}
             <div className="game-return" style={{ marginBottom: '20px' }}>
                 {!gameState.gameOver && (
-                    <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',}} onClick={toggleGame} disabled={!!gameState.connectionError}>
+                    <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={toggleGame} disabled={!!gameState.connectionError}>
                         {gameState.isPlaying ? 'Pause' : 'Start'}
                     </button>
                 )}
@@ -549,32 +569,6 @@ const LocalGame = () => {
                     Right Paddle: {Math.round(gameState.players.right.y)}<br/>
                     Playing: {gameState.isPlaying ? 'Yes' : 'No'}
                 </div>
-                {gameState.gameOver && (
-                    <div style={{
-                        position: 'absolute',
-                        top: '60%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        textAlign: 'center',
-                        zIndex: 1
-                    }}>
-                        <button 
-                            onClick={()=>{navigate('/')}}
-                            style={{
-                                padding: '15px 30px',
-                                fontSize: '20px',
-                                backgroundColor: '#4CAF50',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '5px',
-                                cursor: 'pointer',
-                                marginTop: '20px'
-                            }}
-                        >
-                            Return to Menu
-                        </button>
-                    </div>
-                )}
             </div>
             <div className="game-controls" style={{ 
                 marginTop: '20px', 
@@ -582,23 +576,21 @@ const LocalGame = () => {
                 textAlign: 'center' 
             }}>
                 <div className="controls-info">
-                    <p>Left Player: W/S keys</p>
-                    <p>Right Player: O/K keys</p>
+                    <p>{playerNames.left}: W/S keys</p>
+                    <p>{playerNames.right}: O/K keys</p>
                 </div>
             </div>
-            {console.log("Just before modal", gameMode, gameType)}
-            {gameState.gameOver && ToggleGameOverModal &&(
+            {gameState.gameOver && toggleGameOverModal && (
                 <GameOverModal 
-                showModal={gameState.gameOver} 
-                handleCloseModal={handleCloseModal} 
-                player1={playerNames.left} 
-                player2={playerNames.right} 
-                score1={gameState.players.left.score} 
-                score2={gameState.players.right.score} 
+                    showModal={gameState.gameOver} 
+                    handleCloseModal={handleCloseModal} 
+                    player1={playerNames.left} 
+                    player2={playerNames.right} 
+                    score1={gameState.players.left.score} 
+                    score2={gameState.players.right.score}
                 />
-                )}
+            )}
         </div>
-        
     );
 };
 
