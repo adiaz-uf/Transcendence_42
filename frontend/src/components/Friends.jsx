@@ -120,7 +120,11 @@ export default function Friends() {
                 ) : friends.length > 0 ? (
                     friends.map((friend) => (
                         <div key={friend.id} className="friend-item">
-                            <span className="friend-name">{friend.username} {friend.active ? "online":"offline"}</span>
+                            <span className="friend-name">UserName: {friend.username} 
+                                <span className={`friend-state ${friend.active ? "online" : "offline"}`}>
+                                    {friend.active ? "online" : "offline"}
+                                </span>
+                            </span>
                             <div style={{"display":"flex"}}>
                             <Button
                                 variant="outline-info"

@@ -55,12 +55,12 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
       size="lg"
     >
       <Modal.Header closeButton className="custom-modal-header">
-        <Modal.Title>{user}'s Profile</Modal.Title>
+        <Modal.Title>Welcome to {user}'s Profile</Modal.Title>
       </Modal.Header>
       <Modal.Body className="custom-modal-body"
         style={{overflowY: 'auto',  padding: '1.5rem' }}
       >
-        <h5><strong>Username:</strong> {user}</h5>
+        <h4 style={{"marginTop":"2em"}}><strong>All time stats</strong></h4>
         <div className="stats-container">
           <Stat title={"Matches Played"} value={matchesPlayed} />
           <Stat title={"Wins"} value={matchesWon} />
