@@ -18,6 +18,7 @@ export async function PATCHMatchScore(matchId, right_score, left_score, match_du
 export async function GETGameSettings(){
     try {
         const response = await api.get(`/api/game-settings/`);
+        console.log("got gameSettings: ", response.data)
         return response.data; // Return the JSON data directly
     } catch (error) {
         console.error("Error fetching profile info:", error);
