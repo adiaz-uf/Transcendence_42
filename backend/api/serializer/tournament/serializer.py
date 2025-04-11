@@ -14,12 +14,6 @@ class TournamentSerializer(serializers.ModelSerializer):
         queryset=Match.objects.all(),
         required=False
     )
-    matches = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Match.objects.all(),
-        write_only=True,
-        required=False
-    )
 
     class Meta:
         model = Tournament

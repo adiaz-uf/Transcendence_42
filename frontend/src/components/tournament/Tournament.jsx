@@ -43,6 +43,9 @@ export default function Tournament () {
   
     // Handle winner selection for a match
     const postAll = async (winnerId) => {
+        
+      console.log("TournamentData", matches)
+      console.log("TournamentSettings", TournamentSettings)
       let tmp = "This is a temporary value used for logging"
       tmp = await PATCHAddMatchToTournament(TournamentSettings.tournamentId, matches.semifinal1.id);
       console.log("Tournament", tmp)
@@ -126,6 +129,7 @@ export default function Tournament () {
     
     console.log('Tournament Complete: ', tournamentComplete);
     console.log('Current Stage: ', currentStage);
+    console.log('TournamentSettings: ', TournamentSettings);
     return (
       <div className="tournament-container p-4 max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-6 text-center">Tournament</h1>
