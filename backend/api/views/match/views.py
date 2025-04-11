@@ -11,7 +11,7 @@ from api.models import UserProfile, Match
 from api.serializer.match.serializer import MatchSerializer
 from api.game.session_manager import session_manager
 from api.views.blockchain.blockchain_utils import send_score_to_blockchain
-from api.game.pong_constants import GAME_SETTINGS
+from api.game.game_constants import GAME_SETTINGS
 
 from django.http import JsonResponse
 

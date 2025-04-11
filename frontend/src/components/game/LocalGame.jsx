@@ -22,7 +22,7 @@ const settings.PADDLE_MARGIN = 20; // Reduced from 50 to 20
 const LocalGame = () => {
     console.log("LocalGame component rendered");
     const navigate = useNavigate();
-    const { opponentUsername, matchId, settings } = useGameSetting();
+    const { opponentUsername, matchId, gameSettings } = useGameSetting();
     const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
     const [playerNames, setPlayerNames] = useState({
         left: localStorage.getItem('username') || 'Guest',
@@ -38,26 +38,26 @@ const LocalGame = () => {
     const [gameState, setGameState] = useState({
         players: {
             left: {
-                x: settings.PADDLE_MARGIN,
-                y: settings.CANVAS_HEIGHT / 2 - settings.PADDLE_HEIGHT / 2,
-                width: settings.PADDLE_WIDTH,
-                height: settings.PADDLE_HEIGHT,
+                x: gameSettings.PADDLE_MARGIN,
+                y: gameSettings.CANVAS_HEIGHT / 2 - gameSettings.PADDLE_HEIGHT / 2,
+                width: gameSettings.PADDLE_WIDTH,
+                height: gameSettings.PADDLE_HEIGHT,
                 score: 0
             },
             right: {
-                x: settings.CANVAS_WIDTH - settings.PADDLE_MARGIN - settings.PADDLE_WIDTH,
-                y: settings.CANVAS_HEIGHT / 2 - settings.PADDLE_HEIGHT / 2,
-                width: settings.PADDLE_WIDTH,
-                height: settings.PADDLE_HEIGHT,
+                x: gameSettings.CANVAS_WIDTH - gameSettings.PADDLE_MARGIN - gameSettings.PADDLE_WIDTH,
+                y: gameSettings.CANVAS_HEIGHT / 2 - gameSettings.PADDLE_HEIGHT / 2,
+                width: gameSettings.PADDLE_WIDTH,
+                height: gameSettings.PADDLE_HEIGHT,
                 score: 0
             }
         },
         ball: {
-            x: settings.CANVAS_WIDTH / 2,
-            y: settings.CANVAS_HEIGHT / 2,
-            radio: settings.BALL_RADIUS,
-            rx: settings.INITIAL_BALL_SPEED,
-            ry: settings.INITIAL_BALL_SPEED
+            x: gameSettings.CANVAS_WIDTH / 2,
+            y: gameSettings.CANVAS_HEIGHT / 2,
+            radio: gameSettings.BALL_RADIUS,
+            rx: gameSettings.INITIAL_BALL_SPEED,
+            ry: gameSettings.INITIAL_BALL_SPEED
         },
         isPlaying: false,
         gameOver: false,
@@ -139,8 +139,8 @@ const LocalGame = () => {
 
                     setGameState(prevState => {
                         // Keep x positions from initial state
-                        const leftX = settings.PADDLE_MARGIN;
-                        const rightX = settings.CANVAS_WIDTH - settings.PADDLE_MARGIN - settings.PADDLE_WIDTH;
+                        const leftX = gameSettings.PADDLE_MARGIN;
+                        const rightX = gameSettings.CANVAS_WIDTH - gameSettings.PADDLE_MARGIN - gameSettings.PADDLE_WIDTH;
                         
                         const newState = {
                             ...prevState,
@@ -149,21 +149,21 @@ const LocalGame = () => {
                                     ...prevState.players.left,
                                     ...data.players.left,
                                     x: leftX,
-                                    width: settings.PADDLE_WIDTH,
-                                    height: settings.PADDLE_HEIGHT
+                                    width: gameSettings.PADDLE_WIDTH,
+                                    height: gameSettings.PADDLE_HEIGHT
                                 },
                                 right: {
                                     ...prevState.players.right,
                                     ...data.players.right,
                                     x: rightX,
-                                    width: settings.PADDLE_WIDTH,
-                                    height: settings.PADDLE_HEIGHT
+                                    width: gameSettings.PADDLE_WIDTH,
+                                    height: gameSettings.PADDLE_HEIGHT
                                 }
                             },
                             ball: {
                                 x: data.ball.x || prevState.ball.x,
                                 y: data.ball.y || prevState.ball.y,
-                                radio: settings.BALL_RADIUS,
+                                radio: gameSettings.BALL_RADIUS,
                                 rx: data.ball.rx || 0,
                                 ry: data.ball.ry || 0
                             },
@@ -185,11 +185,11 @@ const LocalGame = () => {
                     });
 
                     // Check for game over
-                    if (data.players.left.score >= settings.WINNING_SCORE || data.players.right.score >= settings.WINNING_SCORE) {
+                    if (data.players.left.score >= gameSettings.WINNING_SCORE || data.players.right.score >= gameSettings.WINNING_SCORE) {
                         setGameState(prev => ({
                             ...prev,
                             gameOver: true,
-                            winner: data.players.left.score >= settings.WINNING_SCORE ? 'left' : 'right',
+                            winner: data.players.left.score >= gameSettings.WINNING_SCORE ? 'left' : 'right',
                             isPlaying: false
                         }));
                     }
@@ -368,14 +368,14 @@ const LocalGame = () => {
         
         // Clear canvas
         ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, settings.CANVAS_WIDTH, settings.CANVAS_HEIGHT);
+        ctx.fillRect(0, 0, gameSettings.CANVAS_WIDTH, gameSettings.CANVAS_HEIGHT);
         
         // Draw center line
         ctx.strokeStyle = 'white';
         ctx.setLineDash([5, 15]);
         ctx.beginPath();
-        ctx.moveTo(settings.CANVAS_WIDTH / 2, 0);
-        ctx.lineTo(settings.CANVAS_WIDTH / 2, settings.CANVAS_HEIGHT);
+        ctx.moveTo(gameSettings.CANVAS_WIDTH / 2, 0);
+        ctx.lineTo(gameSettings.CANVAS_WIDTH / 2, gameSettings.CANVAS_HEIGHT);
         ctx.stroke();
         ctx.setLineDash([]);
         
@@ -383,8 +383,8 @@ const LocalGame = () => {
         ctx.font = '48px Arial';
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
-        ctx.fillText(gameState.players.left.score.toString(), settings.CANVAS_WIDTH / 4, 50);
-        ctx.fillText(gameState.players.right.score.toString(), (settings.CANVAS_WIDTH * 3) / 4, 50);
+        ctx.fillText(gameState.players.left.score.toString(), gameSettings.CANVAS_WIDTH / 4, 50);
+        ctx.fillText(gameState.players.right.score.toString(), (gameSettings.CANVAS_WIDTH * 3) / 4, 50);
         
         // Draw paddles
         ctx.fillStyle = 'white';
@@ -392,15 +392,15 @@ const LocalGame = () => {
         ctx.fillRect(
             gameState.players.left.x,
             gameState.players.left.y,
-            settings.PADDLE_WIDTH,
-            settings.PADDLE_HEIGHT
+            gameSettings.PADDLE_WIDTH,
+            gameSettings.PADDLE_HEIGHT
         );
         // Right paddle
         ctx.fillRect(
             gameState.players.right.x,
             gameState.players.right.y,
-            settings.PADDLE_WIDTH,
-            settings.PADDLE_HEIGHT
+            gameSettings.PADDLE_WIDTH,
+            gameSettings.PADDLE_HEIGHT
         );
         
         // Draw ball
@@ -424,7 +424,7 @@ const LocalGame = () => {
             ctx.fillStyle = 'white';
             const winner = gameState.winner === 'left' ? 'Left' : 'Right';
             ctx.textAlign = 'center';
-            ctx.fillText(`${winner} Player Wins!`, settings.CANVAS_WIDTH / 2, settings.CANVAS_HEIGHT / 2 - 30);
+            ctx.fillText(`${winner} Player Wins!`, gameSettings.CANVAS_WIDTH / 2, gameSettings.CANVAS_HEIGHT / 2 - 30);
         }
     }, [gameState]);
 
@@ -525,8 +525,8 @@ const LocalGame = () => {
             <div style={{ position: 'relative' }}>
                 <canvas
                     ref={canvasRef}
-                    width={settings.CANVAS_WIDTH}
-                    height={settings.CANVAS_HEIGHT}
+                    width={gameSettings.CANVAS_WIDTH}
+                    height={gameSettings.CANVAS_HEIGHT}
                     style={{
                         border: '2px solid white',
                         backgroundColor: 'black',
