@@ -14,13 +14,24 @@ const INITIAL_BALL_SPEED = 8;
 const WINNING_SCORE = 1;
 const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 
-const LocalGame = () => {
+
+const LocalGame = ({player1, player2, OnWinnerSelect}) => {
     const navigate = useNavigate();
-    const { opponentUsername, gameType, gameMode} = useGameSetting();
-    const [playerNames, setPlayerNames] = useState({
-        left: localStorage.getItem('username') || 'Guest',
-        right: opponentUsername || 'Opponent'
-    });
+
+    const { gameType} = useGameSetting();
+       // If no player names provided via props, use context
+    const resolvePlayerNames = () => {
+        // For tournament mode
+        if (gameType === "tournament" && player1 && player2) {
+            return { left: player1, right: player2 };
+        }
+        
+        // For standalone mode with auth
+        return { left: localStorage.getItem('username'), right: "Guest" };
+    };
+
+    const [playerNames, setPlayerNames] = useState(resolvePlayerNames());
+    const [ToggleGameOverModal, setToggleGameOverModal]= useState(false);
     const [gameState, setGameState] = useState({
         players: {
             left: {
@@ -79,27 +90,27 @@ const LocalGame = () => {
             let lastState = null;
             const debugStateChanges = (data) => {
                 if (data.type === 'game_update') {
-                    console.log('Raw game update received:', data);
+                    //console.log('Raw game update received:', data);
                     if (JSON.stringify(data) !== JSON.stringify(lastState)) {
-                        console.log('Game state changed:', {
-                            ball: {
-                                x: data.ball.x,
-                                y: data.ball.y,
-                                rx: data.ball.rx,
-                                ry: data.ball.ry
-                            },
-                            players: {
-                                left: {
-                                    y: data.players.left.y,
-                                    score: data.players.left.score
-                                },
-                                right: {
-                                    y: data.players.right.y,
-                                    score: data.players.right.score
-                                }
-                            },
-                            active: data.active
-                        });
+                        // console.log('Game state changed:', {
+                        //     ball: {
+                        //         x: data.ball.x,
+                        //         y: data.ball.y,
+                        //         rx: data.ball.rx,
+                        //         ry: data.ball.ry
+                        //     },
+                        //     players: {
+                        //         left: {
+                        //             y: data.players.left.y,
+                        //             score: data.players.left.score
+                        //         },
+                        //         right: {
+                        //             y: data.players.right.y,
+                        //             score: data.players.right.score
+                        //         }
+                        //     },
+                        //     active: data.active
+                        // });
                         lastState = data;
                     } else {
                         console.log('Game state unchanged');
@@ -184,6 +195,7 @@ const LocalGame = () => {
                             winner: data.players.left.score >= WINNING_SCORE ? 'left' : 'right',
                             isPlaying: false
                         }));
+                        setToggleGameOverModal(true);
                     }
                 }
             });
@@ -273,17 +285,14 @@ const LocalGame = () => {
         }
     };
 
-    const handleReturnToMenu = () => {
+    const handleCloseModal= () => {
         if (wsRef.current) {
             wsRef.current.close();
         }
-        navigate('/');
-    };
-    const handleReturnToTournament = () => {
-        if (wsRef.current) {
-            wsRef.current.close();
+        if (gameType == 'tournament'){
+            OnWinnerSelect(gameState.winner);
         }
-        navigate('/tournament');
+        setToggleGameOverModal(false)
     };
 
     useEffect(() => {
@@ -400,7 +409,7 @@ const LocalGame = () => {
             PADDLE_WIDTH,
             PADDLE_HEIGHT
         );
-        
+
         // Draw ball
         if (gameState.ball) {
             ctx.beginPath();
@@ -436,14 +445,6 @@ const LocalGame = () => {
             }
         };
     }, []);
-
-    // Add effect to update player names when needed
-    useEffect(() => {
-        setPlayerNames({
-            left: localStorage.getItem('username') || 'Guest',
-            right: opponentUsername || 'Opponent'
-        });
-    }, [opponentUsername]);
 
     return (
         <div className="gameplay-container" style={{ 
@@ -504,7 +505,7 @@ const LocalGame = () => {
                         zIndex: 1
                     }}>
                         <button 
-                            onClick={handleReturnToMenu}
+                            onClick={()=>{navigate('/')}}
                             style={{
                                 padding: '15px 30px',
                                 fontSize: '20px',
@@ -531,26 +532,27 @@ const LocalGame = () => {
                     <p>Right Player: O/K keys</p>
                 </div>
             </div>
-            {gameState.gameOver && gameMode == "local" && (
+            {gameState.gameOver && gameType == "local" && ToggleGameOverModal &&(
                 <GameOverModal 
                     showModal={gameState.gameOver} 
-                    handleCloseModal={handleReturnToMenu} 
+                    handleCloseModal={handleCloseModal} 
                     player1={playerNames.left} 
                     player2={playerNames.right} 
                     score1={gameState.players.left.score} 
                     score2={gameState.players.right.score} 
                 />
             )}
-            {gameState.gameOver && gameType == "tournament" && (
+            {gameState.gameOver && gameType == "tournament" && ToggleGameOverModal && (
                 <GameOverModal 
-                    showModal={gameState.gameOver} 
-                    handleCloseModal={handleReturnToTournament} 
+                    showModal={gameState.gameOver}
+                    handleCloseModal={handleCloseModal} 
                     player1={playerNames.left} 
                     player2={playerNames.right} 
                     score1={gameState.players.left.score} 
-                    score2={gameState.players.right.score} 
+                    score2={gameState.players.right.score}
+                    
                 />
-            )}
+            ) }
         </div>
         
     );
