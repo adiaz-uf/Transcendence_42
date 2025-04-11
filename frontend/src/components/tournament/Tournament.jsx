@@ -2,13 +2,17 @@ import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddM
 import { useGameSetting } from '../contexts/GameContext';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import LocalGame from "../game/LocalGame";
 import myImage from '../navigation/bright-neon-colors-shining-wild-chameleon_23-2151682784.jpg';
+import MessageBox from '../MessageBox';
 
 
 export default function Tournament () {
     const {TournamentSettings, getUsernameById} = useGameSetting();
+    const location = useLocation();
+    const [message, setMessage] = useState(location.state?.message || null);
+    const [messageType, setMessageType] = useState(location.state?.type || 'info');
     
     // General state of tournament only on frontend
     const [matches, setMatches] = useState({
@@ -21,6 +25,14 @@ export default function Tournament () {
     const [tournamentComplete, setTournamentComplete] = useState(false); // End >(
     const navigate = useNavigate();// to the stars
   
+    // Extract message from navigation state
+    useEffect(() => {
+        if (location.state?.message) {
+            setMessage(location.state.message);
+            setMessageType(location.state.type || 'info');
+        }
+    }, [location]);
+
     // Create a match and get its ID
     const createMatch = async (player1, player2) => {
       console.log(`Creating match between ${player1} and ${player2}`);
@@ -128,6 +140,13 @@ export default function Tournament () {
     console.log('Current Stage: ', currentStage);
     return (
       <div className="tournament-container p-4 max-w-4xl mx-auto">
+        {message && (
+          <MessageBox
+            message={message}
+            type={messageType}
+            onClose={() => setMessage(null)}
+          />
+        )}
         <h1 className="text-2xl font-bold mb-6 text-center">Tournament</h1>
         
         {/* Tournament Bracket Visualization */}
