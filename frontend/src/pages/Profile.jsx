@@ -56,7 +56,7 @@ export default function Profile() {
         setWinRatio(matchesWon > 0 ? matchesWon.toFixed(1) : "0.0");
       } else {
        
-        const calculatedWinRatio = matchesWon / calculatedMatchesLosed;
+        const calculatedWinRatio = matchesWon / matchesPlayed;
         setWinRatio(calculatedWinRatio.toFixed(2));
       }
     } else {
@@ -92,6 +92,7 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setMatchesPlayed(response.data.matches_played);  // Asegúrate de que `response.data` tenga `matches_played`
+      console.log("played:", matchesPlayed);
     } catch (error) {
       console.error("Error fetching matches played", error);
     }
@@ -103,12 +104,11 @@ export default function Profile() {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setMatchesWon(response.data.matches_won);  // Asegúrate de que `response.data` tenga `matches_won`
+      console.log("won:   ",matchesWon);
     } catch (error) {
       console.error("Error fetching matches won", error);
     }
   };
-  console.log(matchesWon);
-  console.log(matchesPlayed);
 
   const handleChangeData = async (e) => {
     e.preventDefault();

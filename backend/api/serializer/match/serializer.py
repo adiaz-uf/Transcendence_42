@@ -14,7 +14,7 @@ class CustomDurationField(serializers.DurationField):
             microseconds = value.microseconds  # Extract microseconds
             return f"{minutes:02}:{seconds:02}.{microseconds:02}"  # Format MM:SS.uu
         return value  # Return as is if not a timedelta
-
+    
     def to_internal_value(self, data):
         """
         Convert 'MM:SS.uu' string to timedelta.
@@ -31,15 +31,8 @@ class CustomDurationField(serializers.DurationField):
 class MatchSerializer(serializers.ModelSerializer):
     player_left_username = serializers.CharField(source='player_left.username', read_only=True)
     player_right_username = serializers.CharField(source='player_right.username', read_only=True,  allow_null=True, default=None)
-
+    match_duration = CustomDurationField(required=False, default=timedelta(minutes=0))  # Default value
     class Meta:
         model = Match
         fields = ['id', 'date', 'is_multiplayer', 'is_started', 'left_score', 'right_score', 
                   'match_duration', 'player_left_username', 'player_right_username']
-
-
-#class MatchSerializer(serializers.ModelSerializer):
-#    match_duration = CustomDurationField(required=False, default=timedelta(minutes=0))  # Default value
-#    class Meta:
-#        model = Match
-#        fields = '__all__'

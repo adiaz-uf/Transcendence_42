@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import {useNavigate} from "react-router-dom";
 import { Button } from 'react-bootstrap';
-import {useGameSetting} from '../contexts/MenuContext'
+import {useGameSetting} from '../contexts/GameContext'
 import '../../styles/game.css'
 import {InvitePlayer} from '../game/InvitePlayerModal';
 import GameOverModal from "../GameOverModal";
 
 export const Menu = () => {
-  const { setGameMode, setIsMultiplayer, setPlayerType } = useGameSetting();
+  const { setGameMode, setIsMultiplayer} = useGameSetting();
 
   const [InvitationModal, setInvationBool] = useState(false);
   const [gameType, setGameType] = useState(null);  // "match | tournament" *TODO: Join to context??
 
   const navigate = useNavigate();
-
+  
   const handleSelectMode = async (mode) => {
     if (mode === "local") {
         setGameType("match");
@@ -41,6 +41,7 @@ export const Menu = () => {
       setInvationBool(true);
     }
   };
+
   return (
     <div className="menu-container">
       <h1>Play Single Game</h1>

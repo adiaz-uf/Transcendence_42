@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, useEffect} from "react";
-import { useGameSetting } from "../contexts/MenuContext";
+import { useGameSetting } from "../contexts/GameContext";
 import {useNavigate} from "react-router-dom";
 import { useWebSocket } from "../contexts/ClientWSContext";
 import  GameCanvas from "./GameCanvas";

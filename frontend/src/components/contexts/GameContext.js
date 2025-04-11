@@ -1,10 +1,9 @@
 import { createContext, useState, useContext} from "react";
 
-// crea 
 const GameContext = createContext();
 
 export const GameSettingProvider = ({ children }) => {
-  const [gameMode, setGameMode] = useState(null);  // "local" | "online-create" | "online-join"
+  const [gameMode, setGameMode] = useState(null);  // "local" | "tournament"
   const [matchId, setMatchId] = useState("");      // Store the match ID
   const [isInviting, setIsInviting] = useState(""); // "host" | "invitado"
   const [opponentUsername, setOpponentUsername] = useState(""); // Username for invitation
@@ -19,7 +18,7 @@ export const GameSettingProvider = ({ children }) => {
         gameMode, setGameMode, 
         matchId, setMatchId, 
         isInviting, setIsInviting, 
-        opponentUsername, setOpponentUsername, 
+        opponentUsername, setOpponentUsername,
         isMultiplayer, setIsMultiplayer}}>
       {children}
     </GameContext.Provider>

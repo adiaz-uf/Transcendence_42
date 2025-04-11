@@ -13,6 +13,7 @@ services:
       - db
     volumes:
       - django-admin:/app/staticfiles
+      - ./blockchain:/app/blockchain
     ports:
       - "${BACKEND_PORT}:8000"
     networks:

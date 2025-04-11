@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 from api.models import UserProfile, Match
 from api.serializer.match.serializer import MatchSerializer
 from api.game.session_manager import session_manager
+from api.views.blockchain.blockchain_utils import send_score_to_blockchain
 
 # CreateAPIView (POST only)
 # ListAPIView (GET only)
@@ -143,6 +144,7 @@ class MatchScoreUpdateView(generics.UpdateAPIView):
         Override update method to restrict updates to only scores and duration.
         Saves only if values are modified.
         """
+        logger.info(f"Updating match {kwargs['pk']} with data: {request.data}")
         match = self.get_object()  
         data = request.data 
         updated = False
@@ -156,9 +158,25 @@ class MatchScoreUpdateView(generics.UpdateAPIView):
 
         if updated:
             match.save()
+            
+            # Check if match is part of a tournament and send score to blockchain
+            try:
+                tournament = match.tournament_set.first()
+                if tournament:
+                    # Convert UUID to a consistent integer representation for blockchain
+                    tournament_id_int = int(str(tournament.id).replace('-', '')[:8], 16)
+                    success = send_score_to_blockchain(
+                        tournament_id_int,
+                        match.left_score,
+                        match.right_score
+                    )
+                    if not success:
+                        logger.error(f"Failed to store score in blockchain for match {match.id}")
+            except Exception as e:
+                logger.error(f"Error storing score in blockchain: {str(e)}")
+            
             return Response(
                 {"message": "Scores updated successfully!", "match": MatchSerializer(match).data})
         else:
-            
             return Response(
                 {"message": "No changes detected."},)
