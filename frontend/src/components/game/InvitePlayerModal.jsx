@@ -3,8 +3,6 @@ import { Form, Button, Modal }                                            from '
 import {useNavigate}                                                      from "react-router-dom";
 import { useGameSetting }                                                 from '../contexts/GameContext';
 import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament} from "../api-consumer/fetch";
-import { useGameSetting } from '../contexts/GameContext';
-import {useNavigate} from "react-router-dom";
 import MessageBox from '../MessageBox';
 
 export const InvitePlayer = ({ showModal, handleCloseModal}) => {
@@ -169,7 +167,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           "owner": player1_id,
           "players": [player1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
         };
-        const TournamentResponse = await POSTcreateTournament(tournamentPayload);
+        const TournamentResponse = await POSTcreateTournament(payload_tournament);
         if (!TournamentResponse) {
           setMessage('Error creating tournament');
           setMessageType('error');
