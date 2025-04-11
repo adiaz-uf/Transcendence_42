@@ -2,15 +2,12 @@ import React, { useState } from 'react';
 import { Form, Button, Modal } from 'react-bootstrap';
 import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament} from "../api-consumer/fetch";
 import { useGameSetting } from '../contexts/GameContext';
-import { useTournamentSetting } from '../contexts/TournamentContext';
 import {useNavigate} from "react-router-dom";
 
-export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
+export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   
-  const {gameMode, setGameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername} = useGameSetting();
-  const {setTournamentId, 
-        setPlayer1, setPlayer2, setPlayer3, setPlayer4, 
-        setPlayer1username, setPlayer2username, setPlayer3username, setPlayer4username} = useTournamentSetting();
+  const {gameType, setGameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername, 
+    updateTournamentSetting, setTournamentId} = useGameSetting();
   const [newUsername1, setNewUsername1] = useState('');
   const [newUsername2, setNewUsername2] = useState('');
   const [newUsername3, setNewUsername3] = useState('');
@@ -39,6 +36,10 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
       if (localMatchResponse) {
         console.log("MatchId set to: ", localMatchResponse.id);
         setMatchId(localMatchResponse.id);
+        
+        updateTournamentSetting('Player1username', localStorage.getItem('username'));
+        updateTournamentSetting('Player2username', "Marvin");
+
         handleCloseModal();
         navigate('/local'); 
       } else {
@@ -59,18 +60,21 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
 
     try {
       setIsInviting(true);
-      const player1_id = localStorage.getItem('userId');
-      setPlayer1(player1_id);
-      setPlayer1username(localStorage.getItem('username'));
+      const player1_id = localStorage.getItem("userId");
+      updateTournamentSetting('Player1', player1_id);
+      updateTournamentSetting('Player1username', localStorage.getItem("username"));
+
       const player_2 = await GETCheckUsernameExists(newUsername1);
-      setPlayer2(player_2.userProfile.id);
-      setPlayer2username(player_2.userProfile.username);
-      setOpponentUsername(newUsername1);
-                                                                                                                    //Creating local game
+      console.log("inviting User player 2 ", player_2);
+      // setPlayer2(player_2.userProfile.id);
+      // setPlayer2username(player_2.userProfile.username);
+      updateTournamentSetting('Player2', player_2.userProfile.id);
+      updateTournamentSetting('Player2username', player_2.userProfile.username);
+
+      //Creating local game
       if (gameType === "local") {
         console.log("Entering local game creation....");
         setGameMode("local")
-
         let payload_match = {
           player_left: player1_id,
           player_right: player_2.userProfile.id,
@@ -96,10 +100,15 @@ export const InvitePlayer = ({ showModal, handleCloseModal, gameType}) => {
         const player_4 = await GETCheckUsernameExists(newUsername3);
         console.log(player_3);
         console.log(player_4);
-        setPlayer3(player_3.userProfile.id);
-        setPlayer4(player_4.userProfile.id);
-        setPlayer3username(player_3.userProfile.username);
-        setPlayer4username(player_4.userProfile.username);
+        updateTournamentSetting('Player3', player_3.userProfile.id);
+        updateTournamentSetting('Player3username', player_3.userProfile.username);
+        updateTournamentSetting('Player4', player_4.userProfile.id);
+        updateTournamentSetting('Player4username', player_4.userProfile.username);
+
+        // setPlayer3(player_3.userProfile.id);
+        // setPlayer4(player_4.userProfile.id);
+        // setPlayer3username(player_3.userProfile.username);
+        // setPlayer4username(player_4.userProfile.username);
 
         let payload_tournament = {
           "owner": player1_id,

@@ -16,10 +16,8 @@ const MyComponent = () => {
 };
 
 export const Menu = () => {
-  const { setGameMode, setIsMultiplayer} = useGameSetting();
-
+  const { setGameMode, setIsMultiplayer, setGameType} = useGameSetting();
   const [InvitationModal, setInvationBool] = useState(false);
-  const [gameType, setGameType] = useState(null);  // "match | tournament" *TODO: Join to context?? Why not yas
 
   const navigate = useNavigate();
   
@@ -49,7 +47,7 @@ export const Menu = () => {
         with the top two advancing to a final. The inviter must enter three usernames to set up the tournament.
       </h5>
       { InvitationModal && (
-        <InvitePlayer showModal={InvitationModal} handleCloseModal={()=>{setInvationBool(false)}} gameType={gameType}/>
+        <InvitePlayer showModal={InvitationModal} handleCloseModal={()=>{setInvationBool(false)}}/>
       )}
       <MyComponent/>
     </div>

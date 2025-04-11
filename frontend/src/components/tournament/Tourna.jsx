@@ -1,21 +1,17 @@
-import { useTournamentSetting } from '../contexts/TournamentContext';
 import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament} from "../api-consumer/fetch";
 import { useGameSetting } from '../contexts/GameContext';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import {useNavigate} from "react-router-dom";
+import LocalGame from "../game/LocalGame";
 
-export default Tourna = () => {
-    const {
-      tournamentId,
-      Player1, Player2, Player3, Player4,
-      Player1username, Player2username, Player3username, Player4username
-    } = useTournamentSetting();
+export default function Tourna () {
+    const {TournamentSettings} = useGameSetting();
     
     // General state of tournament only on frontend
     const [matches, setMatches] = useState({
-      semifinal1: { id: null, winner: null, player1: Player1, player2: Player2 },
-      semifinal2: { id: null, winner: null, player1: Player3, player2: Player4 },
+      semifinal1: { id: null, winner: null, player1: TournamentSettings.Player1, player2: TournamentSettings.Player2},
+      semifinal2: { id: null, winner: null, player1: TournamentSettings.Player3, player2: TournamentSettings.Player4},
       final: { id: null, winner: null, player1: null, player2: null }
     });
     
@@ -27,7 +23,7 @@ export default Tourna = () => {
     const createMatch = async (player1, player2) => {
     // BTW we post macthes at creation for allowing internal handling through websocket or simple patches during game, not at end. The end is not a creation, for better arch it is an update
       console.log(`Creating match between ${player1} and ${player2}`);
-      
+
       try {
           const payload = {
             player_left: player1,
@@ -47,19 +43,28 @@ export default Tourna = () => {
   
     // Handle winner selection for a match
     const handleWinnerSelected = async (matchKey, winnerId) => {
-      setMatches(prev => ({
-        ...prev,
-        [matchKey]: {
-          ...prev[matchKey],
-          winner: winnerId
-        }
-      }));
-  
+        console.log("WINNER ID: ", winnerId); // Check what's being received
+
+        setMatches(prev => {
+          const match = prev[matchKey];
+          const winner =
+            winnerId === 'left' ? match.player1 :
+            winnerId === 'right' ? match.player2 :
+            null;
+      
+          return {
+            ...prev,
+            [matchKey]: {
+              ...match,
+              winner,
+            }
+          };
+        });
       // If both semifinals have winners, set up the final
-      if (matchKey.startsWith('semifinal') && matches.semifinal1.winner && matches.semifinal2.winner) {
+        if (matchKey.startsWith('semifinal') && matches.semifinal1.winner && !matches.semifinal2.winner) {
         setCurrentStage('final');
         const finalMatchId = await createMatch(matches.semifinal1.winner, matches.semifinal2.winner);
-        
+        console.log('POSt Final match', finalMatchId);
         setMatches(prev => ({
           ...prev,
           final: {
@@ -72,38 +77,40 @@ export default Tourna = () => {
       }
       
       // If final has a winner, tournament is complete
-      if (matchKey === 'final') {
+        if (matchKey === 'final') {
         setTournamentComplete(true);
-      }
+        }
     };
   
     // Initialize semifinals when component mounts
     useEffect(() => {
       const initTournament = async () => {
-        const semifinal1Id = await createMatch(Player1, Player2);
-        const semifinal2Id = await createMatch(Player3, Player4);
+        const semifinal1Id = await createMatch(TournamentSettings.Player1, TournamentSettings.Player2);
+        const semifinal2Id = await createMatch(TournamentSettings.Player3, TournamentSettings.Player4);
         
         setMatches(prev => ({
           ...prev,
           semifinal1: { ...prev.semifinal1, id: semifinal1Id },
           semifinal2: { ...prev.semifinal2, id: semifinal2Id }
         }));
+        // PATCH TO DB TOURNAMENTS
       };
       
       initTournament();
-    }, [Player1, Player2, Player3, Player4]);
+    }, [TournamentSettings]);
   
     // Get username by player ID
     const getUsernameById = (playerId) => {
       const playerMap = {
-        [Player1]: Player1username,
-        [Player2]: Player2username,
-        [Player3]: Player3username,
-        [Player4]: Player4username
+        [TournamentSettings.Player1]: TournamentSettings.Player1username,
+        [TournamentSettings.Player2]: TournamentSettings.Player2username,
+        [TournamentSettings.Player3]: TournamentSettings.Player3username,
+        [TournamentSettings.Player4]: TournamentSettings.Player4username
       };
       return playerMap[playerId] || "Unknown Player";
     };
-  
+    console.log('Tournament Complete: ', tournamentComplete);
+    console.log('Current Stage: ', currentStage);
     return (
       <div className="tournament-container p-4 max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-6 text-center">Tournament</h1>
@@ -152,11 +159,11 @@ export default Tourna = () => {
               <h3 className="text-center font-semibold mb-2">Final</h3>
               <div className="player-names flex justify-between">
                 <span>
-                  {matches.final.player1 ? getUsernameById(matches.final.player1) : "TBD"}
+                  {matches.final.player1 ? getUsernameById(matches.final.player1) : "To See.."}
                 </span>
                 <span>vs</span>
                 <span>
-                  {matches.final.player2 ? getUsernameById(matches.final.player2) : "TBD"}
+                  {matches.final.player2 ? getUsernameById(matches.final.player2) : " ...."}
                 </span>
               </div>
               <div className="winner text-center mt-2">
@@ -175,7 +182,7 @@ export default Tourna = () => {
           <h2 className="text-xl font-semibold mb-4 text-center">
             {currentStage === 'semifinals' ? 
               'Semifinals' : 
-              currentStage === 'final' ? 'Final Match' : 'Tournament Complete'}
+              currentStage === 'final' ? 'Tournament Complete ' : 'Final Match'}
           </h2>
           
           {!tournamentComplete && currentStage === 'semifinals' && (
@@ -184,22 +191,20 @@ export default Tourna = () => {
                 <div className="mb-8">
                   <h3 className="text-lg font-medium mb-2">Semifinal 1</h3>
                   <LocalGame 
-                    matchId={matches.semifinal1.id}
                     player1={matches.semifinal1.player1}
                     player2={matches.semifinal1.player2}
-                    onWinnerSelected={(winnerId) => handleWinnerSelected('semifinal1', winnerId)}
+                    OnWinnerSelect={(winnerId) => handleWinnerSelected('semifinal1', winnerId)}
                   />
                 </div>
               )}
               
-              {!matches.semifinal2.winner && matches.semifinal2.id && (
+              {matches.semifinal1.winner && !matches.semifinal2.winner && matches.semifinal2.id && (
                 <div>
                   <h3 className="text-lg font-medium mb-2">Semifinal 2</h3>
                   <LocalGame 
-                    matchId={matches.semifinal2.id}
                     player1={matches.semifinal2.player1}
                     player2={matches.semifinal2.player2}
-                    onWinnerSelected={(winnerId) => handleWinnerSelected('semifinal2', winnerId)}
+                    OnWinnerSelect={(winnerId) => handleWinnerSelected('semifinal2', winnerId)}
                   />
                 </div>
               )}
@@ -210,10 +215,9 @@ export default Tourna = () => {
             <div className="final-container">
               <h3 className="text-lg font-medium mb-2">Championship Match</h3>
               <LocalGame 
-                matchId={matches.final.id}
                 player1={matches.final.player1}
                 player2={matches.final.player2}
-                onWinnerSelected={(winnerId) => handleWinnerSelected('final', winnerId)}
+                OnWinnerSelect={(winnerId) => handleWinnerSelected('final', winnerId)}
               />
             </div>
           )}
@@ -226,7 +230,7 @@ export default Tourna = () => {
               </p>
               <button 
                 className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700"
-                onClick={() => navigate('/tournaments')}
+                onClick={() => navigate('/menu')}
               >
                 Return to Tournaments
               </button>
