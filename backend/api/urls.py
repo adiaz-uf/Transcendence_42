@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from api.views.user.views import CreateUserView, UserProfileView, LoginView, CheckUserExistsView, UserFriendsView, OthersProfileView
-from api.views.match.views import MatchCreationView, CreateOnlineMatchView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
+from api.views.match.views import game_settings, MatchCreationView, CreateOnlineMatchView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
 from api.views.auth.TwoFA import Setup2FAView
 from api.views.auth.auth42 import FTAuthCallbackView
 from api.views.auth.jwt import CustomTokenRefreshView
@@ -52,4 +52,7 @@ urlpatterns = [
 
     # Blockchain test endpoint
     path('game/test-blockchain/',                             test_blockchain, name='test-blockchain'),
+
+    # Game Settings Endpoint
+    path('game-settings/', game_settings, name='game-settings')
 ]
