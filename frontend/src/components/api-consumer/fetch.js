@@ -239,3 +239,35 @@ export async function GETTournamentDetails(tournamentId) {
         return { error: error.response?.data || 'An error occurred' };
     }
 }
+
+export async function GETUserMatchesPlayed(username) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) {
+        return null; 
+    }
+    try {
+      const response = await api.get(`/api/user/matches-played/${username}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return (response.data.matches_played);
+    } catch (error) {
+      console.log("Error fetching matches played: ", error);
+      return { error: error.response?.data || 'An error occurred' };
+    }
+  };
+
+  export async function GETUserMatchesWon(username) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) {
+        return null; 
+    }
+    try {
+      const response = await api.get(`/api/user/matches-won/${username}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return (response.data.matches_won);
+    } catch (error) {
+      console.log("Error fetching matches Won: ", error);
+      return { error: error.response?.data || 'An error occurred' };
+    }
+  };

@@ -9,7 +9,7 @@ import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
 import MessageBox from '../components/MessageBox';
 import Friends from '../components/Friends';
-import { GETCurrentProfileInfo } from '../components/api-consumer/fetch';
+import { GETCurrentProfileInfo, GETUserMatchesPlayed, GETUserMatchesWon } from '../components/api-consumer/fetch';
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -50,12 +50,9 @@ export default function Profile() {
       
       const calculatedMatchesLosed = matchesPlayed - matchesWon;
       setMatchesLosed(calculatedMatchesLosed);
-      
       if (calculatedMatchesLosed === 0) {
-        
         setWinRatio(matchesWon > 0 ? matchesWon.toFixed(1) : "0.0");
       } else {
-       
         const calculatedWinRatio = matchesWon / matchesPlayed;
         setWinRatio(calculatedWinRatio.toFixed(2));
       }
@@ -88,11 +85,8 @@ export default function Profile() {
 
   const matchesResponse = async () => {
     try {
-      const response = await api.get(`/api/user/matches-played/${username}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      });
-      setMatchesPlayed(response.data.matches_played);  // Asegúrate de que `response.data` tenga `matches_played`
-      console.log("played:", matchesPlayed);
+      const response = await GETUserMatchesPlayed(username)
+      setMatchesPlayed(response); 
     } catch (error) {
       console.error("Error fetching matches played", error);
     }
@@ -100,11 +94,8 @@ export default function Profile() {
   
   const matchesWonResponse = async () => {
     try {
-      const response = await api.get(`/api/user/matches-won/${username}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      });
-      setMatchesWon(response.data.matches_won);  // Asegúrate de que `response.data` tenga `matches_won`
-      console.log("won:   ",matchesWon);
+      const response = await GETUserMatchesWon(username)
+      setMatchesWon(response);
     } catch (error) {
       console.error("Error fetching matches won", error);
     }
