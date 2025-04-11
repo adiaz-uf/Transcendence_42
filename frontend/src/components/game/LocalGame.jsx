@@ -4,6 +4,7 @@ import ClientWebSocket from './ClientWebSocket';
 import GameOverModal from '../GameOverModal';
 import { useGameSetting } from '../contexts/GameContext';
 import { PATCHMatchScore } from '../api-consumer/fetch';
+import MessageBox from '../MessageBox';
 
 
 /* const settings.CANVAS_WIDTH = 900;
@@ -22,12 +23,15 @@ const settings.PADDLE_MARGIN = 20; // Reduced from 50 to 20
 const LocalGame = () => {
     console.log("LocalGame component rendered");
     const navigate = useNavigate();
-    const { opponentUsername, matchId } = useGameSetting();
+    const location = useLocation();
+    const { opponentUsername, matchId, gameSettings } = useGameSetting();
     const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
     const [playerNames, setPlayerNames] = useState({
         left: localStorage.getItem('username') || 'Guest',
         right: opponentUsername || 'Opponent'
     });
+    const [message, setMessage] = useState(location.state?.message || null);
+    const [messageType, setMessageType] = useState(location.state?.type || 'info');
     const [pressedKeys, setPressedKeys] = useState(new Set());
     const canvasRef = useRef(null);
     const wsRef = useRef(null);
@@ -65,13 +69,7 @@ const LocalGame = () => {
         connectionError: null
     });
 
-    const [pressedKeys, setPressedKeys] = useState(new Set());
-    const canvasRef = useRef(null);
-    const wsRef = useRef(null);
-    const animationFrameRef = useRef(null);
-
-    // Add connection state tracking
-    const [isConnected, setIsConnected] = useState(false);
+    
 
     // Initialize WebSocket connection
     useEffect(() => {
@@ -508,6 +506,14 @@ const LocalGame = () => {
         }
     }, [gameState.gameOver, matchId]);
 
+    // Extract message from navigation state
+    useEffect(() => {
+        if (location.state?.message) {
+            setMessage(location.state.message);
+            setMessageType(location.state.type || 'info');
+        }
+    }, [location]);
+
     return (
         <div className="gameplay-container" style={{ 
             display: 'flex', 
@@ -614,4 +620,4 @@ const LocalGame = () => {
     );
 };
 
-export default LocalGame; 
+export default LocalGame;
