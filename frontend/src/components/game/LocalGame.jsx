@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ClientWebSocket from './ClientWebSocket';
 import GameOverModal from '../GameOverModal';
 import { useGameSetting } from '../contexts/GameContext';
 import { PATCHMatchScore } from '../api-consumer/fetch';
+import MessageBox from '../MessageBox';
 
 
 const CANVAS_WIDTH = 900;
@@ -18,6 +19,7 @@ const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 
 const LocalGame = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { opponentUsername, matchId } = useGameSetting();
     const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
     const [playerNames, setPlayerNames] = useState({
@@ -61,6 +63,9 @@ const LocalGame = () => {
 
     // Add connection state tracking
     const [isConnected, setIsConnected] = useState(false);
+
+    const [message, setMessage] = useState(location.state?.message || null);
+    const [messageType, setMessageType] = useState(location.state?.type || 'info');
 
     // Initialize WebSocket connection
     useEffect(() => {
@@ -505,6 +510,13 @@ const LocalGame = () => {
             padding: '20px',
             minHeight: '100vh'
         }}>
+            {message && (
+                <MessageBox
+                    message={message}
+                    type={messageType}
+                    onClose={() => setMessage(null)}
+                />
+            )}
             <div className="game-return" style={{ marginBottom: '20px' }}>
                 {!gameState.gameOver && (
                     <button onClick={toggleGame} disabled={!!gameState.connectionError}>
