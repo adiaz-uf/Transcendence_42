@@ -21,6 +21,7 @@ const PADDLE_MARGIN = 20; // Reduced from 50 to 20
 const LocalGame = ({player1, player2, OnWinnerSelect}) => {
     const navigate = useNavigate();
 
+    const[showself, setShowSelf] = useState(true)
     const { gameType, gameMode, getUsernameById} = useGameSetting();
        // If no player names provided via props, use context
 
@@ -35,7 +36,7 @@ const LocalGame = ({player1, player2, OnWinnerSelect}) => {
     const [playerNames, setPlayerNames] = useState(resolvePlayerNames());
     const [ToggleGameOverModal, setToggleGameOverModal]= useState(false);
     const [gameState, setGameState] = useState({
-        players: {
+        players: { 
             left: {
                 x: PADDLE_MARGIN,
                 y: CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2,
@@ -295,6 +296,11 @@ const LocalGame = ({player1, player2, OnWinnerSelect}) => {
             OnWinnerSelect(gameState.winner);
         }
         setToggleGameOverModal(false)
+        if (gameType == 'tournament'){
+            OnWinnerSelect(gameState.winner);
+        }
+        setShowSelf(false);
+        
     };
 
     useEffect(() => {
@@ -447,7 +453,8 @@ const LocalGame = ({player1, player2, OnWinnerSelect}) => {
             }
         };
     }, []);
-
+    
+    if (!showself) return null;
     return (
 
         <div className="gameplay-container" style={{ 
