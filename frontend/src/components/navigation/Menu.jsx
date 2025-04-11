@@ -1,19 +1,22 @@
 import React, { useState } from "react";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import { Button } from 'react-bootstrap';
 import {useGameSetting} from '../contexts/GameContext'
 import '../../styles/game.css'
 import {InvitePlayer} from '../game/InvitePlayerModal';
 import GameOverModal from "../GameOverModal";
+import MessageBox from '../MessageBox';
 
 export const Menu = () => {
   const { setGameMode, setIsMultiplayer} = useGameSetting();
-
-  const [InvitationModal, setInvationBool] = useState(false);
-  const [gameType, setGameType] = useState(null);  // "match | tournament" *TODO: Join to context??
-
   const navigate = useNavigate();
+  const location = useLocation();
   
+  const [InvitationModal, setInvationBool] = useState(false);
+  const [gameType, setGameType] = useState(null);
+  const [message, setMessage] = useState(location.state?.message || null);
+  const [messageType, setMessageType] = useState(location.state?.type || 'info');
+
   const handleSelectMode = async (mode) => {
     if (mode === "local") {
         setGameType("match");
@@ -44,6 +47,13 @@ export const Menu = () => {
 
   return (
     <div className="menu-container">
+      {message && (
+        <MessageBox
+          message={message}
+          type={messageType}
+          onClose={() => setMessage(null)}
+        />
+      )}
       <h1>Play Single Game</h1>
       <Button className="m-5" onClick={() => handleSelectMode("local")}>Start Game (2P)</Button>
       <h1>Or start a Tournament!</h1>
