@@ -4,51 +4,60 @@ import ClientWebSocket from './ClientWebSocket';
 import GameOverModal from '../GameOverModal';
 import { useGameSetting } from '../contexts/GameContext';
 import { PATCHMatchScore } from '../api-consumer/fetch';
-import MessageBox from '../MessageBox';
 
 
-const CANVAS_WIDTH = 900;
-const CANVAS_HEIGHT = 700;
-const PADDLE_WIDTH = 15;
-const PADDLE_HEIGHT = 90;
-const BALL_RADIUS = 10;
+/* const settings.CANVAS_WIDTH = 900;
+const settings.CANVAS_HEIGHT = 700;
+const settings.PADDLE_WIDTH = 15;
+const settings.PADDLE_HEIGHT = 90;
+const settings.BALL_RADIUS = 10;
 const PADDLE_SPEED = 8;
-const INITIAL_BALL_SPEED = 8;
-const WINNING_SCORE = 1;
-const PADDLE_MARGIN = 20; // Reduced from 50 to 20
+const settings.INITIAL_BALL_SPEED = 8;
+const settings.WINNING_SCORE = 1;
+const settings.PADDLE_MARGIN = 20; // Reduced from 50 to 20
+ */
+
+
 
 const LocalGame = () => {
+    console.log("LocalGame component rendered");
     const navigate = useNavigate();
-    const location = useLocation();
     const { opponentUsername, matchId } = useGameSetting();
     const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
     const [playerNames, setPlayerNames] = useState({
         left: localStorage.getItem('username') || 'Guest',
         right: opponentUsername || 'Opponent'
     });
+    const [pressedKeys, setPressedKeys] = useState(new Set());
+    const canvasRef = useRef(null);
+    const wsRef = useRef(null);
+    const animationFrameRef = useRef(null);
+
+    // Add connection state tracking
+    const [isConnected, setIsConnected] = useState(false);
     const [gameState, setGameState] = useState({
         players: {
             left: {
-                x: PADDLE_MARGIN,
-                y: CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2,
-                width: PADDLE_WIDTH,
-                height: PADDLE_HEIGHT,
+                x: gameSettings.PADDLE_MARGIN,
+                y: gameSettings.CANVAS_HEIGHT / 2 - gameSettings.PADDLE_HEIGHT / 2,
+                width: gameSettings.PADDLE_WIDTH,
+                height: gameSettings.PADDLE_HEIGHT,
                 score: 0
             },
             right: {
-                x: CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH,
-                y: CANVAS_HEIGHT / 2 - PADDLE_HEIGHT / 2,
-                width: PADDLE_WIDTH,
-                height: PADDLE_HEIGHT,
+                x: gameSettings.CANVAS_WIDTH - gameSettings.PADDLE_MARGIN - gameSettings.PADDLE_WIDTH,
+                y: gameSettings.CANVAS_HEIGHT / 2 - gameSettings.PADDLE_HEIGHT / 2,
+                width: gameSettings.PADDLE_WIDTH,
+                height: gameSettings.PADDLE_HEIGHT,
                 score: 0
             }
         },
         ball: {
-            x: CANVAS_WIDTH / 2,
-            y: CANVAS_HEIGHT / 2,
-            radio: BALL_RADIUS,
-            rx: INITIAL_BALL_SPEED,
-            ry: INITIAL_BALL_SPEED
+            x: gameSettings.CANVAS_WIDTH / 2,
+            y: gameSettings.CANVAS_HEIGHT / 2,
+            radio: gameSettings.BALL_RADIUS,
+            rx: gameSettings.INITIAL_BALL_SPEED,
+            ry: gameSettings.INITIAL_BALL_SPEED
         },
         isPlaying: false,
         gameOver: false,
@@ -63,9 +72,6 @@ const LocalGame = () => {
 
     // Add connection state tracking
     const [isConnected, setIsConnected] = useState(false);
-
-    const [message, setMessage] = useState(location.state?.message || null);
-    const [messageType, setMessageType] = useState(location.state?.type || 'info');
 
     // Initialize WebSocket connection
     useEffect(() => {
@@ -139,8 +145,8 @@ const LocalGame = () => {
 
                     setGameState(prevState => {
                         // Keep x positions from initial state
-                        const leftX = PADDLE_MARGIN;
-                        const rightX = CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH;
+                        const leftX = gameSettings.PADDLE_MARGIN;
+                        const rightX = gameSettings.CANVAS_WIDTH - gameSettings.PADDLE_MARGIN - gameSettings.PADDLE_WIDTH;
                         
                         const newState = {
                             ...prevState,
@@ -149,25 +155,25 @@ const LocalGame = () => {
                                     ...prevState.players.left,
                                     ...data.players.left,
                                     x: leftX,
-                                    width: PADDLE_WIDTH,
-                                    height: PADDLE_HEIGHT
+                                    width: gameSettings.PADDLE_WIDTH,
+                                    height: gameSettings.PADDLE_HEIGHT
                                 },
                                 right: {
                                     ...prevState.players.right,
                                     ...data.players.right,
                                     x: rightX,
-                                    width: PADDLE_WIDTH,
-                                    height: PADDLE_HEIGHT
+                                    width: gameSettings.PADDLE_WIDTH,
+                                    height: gameSettings.PADDLE_HEIGHT
                                 }
                             },
                             ball: {
-                                x: data.ball.x,
-                                y: data.ball.y,
-                                radio: BALL_RADIUS,
+                                x: data.ball.x || prevState.ball.x,
+                                y: data.ball.y || prevState.ball.y,
+                                radio: gameSettings.BALL_RADIUS,
                                 rx: data.ball.rx || 0,
                                 ry: data.ball.ry || 0
                             },
-                            isPlaying: data.active,
+                            isPlaying: data.active || false,
                             connectionError: null
                         };
                         
@@ -185,11 +191,11 @@ const LocalGame = () => {
                     });
 
                     // Check for game over
-                    if (data.players.left.score >= WINNING_SCORE || data.players.right.score >= WINNING_SCORE) {
+                    if (data.players.left.score >= gameSettings.WINNING_SCORE || data.players.right.score >= gameSettings.WINNING_SCORE) {
                         setGameState(prev => ({
                             ...prev,
                             gameOver: true,
-                            winner: data.players.left.score >= WINNING_SCORE ? 'left' : 'right',
+                            winner: data.players.left.score >= gameSettings.WINNING_SCORE ? 'left' : 'right',
                             isPlaying: false
                         }));
                     }
@@ -368,14 +374,14 @@ const LocalGame = () => {
         
         // Clear canvas
         ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillRect(0, 0, gameSettings.CANVAS_WIDTH, gameSettings.CANVAS_HEIGHT);
         
         // Draw center line
         ctx.strokeStyle = 'white';
         ctx.setLineDash([5, 15]);
         ctx.beginPath();
-        ctx.moveTo(CANVAS_WIDTH / 2, 0);
-        ctx.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT);
+        ctx.moveTo(gameSettings.CANVAS_WIDTH / 2, 0);
+        ctx.lineTo(gameSettings.CANVAS_WIDTH / 2, gameSettings.CANVAS_HEIGHT);
         ctx.stroke();
         ctx.setLineDash([]);
         
@@ -383,8 +389,8 @@ const LocalGame = () => {
         ctx.font = '48px Arial';
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
-        ctx.fillText(gameState.players.left.score.toString(), CANVAS_WIDTH / 4, 50);
-        ctx.fillText(gameState.players.right.score.toString(), (CANVAS_WIDTH * 3) / 4, 50);
+        ctx.fillText(gameState.players.left.score.toString(), gameSettings.CANVAS_WIDTH / 4, 50);
+        ctx.fillText(gameState.players.right.score.toString(), (gameSettings.CANVAS_WIDTH * 3) / 4, 50);
         
         // Draw paddles
         ctx.fillStyle = 'white';
@@ -392,15 +398,15 @@ const LocalGame = () => {
         ctx.fillRect(
             gameState.players.left.x,
             gameState.players.left.y,
-            PADDLE_WIDTH,
-            PADDLE_HEIGHT
+            gameSettings.PADDLE_WIDTH,
+            gameSettings.PADDLE_HEIGHT
         );
         // Right paddle
         ctx.fillRect(
             gameState.players.right.x,
             gameState.players.right.y,
-            PADDLE_WIDTH,
-            PADDLE_HEIGHT
+            gameSettings.PADDLE_WIDTH,
+            gameSettings.PADDLE_HEIGHT
         );
         
         // Draw ball
@@ -424,7 +430,7 @@ const LocalGame = () => {
             ctx.fillStyle = 'white';
             const winner = gameState.winner === 'left' ? 'Left' : 'Right';
             ctx.textAlign = 'center';
-            ctx.fillText(`${winner} Player Wins!`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 30);
+            ctx.fillText(`${winner} Player Wins!`, gameSettings.CANVAS_WIDTH / 2, gameSettings.CANVAS_HEIGHT / 2 - 30);
         }
     }, [gameState]);
 
@@ -532,8 +538,8 @@ const LocalGame = () => {
             <div style={{ position: 'relative' }}>
                 <canvas
                     ref={canvasRef}
-                    width={CANVAS_WIDTH}
-                    height={CANVAS_HEIGHT}
+                    width={gameSettings.CANVAS_WIDTH}
+                    height={gameSettings.CANVAS_HEIGHT}
                     style={{
                         border: '2px solid white',
                         backgroundColor: 'black',

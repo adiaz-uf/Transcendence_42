@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import Stat from './Stat';
-import api from '../api';
-import { ACCESS_TOKEN } from "../constants"; 
+import { GETUserMatchesPlayed, GETUserMatchesWon } from '../components/api-consumer/fetch';
 
 const FriendProfileModal = ({ show, handleClose, user }) => {
 
@@ -13,18 +12,10 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
 
   useEffect(() => {
     if (matchesPlayed > 0) {
-      
       const calculatedMatchesLosed = matchesPlayed - matchesWon;
       setMatchesLosed(calculatedMatchesLosed);
-      
-      if (calculatedMatchesLosed === 0) {
-        
-        setWinRatio(matchesWon > 0 ? matchesWon.toFixed(1) : "0.0");
-      } else {
-       
-        const calculatedWinRatio = matchesWon / matchesPlayed;
-        setWinRatio(calculatedWinRatio.toFixed(2));
-      }
+      const calculatedWinRatio = matchesWon / matchesPlayed;
+      setWinRatio(calculatedWinRatio.toFixed(2));
     } else {
       setWinRatio(0);
     }
@@ -32,11 +23,8 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
 
   const matchesResponse = async () => {
     try {
-      const response = await api.get(`/api/user/matches-played/${user}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      });
-      setMatchesPlayed(response.data.matches_played);  // Asegúrate de que `response.data` tenga `matches_played`
-      console.log("played:", matchesPlayed);
+      const response = await GETUserMatchesPlayed(user)
+      setMatchesPlayed(response); 
     } catch (error) {
       console.error("Error fetching matches played", error);
     }
@@ -44,11 +32,8 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
   
   const matchesWonResponse = async () => {
     try {
-      const response = await api.get(`/api/user/matches-won/${user}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      });
-      setMatchesWon(response.data.matches_won);  // Asegúrate de que `response.data` tenga `matches_won`
-      console.log("won:   ",matchesWon);
+      const response = await GETUserMatchesWon(user)
+      setMatchesWon(response);
     } catch (error) {
       console.error("Error fetching matches won", error);
     }

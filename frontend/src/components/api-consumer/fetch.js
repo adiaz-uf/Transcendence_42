@@ -15,6 +15,16 @@ export async function PATCHMatchScore(matchId, right_score, left_score, match_du
     return res.data;
 }
 
+export async function GETGameSettings(){
+    try {
+        const response = await api.get(`/api/game-settings/`);
+        console.log("got gameSettings: ", response.data)
+        return response.data; // Return the JSON data directly
+    } catch (error) {
+        console.error("Error fetching profile info:", error);
+        return { error: error.response?.data || "An error occurred" }; // Return error details
+    }
+}
 
 export async function GETCurrentProfileInfo() {
     const token = localStorage.getItem(ACCESS_TOKEN);
@@ -239,3 +249,35 @@ export async function GETTournamentDetails(tournamentId) {
         return { error: error.response?.data || 'An error occurred' };
     }
 }
+
+export async function GETUserMatchesPlayed(username) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) {
+        return null; 
+    }
+    try {
+      const response = await api.get(`/api/user/matches-played/${username}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return (response.data.matches_played);
+    } catch (error) {
+      console.log("Error fetching matches played: ", error);
+      return { error: error.response?.data || 'An error occurred' };
+    }
+  };
+
+  export async function GETUserMatchesWon(username) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) {
+        return null; 
+    }
+    try {
+      const response = await api.get(`/api/user/matches-won/${username}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return (response.data.matches_won);
+    } catch (error) {
+      console.log("Error fetching matches Won: ", error);
+      return { error: error.response?.data || 'An error occurred' };
+    }
+  };
