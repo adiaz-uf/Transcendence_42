@@ -24,7 +24,7 @@ const LocalGame = () => {
     console.log("LocalGame component rendered");
     const navigate = useNavigate();
     const location = useLocation();
-    const { opponentUsername, matchId, gameSettings } = useGameSetting();
+    const { opponentUsername, matchId, gameSettings, gameType } = useGameSetting();
     const [gameStartTime, setGameStartTime] = useState(Math.floor(Date.now() / 1000));
     const [playerNames, setPlayerNames] = useState({
         left: localStorage.getItem('username') || 'Guest',
@@ -36,6 +36,8 @@ const LocalGame = () => {
     const canvasRef = useRef(null);
     const wsRef = useRef(null);
     const animationFrameRef = useRef(null);
+    const [showself, setShowSelf] = useState(true);
+    const [toggleGameOverModal, setToggleGameOverModal] = useState(false);
 
     // Add connection state tracking
     const [isConnected, setIsConnected] = useState(false);
@@ -286,19 +288,24 @@ const LocalGame = () => {
         }
     };
 
-    const handleCloseModal= () => {
+    const handleCloseModal = () => {
         if (wsRef.current) {
             wsRef.current.close();
         }
-        if (gameType == 'tournament'){
+        if (gameType === 'tournament'){
             OnWinnerSelect(gameState.winner);
         }
-        setToggleGameOverModal(false)
-        if (gameType == 'tournament'){
-            OnWinnerSelect(gameState.winner);
-        }
+        setToggleGameOverModal(false);
         setShowSelf(false);
-        
+    };
+
+    const handleReturnToMenu = () => {
+        navigate('/');
+    };
+
+    const OnWinnerSelect = (winner) => {
+        // This function would be implemented to handle tournament winner selection
+        console.log("Winner selected:", winner);
     };
 
     useEffect(() => {
@@ -592,7 +599,7 @@ const LocalGame = () => {
                         zIndex: 1
                     }}>
                         <button 
-                            onClick={()=>{navigate('/')}}
+                            onClick={handleReturnToMenu}
                             style={{
                                 padding: '15px 30px',
                                 fontSize: '20px',
@@ -619,11 +626,11 @@ const LocalGame = () => {
                     <p>{playerNames.right}: O/K keys</p>
                 </div>
             </div>
-            {console.log("Just before modal", gameMode, gameType)}
-            {gameState.gameOver && ToggleGameOverModal &&(
+            {console.log("Just before modal", gameType)}
+            {gameState.gameOver && toggleGameOverModal &&(
                 <GameOverModal 
                     showModal={gameState.gameOver} 
-                    handleCloseModal={handleReturnToMenu} 
+                    handleCloseModal={handleCloseModal} 
                     player1={playerNames.left} 
                     player2={playerNames.right} 
                     score1={gameState.players.left.score} 
