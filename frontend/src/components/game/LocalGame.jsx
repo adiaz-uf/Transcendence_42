@@ -22,15 +22,18 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                 right: getUsernameById(player2)
             };
         }
-        if (gameType === "match" && player1 && player2) {
+        if (gameType === "match") {
+            // For local games, use the usernames from TournamentSettings
+            const leftUsername = TournamentSettings.Player1username || "Player 1";
+            const rightUsername = TournamentSettings.Player2username || "Marvin";
             return {
-                left: getUsernameById(player1),
-                right: getUsernameById(player2)
+                left: leftUsername,
+                right: rightUsername
             };
         }
         return {
-            left: getUsernameById(player1) || "Player 1",
-            right: getUsernameById(player2) || "Marvin"
+            left: "Player 1",
+            right: "Marvin"
         };
     };
     
@@ -304,7 +307,13 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
     };
 
     const handleReturnToMenu = () => {
-        navigate('/');
+        const winner = gameState.winner === 'left' ? playerNames.left : playerNames.right;
+        navigate('/', { 
+            state: { 
+                message: `Congratulations to ${winner} for winning the match! 🎮`,
+                type: 'success'
+            }
+        });
     };
 
     useEffect(() => {

@@ -281,3 +281,41 @@ export async function GETUserMatchesPlayed(username) {
       return { error: error.response?.data || 'An error occurred' };
     }
   };
+
+  export async function setUserActive(iactive) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) {
+        return null; 
+    }
+    try {
+        const response = await api.patch(`/api/user/active/`, { active: iactive }, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        console.log("User active status updated:", response);
+        return response;
+    } catch (error) {
+        console.log("Error setting user active status:", error);
+        return { error: error.response?.data || "An error occurred" }; // Handle error and return response
+    }
+  };
+
+  export async function GetOthersActiveness(in_username) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) {
+        return null; 
+    }
+    try {
+        const response = await api.get(`/api/user/friends/active/${in_username}`,{
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        console.log("User active status updated:", response);
+        return response;
+    } catch (error) {
+        console.log("Error setting user active status:", error);
+        return { error: error.response?.data || "An error occurred" }; // Handle error and return response
+    }
+  };
