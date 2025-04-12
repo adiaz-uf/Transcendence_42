@@ -125,27 +125,43 @@ export default function Profile() {
   }, [username]);
 
   // Prepara los datos para el gráfico
-  const chartData = {
-    labels: matches.map(match => new Date(match.date).toLocaleDateString()), // Fecha de cada partido
-    datasets: [
-      {
-        label: 'Partidos Ganados',
-        data: matches.map(match => match.result === 'won' ? 1 : 0),
-        borderColor: 'green',
-        backgroundColor: 'green',
-        fill: false,
-        tension: 0.1,
-      },
-      {
-        label: 'Partidos Perdidos',
-        data: matches.map(match => match.result === 'lost' ? 1 : 0),
-        borderColor: 'red',
-        backgroundColor: 'red',
-        fill: false,
-        tension: 0.1,
-      },
-    ],
-  };
+const cumulativeWins = [];
+const cumulativeLosses = [];
+let winCount = 0;
+let lossCount = 0;
+
+matches.forEach(match => {
+  if (match.result === 'won') {
+    winCount += 1;
+  }
+  if (match.result === 'lost') {
+    lossCount += 1;
+  }
+
+  cumulativeWins.push(winCount);
+  cumulativeLosses.push(lossCount);
+});
+const chartData = {
+  labels: matches.map(match => new Date(match.date).toLocaleDateString()),
+  datasets: [
+    {
+      label: 'Partidos Ganados',
+      data: cumulativeWins,
+      borderColor: 'green',
+      backgroundColor: 'green',
+      fill: false,
+      tension: 0.1,
+    },
+    {
+      label: 'Partidos Perdidos',
+      data: cumulativeLosses,
+      borderColor: 'red',
+      backgroundColor: 'red',
+      fill: false,
+      tension: 0.1,
+    },
+  ],
+};
 
   const handleChangeData = async (e) => {
     e.preventDefault();
@@ -320,8 +336,12 @@ export default function Profile() {
           setTwoFACode={setTwoFACode} 
           handleToggle2FA={handleToggle2FA} 
         />
-        <h3>Partidos a lo largo del tiempo</h3>
-        {loading ? <div>Loading...</div> : <Line data={chartData} />}
+        <h3 style={{"margin":"2rem"}}>All Time Matches Stats</h3>
+        <div style={{ width: '100%', maxWidth: '800px' }}>
+          {loading ? <div>Loading...</div> : (
+            <Line data={chartData} options={{ responsive: true, maintainAspectRatio: true }} />
+          )}
+        </div>
         <div className='stats-container'>
           <Stat title={"Matches Played"} value={matchesPlayed} />
           <Stat title={"Wins"} value={matchesWon} />

@@ -1,6 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
 import Stat from './Stat';
+import api from '../api';
+import { ACCESS_TOKEN } from "../constants"; 
 import { GETUserMatchesPlayed, GETUserMatchesWon } from '../components/api-consumer/fetch';
 
 const FriendProfileModal = ({ show, handleClose, user }) => {
@@ -9,6 +13,7 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
   const [matchesWon, setMatchesWon] = useState(0);
   const [matchesLosed, setMatchesLosed] = useState(0);
   const [winRatio, setWinRatio] = useState(0);
+  const [matches, setMatches] = useState([]);
 
   useEffect(() => {
     if (matchesPlayed > 0) {
@@ -20,6 +25,60 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
       setWinRatio(0);
     }
   }, [matchesPlayed, matchesWon]);
+
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const response = await api.get(`/api/user/list-matches-played/${user}/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+        });
+        setMatches(response.data.matches);
+      } catch (error) {
+        console.error("Error fetching matches", error);
+      }
+    };
+    if (user) {
+      fetchMatches();
+    }
+  }, [user]);
+
+  const cumulativeWins = [];
+  const cumulativeLosses = [];
+  let winCount = 0;
+  let lossCount = 0;
+
+  matches.forEach(match => {
+    if (match.result === 'won') {
+      winCount += 1;
+    }
+    if (match.result === 'lost') {
+      lossCount += 1;
+    }
+
+    cumulativeWins.push(winCount);
+    cumulativeLosses.push(lossCount);
+  });
+  const chartData = {
+    labels: matches.map(match => new Date(match.date).toLocaleDateString()),
+    datasets: [
+      {
+        label: 'Partidos Ganados',
+        data: cumulativeWins,
+        borderColor: 'green',
+        backgroundColor: 'green',
+        fill: false,
+        tension: 0.1,
+      },
+      {
+        label: 'Partidos Perdidos',
+        data: cumulativeLosses,
+        borderColor: 'red',
+        backgroundColor: 'red',
+        fill: false,
+        tension: 0.1,
+      },
+    ],
+  };
 
   const matchesResponse = async () => {
     try {
@@ -44,7 +103,7 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
       matchesResponse();
       matchesWonResponse();
     }
-  }, [user]);  // Se ejecuta cada vez que el `username` cambie
+  }, [user]);
 
   return (
     <Modal 
@@ -60,7 +119,10 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
       <Modal.Body className="custom-modal-body"
         style={{overflowY: 'auto',  padding: '1.5rem' }}
       >
-        <h4 style={{"marginTop":"2em"}}><strong>All time stats</strong></h4>
+        <h4 style={{margin:"2em"}}><strong>All time stats</strong></h4>
+        <div style={{ width: '100%', maxWidth: '800px', justifyContent:"center", display:"flex"}}>
+          <Line data={chartData} options={{ responsive: true, maintainAspectRatio: true }} />
+        </div>
         <div className="stats-container">
           <Stat title={"Matches Played"} value={matchesPlayed} />
           <Stat title={"Wins"} value={matchesWon} />
