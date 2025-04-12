@@ -62,7 +62,7 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
     labels: matches.map(match => new Date(match.date).toLocaleDateString()),
     datasets: [
       {
-        label: 'Partidos Ganados',
+        label: 'Wins',
         data: cumulativeWins,
         borderColor: 'green',
         backgroundColor: 'green',
@@ -70,7 +70,7 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
         tension: 0.1,
       },
       {
-        label: 'Partidos Perdidos',
+        label: 'Loses',
         data: cumulativeLosses,
         borderColor: 'red',
         backgroundColor: 'red',
