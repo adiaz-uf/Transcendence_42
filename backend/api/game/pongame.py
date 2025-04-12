@@ -128,10 +128,10 @@ class PongGame:
                 else:
                     self.__ball['x'] = paddle['x'] - self.__ball['radio'] - 1
                 
-                # Increase speed up to max_ball_speed
+                # Increase speed by 20% up to max_ball_speed
                 current_speed = math.sqrt(self.__ball['rx']**2 + self.__ball['ry']**2)
                 if current_speed < self.__max_ball_speed:
-                    speed_multiplier = min(1.1, self.__max_ball_speed / current_speed)
+                    speed_multiplier = min(1.2, self.__max_ball_speed / current_speed)  # 20% increase
                     self.__ball['rx'] *= speed_multiplier
                     self.__ball['ry'] *= speed_multiplier
                 
