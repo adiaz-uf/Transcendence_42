@@ -1,4 +1,4 @@
-import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament, PATCHMatchScore} from "../api-consumer/fetch";
+import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament, PATCHMatchScore, GETOthersProfileInfo} from "../api-consumer/fetch";
 import { useGameSetting } from '../contexts/GameContext';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
@@ -32,6 +32,46 @@ export default function Tournament () {
       semifinal2: null,
       final: null
     });
+
+    // Add state for player avatars
+    const [playerAvatars, setPlayerAvatars] = useState({});
+  
+    // Function to fetch user avatar
+    const fetchUserAvatar = async (userId) => {
+      try {
+        const username = getUsernameById(userId);
+        if (!username) return defaultAvatar;
+        
+        const response = await GETOthersProfileInfo(username);
+        return response.avatar || defaultAvatar;
+      } catch (error) {
+        console.error("Error fetching user avatar:", error);
+        return defaultAvatar;
+      }
+    };
+
+    // Fetch avatars when component mounts or players change
+    useEffect(() => {
+      const fetchAvatars = async () => {
+        const avatars = {};
+        const players = [
+          TournamentSettings.Player1,
+          TournamentSettings.Player2,
+          TournamentSettings.Player3,
+          TournamentSettings.Player4
+        ];
+        
+        for (const playerId of players) {
+          if (playerId) {
+            avatars[playerId] = await fetchUserAvatar(playerId);
+          }
+        }
+        
+        setPlayerAvatars(avatars);
+      };
+      
+      fetchAvatars();
+    }, [TournamentSettings]);
   
     // Create a match and get its ID
     const createMatch = async (player1, player2) => {
@@ -331,7 +371,7 @@ export default function Tournament () {
                   {/* Left Image */}
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
-                      src={defaultAvatar} 
+                      src={playerAvatars[matches.semifinal1.player1] || defaultAvatar} 
                       alt="..." 
                       style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
@@ -353,7 +393,7 @@ export default function Tournament () {
                   {/* Right Image */}
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
-                      src={defaultAvatar} 
+                      src={playerAvatars[matches.semifinal1.player2] || defaultAvatar} 
                       alt="..." 
                       style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
@@ -367,7 +407,7 @@ export default function Tournament () {
                   {/* Left Image */}
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
-                      src={defaultAvatar} 
+                      src={playerAvatars[matches.semifinal2.player1] || defaultAvatar} 
                       alt="..." 
                       style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
@@ -389,7 +429,7 @@ export default function Tournament () {
                   {/* Right Image */}
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
-                      src={defaultAvatar} 
+                      src={playerAvatars[matches.semifinal2.player2] || defaultAvatar} 
                       alt="..." 
                       style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
@@ -404,7 +444,7 @@ export default function Tournament () {
               
                 <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                 {((matches.semifinal1.winner  || matches.final.winner) && !(matches.semifinal1.winner  && matches.final.winner))&& (matches.final.winner === matches.semifinal1.winner || !matches.final.winner) &&( <img 
-                    src={defaultAvatar}
+                    src={playerAvatars[matches.final.player1] || defaultAvatar}
                     alt="..." 
                     style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                   />)}
@@ -429,7 +469,7 @@ export default function Tournament () {
                     && (matches.final.winner === matches.semifinal2.winner || !matches.final.winner) 
                     &&(
                       <img 
-                    src={Marvin}
+                    src={playerAvatars[matches.final.player2] || defaultAvatar}
                     alt="..." 
                     style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                   />)}
