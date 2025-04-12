@@ -124,7 +124,7 @@ export default function Profile() {
     }
   }, [username]);
 
-  // Prepara los datos para el gráfico
+// Prepares data for the graph
 const cumulativeWins = [];
 const cumulativeLosses = [];
 let winCount = 0;
@@ -339,7 +339,25 @@ const chartData = {
         <h3 style={{"margin":"2rem"}}>All Time Matches Stats</h3>
         <div style={{ width: '100%', maxWidth: '800px' }}>
           {loading ? <div>Loading...</div> : (
-            <Line data={chartData} options={{ responsive: true, maintainAspectRatio: true }} />
+            <Line
+            data={chartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: {legend: {labels: {color: 'white',},},
+                tooltip: {backgroundColor: '#222',titleColor: 'white',bodyColor: 'white',},},
+              scales: {
+                x: {
+                  ticks: {color: 'white',},
+                  grid: { color: 'rgba(255,255,255,0.1)',},
+                },
+                y: {
+                  ticks: {color: 'white',},
+                  grid: {color: 'rgba(255,255,255,0.1)',},
+                },
+              },
+            }}
+          />
           )}
         </div>
         <div className='stats-container'>
