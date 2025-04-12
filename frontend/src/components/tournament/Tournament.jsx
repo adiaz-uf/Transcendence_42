@@ -8,6 +8,7 @@ import myImage from '../navigation/bright-neon-colors-shining-wild-chameleon_23-
 import Marvin from './Marvin.jpg';
 import MessageBox from '../MessageBox';
 import { ACCESS_TOKEN } from "../../constants";
+import '../../styles/tournament.css';
 
 
 export default function Tournament () {
@@ -478,21 +479,14 @@ export default function Tournament () {
         )}
         {console.log("TournamentComplete", tournamentComplete)}
         {tournamentComplete && (
-          <div className="tournament-results text-center p-6 bg-green-50 rounded-lg">
+          <div className="tournament-results text-center p-6 rounded-lg">
             <h3 className="text-2xl font-bold mb-4">Tournament Complete!</h3>
             <p className="text-xl mb-6"> Congratulations to {getUsernameById(matches.final.winner)}, our champion! </p>
             
             {/* Buttons Container */}
-            <div className="flex flex-col items-center space-y-4">
+            <div className="tournament-buttons">
               <button 
-                className="w-32 py-2 px-6 rounded text-white font-medium"
-                style={{
-                  background: 'linear-gradient(135deg, #6e8efb, #a777e3)',
-                  boxShadow: '0 4px 15px rgba(110, 142, 251, 0.4)',
-                  border: 'none',
-                  cursor: isBlockchainLoading ? 'not-allowed' : 'pointer',
-                  opacity: isBlockchainLoading ? 0.8 : 1
-                }}
+                className="blockchain-button py-2 px-6 rounded"
                 onClick={sendTournamentScoresToBlockchain}
                 disabled={isBlockchainLoading}
               >
@@ -515,7 +509,7 @@ export default function Tournament () {
               </button>
               
               <button 
-                className="w-32 bg-gray-600 text-white py-2 px-6 rounded hover:bg-gray-700"
+                className="return-button py-2 px-6 rounded"
                 onClick={returnToMenu}
               >
                 Return to Menu
