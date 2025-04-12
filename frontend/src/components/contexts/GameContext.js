@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect} from "react";
-import { GETGameSettings } from "../api-consumer/fetch";
+import { GETGameSettings, GETUserProfileById } from "../api-consumer/fetch";
 
 const GameContext = createContext();
 
@@ -27,13 +27,54 @@ export const GameSettingProvider = ({ children }) => {
   
 
   const getUsernameById = (playerId) => {
+    console.log("Looking up username for player ID:", playerId);
+    
+    // First check if we have the username in TournamentSettings
     const playerMap = {
       [TournamentSettings.Player1]: TournamentSettings.Player1username,
       [TournamentSettings.Player2]: TournamentSettings.Player2username,
       [TournamentSettings.Player3]: TournamentSettings.Player3username,
       [TournamentSettings.Player4]: TournamentSettings.Player4username,
     };
-    return playerMap[playerId] || "Unknown Player";
+    
+    // If we have the username in TournamentSettings, return it
+    if (playerMap[playerId]) {
+      console.log("Found username in TournamentSettings:", playerMap[playerId]);
+      return playerMap[playerId];
+    }
+    
+    // If not found in TournamentSettings, check local storage
+    const player1Id = localStorage.getItem("tournament_player1_id");
+    const player2Id = localStorage.getItem("tournament_player2_id");
+    const player3Id = localStorage.getItem("tournament_player3_id");
+    const player4Id = localStorage.getItem("tournament_player4_id");
+    
+    if (playerId === player1Id) {
+      const username = localStorage.getItem("tournament_player1_username");
+      console.log("Found username in local storage:", username);
+      return username || "Unknown Player";
+    }
+    
+    if (playerId === player2Id) {
+      const username = localStorage.getItem("tournament_player2_username");
+      console.log("Found username in local storage:", username);
+      return username || "Unknown Player";
+    }
+    
+    if (playerId === player3Id) {
+      const username = localStorage.getItem("tournament_player3_username");
+      console.log("Found username in local storage:", username);
+      return username || "Unknown Player";
+    }
+    
+    if (playerId === player4Id) {
+      const username = localStorage.getItem("tournament_player4_username");
+      console.log("Found username in local storage:", username);
+      return username || "Unknown Player";
+    }
+    
+    console.log("Username not found, returning Unknown Player");
+    return "Unknown Player";
   };
 
   
