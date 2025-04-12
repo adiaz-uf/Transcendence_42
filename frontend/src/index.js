@@ -3,13 +3,16 @@ import ReactDOM from 'react-dom/client';
 import RouteSwitch from "./components/navigation/RouteSwitch"
 import './index.css';
 import "bootstrap/dist/css/bootstrap.min.css";
+import {BrowserRouter} from "react-router-dom";
 
 //import reportWebVitals from '../test/reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.Fragment>
-    <RouteSwitch />
+    <BrowserRouter>
+      <RouteSwitch />
+    </BrowserRouter>
   </React.Fragment>
 );
 

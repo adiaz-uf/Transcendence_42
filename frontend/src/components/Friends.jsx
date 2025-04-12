@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Spinner } from 'react-bootstrap';
-import { GETfriends, POSTfriend, DELETEfriend, GETCheckUsernameExists } from '../components/api-consumer/fetch';
+import { GETfriends, POSTfriend, DELETEfriend, GETCheckUsernameExists, GetOthersActiveness } from '../components/api-consumer/fetch';
 import FriendProfileModal from '../components/FriendProfileModal';
 import '../styles/friends.css';
 
@@ -10,6 +10,9 @@ export default function Friends() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showFriendModal, setShowFriendModal] = useState(false);
+
+
+
 
     // Fetch friends on component load
     const fetchFriends = async () => {
@@ -29,15 +32,41 @@ export default function Friends() {
         }
     };
 
+      // Periodically update friends active status
+      useEffect(() => {
+        const updateFriendsStatus = async () => {
+            console.log("Updating friends' status...");
+            const updatedFriends = await Promise.all(
+                friends.map(async (friend) => {
+                    try {
+                        const response = await GetOthersActiveness(friend.username);
+                        if (response?.data) {
+                            return { ...friend, active: response.data.active }; // Update active status
+                        }
+                        return friend; // Return the original friend if no response
+                    } catch (error) {
+                        console.error(`Error updating status for ${friend.username}:`, error);
+                        return friend; // Return the original friend on error
+                    }
+                })
+            );
+            setFriends(updatedFriends); // Update the friends state with the new statuses
+        };
+
+        // Set an interval to update friends' statuses every 10 seconds
+        const intervalId = setInterval(updateFriendsStatus, 10000);
+
+        // Cleanup the interval on component unmount
+        return () => clearInterval(intervalId);
+    }, [friends]);
+
     const handleAddFriend = async () => {
         if (!newFriendUsername.trim()) {
             setError("Please enter a username.");
             return;
         }
-
         setLoading(true);
         setError(null);
-
         try {
             const userCheck = await GETCheckUsernameExists(newFriendUsername);
             if (userCheck?.exists) {
