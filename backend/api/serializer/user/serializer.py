@@ -6,8 +6,7 @@ class FriendSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = [
             "active",
-            "username", 
-]
+            "username"]
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
