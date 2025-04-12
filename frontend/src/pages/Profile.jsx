@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
 import api from '../api';
 import { ACCESS_TOKEN } from "../constants"; 
 import '../styles/profile.css';
@@ -11,6 +13,8 @@ import MessageBox from '../components/MessageBox';
 import Friends from '../components/Friends';
 import { GETCurrentProfileInfo, GETUserMatchesPlayed, GETUserMatchesWon } from '../components/api-consumer/fetch';
 
+ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
+
 export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -21,6 +25,7 @@ export default function Profile() {
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [is42user, setIs42user] = useState(false);
 
+  const [matches, setMatches] = useState([]);
   const [matchesPlayed, setMatchesPlayed] = useState(0);
   const [matchesWon, setMatchesWon] = useState(0);
   const [matchesLosed, setMatchesLosed] = useState(0);
@@ -99,6 +104,47 @@ export default function Profile() {
     } catch (error) {
       console.error("Error fetching matches won", error);
     }
+  };
+
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const response = await api.get(`/api/user/list-matches-played/${username}/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+        });
+        setMatches(response.data.matches);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching matches", error);
+        setLoading(false);
+      }
+    };
+    if (username) {
+      fetchMatches();
+    }
+  }, [username]);
+
+  // Prepara los datos para el gráfico
+  const chartData = {
+    labels: matches.map(match => new Date(match.date).toLocaleDateString()), // Fecha de cada partido
+    datasets: [
+      {
+        label: 'Partidos Ganados',
+        data: matches.map(match => match.result === 'won' ? 1 : 0),
+        borderColor: 'green',
+        backgroundColor: 'green',
+        fill: false,
+        tension: 0.1,
+      },
+      {
+        label: 'Partidos Perdidos',
+        data: matches.map(match => match.result === 'lost' ? 1 : 0),
+        borderColor: 'red',
+        backgroundColor: 'red',
+        fill: false,
+        tension: 0.1,
+      },
+    ],
   };
 
   const handleChangeData = async (e) => {
@@ -274,6 +320,8 @@ export default function Profile() {
           setTwoFACode={setTwoFACode} 
           handleToggle2FA={handleToggle2FA} 
         />
+        <h3>Partidos a lo largo del tiempo</h3>
+        {loading ? <div>Loading...</div> : <Line data={chartData} />}
         <div className='stats-container'>
           <Stat title={"Matches Played"} value={matchesPlayed} />
           <Stat title={"Wins"} value={matchesWon} />
