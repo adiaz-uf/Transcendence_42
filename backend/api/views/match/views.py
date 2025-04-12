@@ -14,6 +14,7 @@ from api.views.blockchain.blockchain_utils import send_score_to_blockchain
 from api.game.game_constants import GAME_SETTINGS
 
 from django.http import JsonResponse
+import time
 
 # CreateAPIView (POST only)
 # ListAPIView (GET only)
@@ -174,13 +175,25 @@ class MatchScoreUpdateView(generics.UpdateAPIView):
                 if tournament:
                     # Convert UUID to a consistent integer representation for blockchain
                     tournament_id_int = int(str(tournament.id).replace('-', '')[:8], 16)
-                    success = send_score_to_blockchain(
-                        tournament_id_int,
-                        match.left_score,
-                        match.right_score
-                    )
-                    if not success:
-                        logger.error(f"Failed to store score in blockchain for match {match.id}")
+                    
+                    # Try to store score in blockchain with retries
+                    max_retries = 3
+                    retry_delay = 2  # seconds
+                    
+                    for attempt in range(max_retries):
+                        success = send_score_to_blockchain(
+                            tournament_id_int,
+                            match.left_score,
+                            match.right_score
+                        )
+                        if success:
+                            logger.info(f"Successfully stored score in blockchain for match {match.id} on attempt {attempt + 1}")
+                            break
+                        elif attempt < max_retries - 1:
+                            logger.warning(f"Failed to store score in blockchain for match {match.id} on attempt {attempt + 1}, retrying in {retry_delay} seconds...")
+                            time.sleep(retry_delay)
+                        else:
+                            logger.error(f"Failed to store score in blockchain for match {match.id} after {max_retries} attempts")
             except Exception as e:
                 logger.error(f"Error storing score in blockchain: {str(e)}")
             

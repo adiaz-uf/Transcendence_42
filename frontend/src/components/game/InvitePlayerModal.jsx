@@ -141,24 +141,63 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       //      TOURNAMENT      //
       //                      //
       if (gameType === 'tournament') {
+        console.log("Creating tournament with players...");
+        const player1_id = localStorage.getItem("userId");
+        const player1_username = localStorage.getItem("username");
+        console.log("Player 1:", player1_id, player1_username);
         
+        // Store player 1 info in local storage
+        localStorage.setItem("tournament_player1_id", player1_id);
+        localStorage.setItem("tournament_player1_username", player1_username);
+        
+        updateTournamentSetting('Player1', player1_id);
+        updateTournamentSetting('Player1username', player1_username);
+
+        const player_2 = await GETCheckUsernameExists(newUsername1);
+        if (!player_2?.userProfile?.id) {
+          setMessage(`Player '${newUsername1}' not found`);
+          setMessageType('error');
+          return;
+        }
+        console.log("Player 2:", player_2.userProfile);
+        
+        // Store player 2 info in local storage
+        localStorage.setItem("tournament_player2_id", player_2.userProfile.id);
+        localStorage.setItem("tournament_player2_username", player_2.userProfile.username);
+        
+        updateTournamentSetting('Player2', player_2.userProfile.id);
+        updateTournamentSetting('Player2username', player_2.userProfile.username);
+
         const player_3 = await GETCheckUsernameExists(newUsername2);
         if (!player_3?.userProfile?.id) {
           setMessage(`Player '${newUsername2}' not found`);
           setMessageType('error');
           return;
         }
+        console.log("Player 3:", player_3.userProfile);
+        
+        // Store player 3 info in local storage
+        localStorage.setItem("tournament_player3_id", player_3.userProfile.id);
+        localStorage.setItem("tournament_player3_username", player_3.userProfile.username);
+        
+        updateTournamentSetting('Player3', player_3.userProfile.id);
+        updateTournamentSetting('Player3username', player_3.userProfile.username);
+
         const player_4 = await GETCheckUsernameExists(newUsername3);
         if (!player_4?.userProfile?.id) {
           setMessage(`Player '${newUsername3}' not found`);
           setMessageType('error');
           return;
         }
-        updateTournamentSetting('Player3', player_3.userProfile.id);
+        console.log("Player 4:", player_4.userProfile);
         
-        updateTournamentSetting('Player3username', player_3.userProfile.username);
+        // Store player 4 info in local storage
+        localStorage.setItem("tournament_player4_id", player_4.userProfile.id);
+        localStorage.setItem("tournament_player4_username", player_4.userProfile.username);
+        
         updateTournamentSetting('Player4', player_4.userProfile.id);
         updateTournamentSetting('Player4username', player_4.userProfile.username);
+
         const usernames = [newUsername1, newUsername2, newUsername3];
         if (new Set(usernames).size !== usernames.length) {
           setMessage('All players must be different');
@@ -170,12 +209,18 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           "owner": player1_id,
           "players": [player1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
         };
+        console.log("Creating tournament with payload:", payload_tournament);
         const TournamentResponse = await POSTcreateTournament(payload_tournament);
         if (!TournamentResponse) {
           setMessage('Error creating tournament');
           setMessageType('error');
           return;
         }
+        console.log("Tournament created with ID:", TournamentResponse.id);
+        
+        // Store tournament ID in local storage
+        localStorage.setItem("tournament_id", TournamentResponse.id);
+        
         updateTournamentSetting('tournamentId', TournamentResponse.id);
         handleCloseModal();
         navigate('/tournament', { 
