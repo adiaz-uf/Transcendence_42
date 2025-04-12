@@ -299,19 +299,17 @@ const chartData = {
               src={avatar || defaultAvatar} 
               alt="Profile" 
               className="avatar-image"
-              onClick={() => !is42user && setShowAvatarModal(true)}
-              style={{ cursor: !is42user ? 'pointer' : 'default' }}
+              onClick={() => setShowAvatarModal(true)}
+              style={{ cursor: 'pointer' }}
             />
-            {!is42user && (
-              <Button 
-                variant="outline-primary" 
-                size="sm" 
-                className="mt-2"
-                onClick={() => setShowAvatarModal(true)}
-              >
-                Change Avatar
-              </Button>
-            )}
+            <Button 
+              variant="outline-primary" 
+              size="sm" 
+              className="mt-2"
+              onClick={() => setShowAvatarModal(true)}
+            >
+              Change Avatar
+            </Button>
           </div>
           <div className="profile-info">
             <div className="profile-details">
