@@ -5,7 +5,6 @@ import { Button } from 'react-bootstrap';
 import {useNavigate, useLocation} from "react-router-dom";
 import LocalGame from "../game/LocalGame";
 import defaultAvatar from '../../components/navigation/chameleon.jpg';
-import Marvin from './Marvin.jpg';
 import MessageBox from '../MessageBox';
 import '../../styles/tournament.css';
 
