@@ -15,6 +15,7 @@ class UserProfile(AbstractUser): # AbstractUser has fields password
     last_name   = None
     friends     = models.ManyToManyField("self", symmetrical=True, blank=True)
     active      = models.BooleanField(default=False)
+    avatar      = models.ImageField(upload_to='avatars/', null=True, blank=True)
 
     # 2FA Security
     totp_secret = models.CharField(max_length=64, blank=True, null=True)

@@ -5,13 +5,13 @@ import {useGameSetting} from '../contexts/GameContext'
 import '../../styles/game.css'
 import {InvitePlayer} from '../game/InvitePlayerModal';
 import GameOverModal from "../GameOverModal";
-import myImage from './bright-neon-colors-shining-wild-chameleon_23-2151682784.jpg';
+import defaultAvatar from './chameleon.jpg';
 import MessageBox from '../MessageBox';
 
 const MyComponent = () => {
   return (
     <div>
-      <img src={myImage} alt="My Image" />
+      <img src={defaultAvatar} alt="My Image" />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login
 from rest_framework import generics, status
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -60,6 +61,7 @@ class CreateUserView(generics.CreateAPIView):
 # Todo: make a RetrieveUpdateAPIView
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request):
         serializer = UserSerializer(request.user)  # Serialize user object
@@ -70,7 +72,9 @@ class UserProfileView(APIView):
         
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            # Get the updated user data
+            updated_serializer = UserSerializer(request.user)
+            return Response(updated_serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class OthersProfileView(generics.ListAPIView):

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import {useNavigate, useLocation} from "react-router-dom";
 import LocalGame from "../game/LocalGame";
-import myImage from '../navigation/bright-neon-colors-shining-wild-chameleon_23-2151682784.jpg';
+import defaultAvatar from '../../components/navigation/chameleon.jpg';
 import Marvin from './Marvin.jpg';
 import MessageBox from '../MessageBox';
 
@@ -180,7 +180,7 @@ export default function Tournament () {
                   {/* Left Image */}
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
-                      src={myImage} 
+                      src={defaultAvatar} 
                       alt="..." 
                       style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
@@ -202,7 +202,7 @@ export default function Tournament () {
                   {/* Right Image */}
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
-                      src={myImage} 
+                      src={defaultAvatar} 
                       alt="..." 
                       style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
@@ -216,7 +216,7 @@ export default function Tournament () {
                   {/* Left Image */}
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
-                      src={myImage} 
+                      src={defaultAvatar} 
                       alt="..." 
                       style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
@@ -238,7 +238,7 @@ export default function Tournament () {
                   {/* Right Image */}
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
-                      src={myImage} 
+                      src={defaultAvatar} 
                       alt="..." 
                       style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
@@ -253,7 +253,7 @@ export default function Tournament () {
               
                 <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                 {((matches.semifinal1.winner  || matches.final.winner) && !(matches.semifinal1.winner  && matches.final.winner))&& (matches.final.winner === matches.semifinal1.winner || !matches.final.winner) &&( <img 
-                    src={myImage}
+                    src={defaultAvatar}
                     alt="..." 
                     style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                   />)}
