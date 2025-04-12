@@ -10,8 +10,7 @@ from api.views.auth.auth42 import FTAuthCallbackView
 from api.views.auth.jwt import CustomTokenRefreshView
 from api.views.game.cli_views import GameStateView, GameControlView, PlayerMoveView, GameStatsView
 from api.views.tournament.views import CreateTournamentView, AddMatchToTournamentView, AddWinnerToTournamentView, UserTournWinnerCountView, UserParticipationCountView, TournamentDetailView
-from api.views.blockchain.views import TournamentBlockchainScoresView
-from api.views.game.views import test_blockchain
+from api.views.blockchain.views import TournamentBlockchainScoresView, blockchain_score
 
 urlpatterns = [
     # User endpoints
@@ -53,14 +52,14 @@ urlpatterns = [
     path('tournaments/<uuid:UserID>/count-wins/',             UserTournWinnerCountView.as_view(), name='count-amount-of-tournament-wins'),
     path('tournaments/<uuid:UserID>/count-matches/',          UserParticipationCountView.as_view(), name='count-amount-of-tournament-plays'),
 
+    # Blockchain endpoints
+    path('blockchain/score/', blockchain_score, name='blockchain-score'),
+
     # Game CLI endpoints
     path('game/cli/state/<uuid:match_id>/',                   GameStateView.as_view(), name='game-cli-state'),
     path('game/cli/control/<uuid:match_id>/',                 GameControlView.as_view(), name='game-cli-control'),
     path('game/cli/move/<uuid:match_id>/',                    PlayerMoveView.as_view(), name='game-cli-move'),
     path('game/cli/stats/<uuid:match_id>/',                   GameStatsView.as_view(), name='game-cli-stats'),
-
-    # Blockchain test endpoint
-    path('game/test-blockchain/',                             test_blockchain, name='test-blockchain'),
 
     # Game Settings Endpoint
     path('game-settings/', game_settings, name='game-settings')
