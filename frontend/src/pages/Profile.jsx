@@ -9,7 +9,7 @@ import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
 import MessageBox from '../components/MessageBox';
 import Friends from '../components/Friends';
-import { GETCurrentProfileInfo, GETUserMatchesPlayed, GETUserMatchesWon } from '../components/api-consumer/fetch';
+import { GETCurrentProfileInfo, GETUserMatchesPlayed, GETUserMatchesWon,  POSTUploadProfileImage, GETProfileImageURL, DELETEProfileImage} from '../components/api-consumer/fetch';
 
 export default function Profile() {
   const [name, setName] = useState('');
@@ -42,7 +42,9 @@ export default function Profile() {
   const handleShow2FAModal = () => setShow2FAModal(true);
   
   const [message, setMessage] = useState(null);
-    
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [profileImageUrl, setProfileImageUrl] = useState(null);
+  
   // ########################################   Fetch API ################################################
 
   useEffect(() => {
@@ -212,11 +214,64 @@ export default function Profile() {
     }
   }, [username]);  // Se ejecuta cada vez que el `username` cambie
 
+  
   if (loading) return <div>Loading...</div>;
+
+
 /*   if (error) return <div><NavBar></NavBar><div className='app-body'>{error}</div></div>; */
+const handleUpload = async () => {
+  let tmp = await POSTUploadProfileImage(selectedFile);
+  console.log("Upload result:", tmp);
+  tmp = await GETProfileImageURL();
+  console.log("Upload result:", tmp);
+  //tmp = await DELETEProfileImage();
+  //console.log("Upload result:", tmp);
+  //tmp = await GETProfileImageURL();
+  //console.log("Upload result:", tmp);
+  };
+
+  const handleDisplayImage = async () => {
+    const response = await GETProfileImageURL();
+    console.log("Fetched Image URL:", response);
+    if (response?.profile_image_url)
+      setProfileImageUrl(response.profile_image_url);
+    else
+      setError("No image found or failed to fetch.");
+  };
+
 
   return (
     <>
+
+    {/*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/}
+    {/*\\\\\\\\\\\\\\TestingPlayground\\\\\\\\\\\\\\\\*/}
+    {/*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/}
+      <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => setSelectedFile(e.target.files[0])}
+      />
+    <button onClick={handleUpload}>Upload</button>
+
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => setSelectedFile(e.target.files[0])}
+      />
+    <button onClick={handleUpload}>Upload</button>
+    <button onClick={handleDisplayImage}>Show Profile Image</button>
+
+    {profileImageUrl && (
+      <div>
+        <h4>Your Profile Image:</h4>
+        <img src={profileImageUrl} alt="Profile" style={{ width: 200, borderRadius: '10px' }} />
+      </div>
+    )}
+    {/*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/}
+    {/*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/}
+    {/*\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*/}
+
+
       <NavBar username={username} />
       {error && (
         <div style={{ position: 'fixed', top: '80px', right: '20px', zIndex: 9999 }}>

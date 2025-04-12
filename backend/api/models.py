@@ -25,6 +25,9 @@ class UserProfile(AbstractUser): # AbstractUser has fields password
     localmatches = models.ManyToManyField("Match", related_name="local_players")
     onlinematches = models.ManyToManyField("Match", related_name="online_players")
 
+    # Image
+    profile_image = models.ImageField(upload_to='profile_images', null=True, blank=True)
+
     class Meta:
         db_table = 'user'
         

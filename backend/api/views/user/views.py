@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login
 from rest_framework import generics, status
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
 
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -218,3 +219,43 @@ class MatchesWonView(APIView):
         total_wins = left_wins + right_wins
 
         return Response({'username': username, 'matches_won': total_wins}, status=status.HTTP_200_OK)
+
+
+
+class UploadProfileImageView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        user = request.user
+        image = request.FILES.get('profile_image')
+
+        if not image:
+            return Response({'error': 'No image provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.profile_image = image
+        user.save()
+        return Response({'message': 'Profile image uploaded.'}, status=status.HTTP_200_OK)
+
+
+
+class GetProfileImageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if not user.profile_image:
+            return Response({'profile_image_url': None}, status=status.HTTP_200_OK)
+
+        return Response({'profile_image_url': request.build_absolute_uri(user.profile_image.url)})
+
+
+class DeleteProfileImageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        if user.profile_image:
+            user.profile_image.delete(save=True)
+            return Response({'message': 'Profile image deleted.'}, status=status.HTTP_200_OK)
+        return Response({'error': 'No profile image to delete.'}, status=status.HTTP_404_NOT_FOUND)

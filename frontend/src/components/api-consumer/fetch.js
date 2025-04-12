@@ -281,3 +281,54 @@ export async function GETUserMatchesPlayed(username) {
       return { error: error.response?.data || 'An error occurred' };
     }
   };
+
+  export async function POSTUploadProfileImage(file) {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) return null;
+
+    const formData = new FormData();
+    formData.append("profile_image", file);
+
+    try {
+        const res = await api.post('/api/user/image/upload/', formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return res.data;
+    } catch (error) {
+        console.error("Error uploading profile image:", error);
+        return { error: error.response?.data || "An error occurred" };
+    }
+}
+
+export async function GETProfileImageURL() {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) return null;
+
+    try {
+        const res = await api.get('/api/user/image/', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data;  // This contains { profile_image_url: "http://..." }
+    } catch (error) {
+        console.error("Error fetching profile image URL:", error);
+        return { error: error.response?.data || "An error occurred" };
+    }
+}
+
+export async function DELETEProfileImage() {
+    const token = localStorage.getItem(ACCESS_TOKEN);
+    if (!token) return null;
+
+    try {
+        const res = await api.delete('/api/user/image/delete/', {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return res.data;
+    } catch (error) {
+        console.error("Error deleting profile image:", error);
+        return { error: error.response?.data || "An error occurred" };
+    }
+}

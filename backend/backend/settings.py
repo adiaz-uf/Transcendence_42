@@ -167,6 +167,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 FT_CLIENT_ID = os.getenv("FT_CLIENT_ID")
 FT_CLIENT_SECRET = os.getenv("FT_CLIENT_SECRET")
 
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # Blockchain settings
 ETHEREUM_PROVIDER_URL = os.getenv("ETHEREUM_PROVIDER_URL")
 ETHEREUM_PRIVATE_KEY = os.getenv("ETHEREUM_PRIVATE_KEY")
