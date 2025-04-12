@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
 import api from '../api';
 import { ACCESS_TOKEN } from "../constants"; 
 import '../styles/profile.css';
@@ -11,6 +13,8 @@ import MessageBox from '../components/MessageBox';
 import Friends from '../components/Friends';
 import { GETCurrentProfileInfo, GETUserMatchesPlayed, GETUserMatchesWon } from '../components/api-consumer/fetch';
 
+ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
+
 export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -21,6 +25,7 @@ export default function Profile() {
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [is42user, setIs42user] = useState(false);
 
+  const [matches, setMatches] = useState([]);
   const [matchesPlayed, setMatchesPlayed] = useState(0);
   const [matchesWon, setMatchesWon] = useState(0);
   const [matchesLosed, setMatchesLosed] = useState(0);
@@ -100,6 +105,63 @@ export default function Profile() {
       console.error("Error fetching matches won", error);
     }
   };
+
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const response = await api.get(`/api/user/list-matches-played/${username}/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
+        });
+        setMatches(response.data.matches);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching matches", error);
+        setLoading(false);
+      }
+    };
+    if (username) {
+      fetchMatches();
+    }
+  }, [username]);
+
+  // Prepara los datos para el gráfico
+const cumulativeWins = [];
+const cumulativeLosses = [];
+let winCount = 0;
+let lossCount = 0;
+
+matches.forEach(match => {
+  if (match.result === 'won') {
+    winCount += 1;
+  }
+  if (match.result === 'lost') {
+    lossCount += 1;
+  }
+
+  cumulativeWins.push(winCount);
+  cumulativeLosses.push(lossCount);
+});
+const chartData = {
+  labels: matches.map(match => new Date(match.date).toLocaleDateString()),
+  datasets: [
+    {
+      label: 'Partidos Ganados',
+      data: cumulativeWins,
+      borderColor: 'green',
+      backgroundColor: 'green',
+      fill: false,
+      tension: 0.1,
+    },
+    {
+      label: 'Partidos Perdidos',
+      data: cumulativeLosses,
+      borderColor: 'red',
+      backgroundColor: 'red',
+      fill: false,
+      tension: 0.1,
+    },
+  ],
+};
 
   const handleChangeData = async (e) => {
     e.preventDefault();
@@ -274,6 +336,12 @@ export default function Profile() {
           setTwoFACode={setTwoFACode} 
           handleToggle2FA={handleToggle2FA} 
         />
+        <h3 style={{"margin":"2rem"}}>All Time Matches Stats</h3>
+        <div style={{ width: '100%', maxWidth: '800px' }}>
+          {loading ? <div>Loading...</div> : (
+            <Line data={chartData} options={{ responsive: true, maintainAspectRatio: true }} />
+          )}
+        </div>
         <div className='stats-container'>
           <Stat title={"Matches Played"} value={matchesPlayed} />
           <Stat title={"Wins"} value={matchesWon} />
