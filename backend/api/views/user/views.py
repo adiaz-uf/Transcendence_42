@@ -89,6 +89,72 @@ class OthersProfileView(generics.ListAPIView):
         return Response(serializer.data)  # Get serialized user object
 
 
+#Handles Authenticated User Activeness
+class UserActiveView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        # Check if the user is active
+        if user.active:
+            return Response({"active": True}, status=status.HTTP_200_OK)
+        else:
+            return Response({"active": False}, status=status.HTTP_200_OK)
+    def patch(self, request):
+        user = request.user
+        # Update the user's active status
+        user.active = self.request.data.get('active', False)  # Default to False if not provided
+        user.save(update_fields=['active'])
+        return Response({"message": "User activated successfully."}, status=status.HTTP_200_OK)
+# gets Others User Activeness
+class OthersActiveView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, username):
+        """Retrieve the user profile object."""
+        try:
+            return UserProfile.objects.get(username=username)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, username):
+        user =  self.get_object(username) # Retrieve user object
+        # Check if the user is active
+        if user.active:
+            return Response({"active": True}, status=status.HTTP_200_OK)
+        else:
+            return Response({"active": False}, status=status.HTTP_200_OK)
+
+from rest_framework_simplejwt.tokens import UntypedToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from django.utils import timezone
+
+# HardCoded Logout for sendBeacon method (Invoked at closing tab)
+class BeaconLogoutView(APIView):
+    authentication_classes = []  # Disable DRF authentication here
+    permission_classes = []      # Open access (manually handle auth)
+
+    def post(self, request):
+        token = request.GET.get("token")
+        active = request.GET.get("active", "false").lower() == "true"
+
+        if not token:
+            return Response({"error": "No token provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            validated_token = UntypedToken(token)
+            logger.info("Validated token:")
+            logger.info(validated_token)
+            user_id = validated_token['user_id']
+            user = UserProfile.objects.get(id=user_id)
+        except (TokenError, UserProfile.DoesNotExist, KeyError):
+            return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user.active = active
+        user.last_active = timezone.now()
+        user.save(update_fields=["active", "last_active"])
+
+        return Response({"message": "User status updated"}, status=status.HTTP_200_OK)
+
 
 class UserFriendsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -171,7 +237,6 @@ class LoginView(generics.CreateAPIView):
             'access': str(refresh.access_token),
             'id': user.id
         }
-
 
     def post(self, request):
         username = request.data.get('username')
