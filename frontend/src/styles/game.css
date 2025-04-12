@@ -53,13 +53,22 @@
 .controls-info {
     display: flex;
     justify-content: space-around;
-    margin-top: 10px;
+    color: #666;
+    justify-content: space-between;
+    width: var(--canvas-width, 800px);
+    max-width: 100%;
 }
 
 .controls-info p {
     font-size: 16px;
     color: #666;
-    margin: 0;
+}
+
+.game-specs {
+    width: 100%;
+    text-align: center;
+    color: #666;
+    margin-top: 20px;
 }
 
 .loader {
