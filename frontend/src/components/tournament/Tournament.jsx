@@ -5,6 +5,7 @@ import { Button } from 'react-bootstrap';
 import {useNavigate} from "react-router-dom";
 import LocalGame from "../game/LocalGame";
 import myImage from '../navigation/bright-neon-colors-shining-wild-chameleon_23-2151682784.jpg';
+import Marvin from './Marvin.jpg';
 
 
 export default function Tournament () {
@@ -147,9 +148,8 @@ export default function Tournament () {
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
                       src={myImage} 
-                      className="img-fluid rounded-start" 
                       alt="..." 
-                      style={{ borderRadius: '50%',width: '100px', height: '100px', objectFit: 'cover' }}
+                      style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
                   </div>
 
@@ -170,9 +170,8 @@ export default function Tournament () {
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
                       src={myImage} 
-                      className="img-fluid rounded-start" 
                       alt="..." 
-                      style={{ borderRadius: '50%',width: '100px', height: '100px', objectFit: 'cover' }}
+                      style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
                   </div>
                 </div>
@@ -185,9 +184,8 @@ export default function Tournament () {
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
                       src={myImage} 
-                      className="img-fluid rounded-start" 
                       alt="..." 
-                      style={{ borderRadius: '50%',width: '100px', height: '100px', objectFit: 'cover' }}
+                      style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
                   </div>
 
@@ -208,9 +206,8 @@ export default function Tournament () {
                   <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                     <img 
                       src={myImage} 
-                      className="img-fluid rounded-start" 
                       alt="..." 
-                      style={{ borderRadius: '50%',width: '100px', height: '100px', objectFit: 'cover' }}
+                      style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                     />
                   </div>
                 </div>
@@ -223,10 +220,9 @@ export default function Tournament () {
               
                 <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                 {((matches.semifinal1.winner  || matches.final.winner) && !(matches.semifinal1.winner  && matches.final.winner))&& (matches.final.winner === matches.semifinal1.winner || !matches.final.winner) &&( <img 
-                    src={myImage} 
-                    className="img-fluid rounded-start" 
+                    src={myImage}
                     alt="..." 
-                    style={{ borderRadius: '50%',width: '100px', height: '100px', objectFit: 'cover' }}
+                    style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                   />)}
                 </div>
 
@@ -249,10 +245,9 @@ export default function Tournament () {
                     && (matches.final.winner === matches.semifinal2.winner || !matches.final.winner) 
                     &&(
                       <img 
-                    src={myImage} 
-                    className="img-fluid rounded-start" 
+                    src={Marvin}
                     alt="..." 
-                    style={{ borderRadius: '50%',width: '100px', height: '100px', objectFit: 'cover' }}
+                    style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
                   />)}
                 </div>
               </div>
@@ -273,8 +268,8 @@ export default function Tournament () {
           {!tournamentComplete && currentStage === 'semifinals' && (
             <div className="semifinals-container">
               {!matches.semifinal1.winner && matches.semifinal1.id && (
-                <div className="mb-8">
-                  <h3 className="text-lg font-medium mb-2">Semifinal 1</h3>
+                <div className="mb-8" >
+                  <h3 className="text-lg font-medium mb-2" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>SEMIFINAL ONE</h3>
                   <LocalGame 
                     player1={matches.semifinal1.player1}
                     player2={matches.semifinal1.player2}
@@ -285,7 +280,7 @@ export default function Tournament () {
               
               {matches.semifinal1.winner && !matches.semifinal2.winner && matches.semifinal2.id && (
                 <div>
-                  <h3 className="text-lg font-medium mb-2">Semifinal 2</h3>
+                  <h3 className="text-lg font-medium mb-2" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>SEMIFINAL TWO</h3>
                   <LocalGame 
                     player1={matches.semifinal2.player1}
                     player2={matches.semifinal2.player2}
@@ -298,7 +293,7 @@ export default function Tournament () {
           
           {currentStage === 'final' && !tournamentComplete && matches.final.id && (
             <div className="final-container">
-              <h3 className="text-lg font-medium mb-2">Championship Match</h3>
+              <h3 className="text-lg font-medium mb-2" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>FINAL MATCH</h3>
               <LocalGame 
                 player1={matches.semifinal1.winner}
                 player2={matches.semifinal2.winner}
