@@ -22,7 +22,8 @@ class UserSerializer(serializers.ModelSerializer):
             "is_42user",
             "friends",
             "is_2fa_enabled",
-            "totp_secret"]
+            "totp_secret",
+            "avatar"]
         extra_kwargs = {"password": {"write_only": True}}       #Write only means this field wont be returned and cant be read be users
         
     def create(self, validated_data):                       
@@ -40,13 +41,14 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ["email", "username", "given_name", "surname", "password", "friends"]
+        fields = ["email", "username", "given_name", "surname", "password", "friends", "avatar"]
         extra_kwargs = {
             "email": {"required": False},
             "username": {"required": False},
             "given_name": {"required": False},
             "surname": {"required": False},
             "password": {"write_only": True, "required": False},  # Password shouldn't be readable
+            "avatar": {"required": False},
         }
 
     def update(self, instance, validated_data):
@@ -56,6 +58,7 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             raise TypeError("Expected a UserProfile instance")
 
         password = validated_data.pop('password', None)
+        avatar = validated_data.pop('avatar', None)
 
         for key in self.Meta.fields:
             if key in validated_data:
@@ -63,6 +66,10 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
         if password:  # Hash password before saving
             instance.set_password(password)
+        
+        if avatar:  # Handle avatar upload
+            instance.avatar = avatar
+
         instance.save()
         return instance
 

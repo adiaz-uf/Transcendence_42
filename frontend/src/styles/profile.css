@@ -31,16 +31,24 @@
   flex-wrap: wrap;
 }
 
-.avatar {
-  width: 4em;
-  height: 4em;
-  border-radius: 50%;
-  background-color: #0062cc;
+.avatar-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  font-size: 2rem;
-  color: #fff;
+  gap: 0.5em;
+}
+
+.avatar-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #0062cc;
+  transition: transform 0.2s;
+}
+
+.avatar-image:hover {
+  transform: scale(1.05);
 }
 
 .friends-container {

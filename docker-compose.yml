@@ -13,6 +13,7 @@ services:
       - db
     volumes:
       - django-admin:/app/staticfiles
+      - django-media:/app/media
       - ./blockchain:/app/blockchain
     ports:
       - "${BACKEND_PORT}:8000"
@@ -79,6 +80,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./certs:/etc/ssl/certs
       - django-admin:/app/staticfiles
+      - django-media:/app/media
     networks:
       - transcendence_net
 
@@ -86,6 +88,7 @@ volumes:
   pgdata:
   pgadmin_data:
   django-admin:
+  django-media:
 
 networks:
   transcendence_net:
