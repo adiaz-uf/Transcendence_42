@@ -555,23 +555,6 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                         display: 'block'
                     }}
                 />
-                {/* Debug overlay */}
-                <div style={{
-                    position: 'absolute',
-                    top: '10px',
-                    left: '10px',
-                    color: 'white',
-                    backgroundColor: 'rgba(0,0,0,0.7)',
-                    padding: '10px',
-                    fontSize: '12px',
-                    fontFamily: 'monospace'
-                }}>
-                    Ball: ({Math.round(gameState.ball.x)}, {Math.round(gameState.ball.y)})<br/>
-                    Velocity: ({Math.round(gameState.ball.rx)}, {Math.round(gameState.ball.ry)})<br/>
-                    Left Paddle: {Math.round(gameState.players.left.y)}<br/>
-                    Right Paddle: {Math.round(gameState.players.right.y)}<br/>
-                    Playing: {gameState.isPlaying ? 'Yes' : 'No'}
-                </div>
             </div>
             <div className="game-controls" style={{ 
                 marginTop: '20px', 
@@ -580,6 +563,13 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
             }}>
                 <div className="controls-info">
                     <p>{playerNames.left}: W/S keys</p>
+                    <div>
+                        Ball: ({Math.round(gameState.ball.x)}, {Math.round(gameState.ball.y)})<br/>
+                        Velocity: ({Math.round(gameState.ball.rx)}, {Math.round(gameState.ball.ry)})<br/>
+                        Left Paddle: {Math.round(gameState.players.left.y)}<br/>
+                        Right Paddle: {Math.round(gameState.players.right.y)}<br/>
+                        Playing: {gameState.isPlaying ? 'Yes' : 'No'}
+                    </div>
                     <p>{playerNames.right}: O/K keys</p>
                 </div>
             </div>

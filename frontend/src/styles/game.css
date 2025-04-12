@@ -56,7 +56,7 @@
     margin-top: 10px;
 }
 
-.controls-info p {
+.controls-info p, div {
     font-size: 16px;
     color: #666;
     margin: 0;
