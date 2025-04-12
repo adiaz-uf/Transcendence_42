@@ -20,7 +20,7 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .game-return button {
@@ -54,12 +54,27 @@
     display: flex;
     justify-content: space-around;
     margin-top: 10px;
+    color: white;
+    margin: 0;
 }
 
-.controls-info p, div {
-    font-size: 16px;
-    color: #666;
+.controls-paddles {
+    display: flex;
+    justify-content: space-between;
+    width: var(--canvas-width, 800px);
+    max-width: 100%;
+}
+
+.controls-paddles p {
     margin: 0;
+    font-size: clamp(12px, 2vw, 16px);
+    color: #666;
+}
+
+.game-specs {
+    color: #666;
+    text-align: center;
+    justify-content: center;
 }
 
 .loader {
