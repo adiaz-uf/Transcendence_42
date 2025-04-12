@@ -121,7 +121,24 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
       >
         <h4 style={{margin:"2em"}}><strong>All time stats</strong></h4>
         <div style={{ width: '100%', maxWidth: '800px', justifyContent:"center", display:"flex"}}>
-          <Line data={chartData} options={{ responsive: true, maintainAspectRatio: true }} />
+        <Line data={chartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: true,
+              plugins: {legend: {labels: {color: 'white',},},
+                tooltip: {backgroundColor: '#222',titleColor: 'white',bodyColor: 'white',},},
+              scales: {
+                x: {
+                  ticks: {color: 'white',},
+                  grid: { color: 'rgba(255,255,255,0.1)',},
+                },
+                y: {
+                  ticks: {color: 'white',},
+                  grid: {color: 'rgba(255,255,255,0.1)',},
+                },
+              },
+            }}
+          />
         </div>
         <div className="stats-container">
           <Stat title={"Matches Played"} value={matchesPlayed} />
