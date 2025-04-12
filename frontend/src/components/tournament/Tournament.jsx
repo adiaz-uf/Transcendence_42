@@ -2,14 +2,16 @@ import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddM
 import { useGameSetting } from '../contexts/GameContext';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import LocalGame from "../game/LocalGame";
 import myImage from '../navigation/bright-neon-colors-shining-wild-chameleon_23-2151682784.jpg';
 import Marvin from './Marvin.jpg';
+import MessageBox from '../MessageBox';
 
 
 export default function Tournament () {
     const {TournamentSettings, getUsernameById} = useGameSetting();
+    const location = useLocation();
     
     // General state of tournament only on frontend
     const [matches, setMatches] = useState({
@@ -21,6 +23,8 @@ export default function Tournament () {
     const [currentStage, setCurrentStage] = useState('semifinals'); // Progression of the Tourna
     const [tournamentComplete, setTournamentComplete] = useState(false); // End >(
     const navigate = useNavigate();// to the stars
+    const [message, setMessage] = useState(location.state?.message || null);
+    const [messageType, setMessageType] = useState(location.state?.type || 'info');
   
     // Create a match and get its ID
     const createMatch = async (player1, player2) => {
@@ -58,16 +62,24 @@ export default function Tournament () {
       console.log("Tournament", tmp)
       tmp = await GETTournamentDetails(TournamentSettings.tournamentId);
       console.log("Tournament", tmp)
-      {navigate("/")}
+      const championUsername = getUsernameById(winnerId);
+      navigate("/", { 
+        state: { 
+          message: `Congratulations to ${championUsername} for winning the tournament! 🏆`,
+          type: 'success'
+        }
+      });
     }
 
     const handleWinnerSelected = async (matchKey, winnerId) => {
       console.log("WINNER ID: ", winnerId); // Check what's being received
       console.log("Matchk ID: ", matchKey); // Check what's being received
 
-        if (matchKey === "final")          setTournamentComplete(true);
-        console.log("WINNER ID: ", winnerId); // Check what's being received
-        console.log("Matchk ID: ", matchKey); // Check what's being received
+        if (matchKey === "final") {
+          setTournamentComplete(true);
+          console.log("Tournament complete, winner:", winnerId);
+        }
+        
         setMatches(prev => {
           const match = prev[matchKey];
           const winner =
@@ -83,24 +95,38 @@ export default function Tournament () {
             }
           };
         });
-      // If both semifinals have winners, set up the final
-        if (matchKey.startsWith('semifinal') && matches.semifinal1.winner && !matches.semifinal2.winner) {
-        setCurrentStage('final');
 
-        const finalMatchId = await createMatch(matches.semifinal1.winner, matches.semifinal2.winner);
-        console.log('POSt Final match', finalMatchId);
-        setMatches(prev => ({
-          ...prev,
-          final: {
-            ...prev.final,
-            id: finalMatchId,
-            player1: matches.semifinal1.winner,
-            player2: matches.semifinal2.winner
+      // If both semifinals have winners, set up the final
+      if (matchKey.startsWith('semifinal')) {
+        const updatedMatches = {
+          ...matches,
+          [matchKey]: {
+            ...matches[matchKey],
+            winner: winnerId === 'left' ? matches[matchKey].player1 : matches[matchKey].player2
           }
-        }));
+        };
+
+        if (updatedMatches.semifinal1.winner && updatedMatches.semifinal2.winner && !matches.final.id) {
+          console.log('Setting up final match with winners:', {
+            player1: updatedMatches.semifinal1.winner,
+            player2: updatedMatches.semifinal2.winner
+          });
+          setCurrentStage('final');
+
+          const finalMatchId = await createMatch(updatedMatches.semifinal1.winner, updatedMatches.semifinal2.winner);
+          console.log('Created final match:', finalMatchId);
+          
+          setMatches(prev => ({
+            ...prev,
+            final: {
+              ...prev.final,
+              id: finalMatchId,
+              player1: updatedMatches.semifinal1.winner,
+              player2: updatedMatches.semifinal2.winner
+            }
+          }));
+        }
       }
-      
-      // If final has a winner, tournament is complete
     };
 
     useEffect(() => {
@@ -133,6 +159,13 @@ export default function Tournament () {
     console.log('TournamentSettings: ', TournamentSettings);
     return (
       <div className="tournament-container p-4 max-w-4xl mx-auto">
+        {message && (
+          <MessageBox
+            message={message}
+            type={messageType}
+            onClose={() => setMessage(null)}
+          />
+        )}
         <h1 className="text-2xl font-bold mb-6 text-center">Tournament</h1>
         
         {/* Tournament Bracket Visualization */}
@@ -156,11 +189,11 @@ export default function Tournament () {
                   {/* Text in the center */}
                   <div className="col-md-4 text-center">
                     <div className="card-body" style={{ backgroundColor: 'transparent' }}>
-                      <h5 className="card-title">Semifinal 2</h5>
+                      <h5 className="card-title">Semifinal 1</h5>
                       <p className="card-text">
                       {getUsernameById(matches.semifinal1.player1)} vs {getUsernameById(matches.semifinal1.player2)}
                       </p>
-                      {matches.semifinal2.winner && (<p>
+                      {matches.semifinal1.winner && (<p>
                       Winner: {getUsernameById(matches.semifinal1.winner)}
                       </p>)}
                     </div>
@@ -231,11 +264,11 @@ export default function Tournament () {
                   <div className="card-body" style={{ backgroundColor: 'transparent' }}>
                     <h5 className="card-title">Final Match</h5>
                     <p className="card-text">
-                    {matches.semifinal1.winner ? getUsernameById(matches.semifinal1.winner) : "To Be Determined.."} vs {matches.semifinal2.winner ? getUsernameById(matches.semifinal2.winner) : "To be Determined"}
+                    {matches.final.player1 ? getUsernameById(matches.final.player1) : "To Be Determined"} vs {matches.final.player2 ? getUsernameById(matches.final.player2) : "To Be Determined"}
                     </p>
-                    <p>
-                    {matches.final.winner && (<span className="text-green-600 font-bold"> Champion: {getUsernameById(matches.final.winner)} </span>)}
-                    </p>
+                    {matches.final.winner && (<p>
+                    Winner: {getUsernameById(matches.final.winner)}
+                    </p>)}
                   </div>
                 </div>
 
@@ -295,8 +328,8 @@ export default function Tournament () {
             <div className="final-container">
               <h3 className="text-lg font-medium mb-2" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>FINAL MATCH</h3>
               <LocalGame 
-                player1={matches.semifinal1.winner}
-                player2={matches.semifinal2.winner}
+                player1={matches.final.player1}
+                player2={matches.final.player2}
                 OnWinnerSelect={(winnerId) => handleWinnerSelected('final', winnerId)}
               />
             </div>
