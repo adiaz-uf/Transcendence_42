@@ -54,6 +54,9 @@ def send_score_to_blockchain(tournament_id: int, score_left: int, score_right: i
     try:
         account = w3.eth.account.from_key(settings.ETHEREUM_PRIVATE_KEY)
         
+        # Get current gas price and add 10% to ensure transaction goes through
+        gas_price = int(w3.eth.gas_price * 1.1)
+        
         # Build transaction
         transaction = contract.functions.addScore(
             tournament_id,
@@ -63,15 +66,26 @@ def send_score_to_blockchain(tournament_id: int, score_left: int, score_right: i
             'from': account.address,
             'nonce': w3.eth.get_transaction_count(account.address),
             'gas': 2000000,
-            'gasPrice': w3.eth.gas_price
+            'gasPrice': gas_price
         })
         
         # Sign and send transaction
         signed_txn = w3.eth.account.sign_transaction(transaction, settings.ETHEREUM_PRIVATE_KEY)
         tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         
-        logger.info(f"Score added to blockchain: {tx_hash.hex()}")
-        return True
+        # Wait for transaction receipt with timeout
+        try:
+            receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
+            if receipt.status == 1:
+                logger.info(f"Score added to blockchain: {tx_hash.hex()}")
+                return True
+            else:
+                logger.error(f"Transaction failed: {tx_hash.hex()}")
+                return False
+        except Exception as e:
+            logger.error(f"Error waiting for transaction receipt: {str(e)}")
+            return False
+            
     except Exception as e:
         logger.error(f"Blockchain error: {str(e)}")
         return False

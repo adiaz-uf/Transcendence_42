@@ -99,8 +99,10 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
         headers: { Authorization: `Bearer ${accessToken}` }
       })
         .then(response => {
-          const username = response.data.username; 
-          localStorage.setItem("username", username); 
+          const username = response.data.username;
+          const userId = response.data.id;
+          localStorage.setItem("username", username);
+          localStorage.setItem("userId", userId);
           navigate("/", {
             state: {
                 message: "Ready to play !",
