@@ -1,3 +1,108 @@
+◦ Major module: Use a Framework as backend.
+
+Use a Framework as backend.
+In this major module, you are required to utilize a specific web framework for your
+backend development, and that framework is Django .
+
+◦ Minor module: Use a front-end framework or toolkit.
+
+Use a front-end framework or toolkit.
+Your frontend development will utilize the Bootstrap toolkit .
+
+◦ Minor module: Use a database for the backend.
+
+Use a database for the backend -and more.
+The designated database for all DB instances in your project is PostgreSQL .
+This choice guarantees data consistency and compatibility across all project components and may be a prerequisite for other modules, such as the backend Framework module.
+
+◦ Major module: Store the score of a tournament in the Blockchain.
+
+Store the score of a tournament in the Blockchain.
+This Major module focuses on implementing a feature within the Pong website to store tournament scores securely on a blockchain. It is essential to clarify that for development and testing purposes, we will utilize a testing blockchain environment.
+The chosen blockchain for this implementation is Ethereum , and Solidity will be the programming language used for smart contract development.
+Blockchain Integration: The primary goal of this module is to seamlessly integrate blockchain technology, specifically Ethereum , into the Pong website.
+This integration ensures the secure and immutable storage of tournament scores, providing players with a transparent and tamper-proof record of their gaming achievements.
+Solidity Smart Contracts: To interact with the blockchain, we will develop smart contracts. These contracts will be responsible for recording, managing, and retrieving tournament scores.
+Testing Blockchain: As mentioned earlier, a testing blockchain will be employed for development and testing purposes. This ensures that all blockchain related functionalities are thoroughly validated without any risks associated
+with a live blockchain.
+
+Interoperability: This module may have dependencies on other modules, particularly the Backend Framework module. Integrating blockchain functionality might necessitate adjustments in the backend to accommodate interactions
+with the blockchain. By implementing this module, we aim to enhance the Pong website by introducing
+a blockchain-based score storage system. Users will benefit from the added layer of security and transparency, ensuring the integrity of their gaming scores. The module emphasizes the use of a testing blockchain environment to minimize risks associated with blockchain development.
+
+
+◦ Major module: Standard user management, authentication, 
+   users across tournaments.
+
+Users can subscribe to the website in a secure way.
+Registered users can log in in a secure way.
+Users can select a unique display name to play the tournaments.
+Users can update their information.
+Users can upload an avatar, with a default option if none is provided.
+Users can add others as friends and view their online status.
+User profiles display stats, such as wins and losses.
+Each user has a Match History including 1v1 games, dates, and relevant details, accessible to logged-in users.
+
+◦ Major module: Implementing a remote authentication.
+
+ Integrate the authentication system, allowing users to securely sign in.
+Obtain the necessary credentials and permissions from the authority to enable a secure login.
+Implement user friendly login and authorization flows that adhere to best practices and security standards.
+Ensure the secure exchange of authentication tokens and user information between the web application and the authentication provider.
+
+◦ Minor module: Game Customization Options.
+
+Offer customization features, such as power-ups, attacks, or different maps, that enhance the gameplay experience.
+Allow users to choose a default version of the game with basic features if they prefer a simpler experience.
+Ensure that customization options are available and applicable to all games offered on the platform.
+Implement user-friendly settings menus or interfaces for adjusting game parameters.
+Maintain consistency in customization features across all games to provide a unified user experience.
+
+◦ Minor module: User and Game Stats Dashboards
+
+Create user-friendly dashboards that provide users with insights into their own gaming statistics.
+Develop a separate dashboard for game sessions, showing detailed statistics, outcomes, and historical data for each match.
+Ensure that the dashboards offer an intuitive and informative user interface for tracking and analyzing data.
+Implement data visualization techniques, such as charts and graphs, to present statistics in a clear and visually appealing manner.
+Allow users to access and explore their own gaming history and performance metrics conveniently.
+Feel free to add any metrics you deem useful.
+
+◦ Major module: Implement Two-Factor Authentication (2FA) and JWT.
+
+Implement Two-Factor Authentication (2FA) as an additional layer of security for user accounts, requiring users to provide a secondary verification method, such as a one-time code, in addition to their password.
+Utilize JSON Web Tokens (JWT) as a secure method for authentication and authorization, ensuring that user sessions and access to resources are managed securely.
+Provide a user-friendly setup process for enabling 2FA, with options for SMS codes, authenticator apps, or email-based verification.
+Ensure that JWT tokens are issued and validated securely to prevent unauthorized access to user accounts and sensitive data.
+
+
+◦ Major module: Designing the Backend as Microservices.
+
+Divide the backend into smaller, loosely-coupled microservices, each responsible for specific functions or features.
+Define clear boundaries and interfaces between microservices to enable independent development, deployment, and scaling.
+Implement communication mechanisms between microservices, such as RESTful APIs or message queues, to facilitate data exchange and coordination.
+Ensure that each microservice is responsible for a single, well-defined task or business capability, promoting maintainability and scalability.
+
+◦ Minor module: Support on all devices.
+
+Make sure the website is responsive, adapting to different screen sizes and orientations, ensuring a consistent user experience on desktops, laptops, tablets, and smartphones.
+Ensure that users can easily navigate and interact with the website using different input methods, such as touchscreens, keyboards, and mice, depending on the device they are using.
+
+◦ Minor module: Expanding Browser Compatibility.
+
+Extend browser support to include an additional web browser, ensuring that users can access and use the application seamlessly.
+Conduct thorough testing and optimization to ensure that the web application functions correctly and displays correctly in the newly supported browser.
+Address any compatibility issues or rendering discrepancies that may arise in the added web browser.
+Ensure a consistent user experience across all supported browsers, maintaining usability and functionality.
+
+◦ Major module: Replacing Basic Pong with Server-Side Pong and
+   Implementing an API.
+
+Develop server-side logic for the Pong game to handle gameplay, ball movement, scoring, and player interactions.
+Create an API that exposes the necessary resources and endpoints to interact with the Pong game, allowing partial usage of the game via the Command-Line Interface (CLI) and web interface.
+Design and implement the API endpoints to support game initialization, player controls, and game state updates.
+Ensure that the server-side Pong game is responsive, providing an engaging and enjoyable gaming experience.
+Integrate the server-side Pong game with the web application, allowing users to play the game directly on the website.
+
 Reflect active status when logged off ?
     If this isnt the online ofline of friends then that also.
 
