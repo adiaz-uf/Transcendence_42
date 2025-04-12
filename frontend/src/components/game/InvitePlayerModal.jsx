@@ -1,4 +1,4 @@
-import React, { useState }                                                from 'react';
+import React, { useState, useEffect }                                                from 'react';
 import { Form, Button, Modal }                                            from 'react-bootstrap';
 import {useNavigate}                                                      from "react-router-dom";
 import { useGameSetting }                                                 from '../contexts/GameContext';
@@ -8,7 +8,8 @@ import MessageBox from '../MessageBox';
 export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   
   const {gameType, setGameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername, 
-    updateTournamentSetting, setTournamentId} = useGameSetting();
+    updateTournamentSetting, setTournamentId, loadGameSettings, gameSettings, loadingSettings, 
+    settingsError, areSettingsReady} = useGameSetting();
   const [newUsername1, setNewUsername1] = useState('');
   const [newUsername2, setNewUsername2] = useState('');
   const [newUsername3, setNewUsername3] = useState('');
@@ -18,7 +19,25 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   
   const navigate = useNavigate(); 
 
+  // Load game settings when modal is shown
+  useEffect(() => {
+    if (showModal && !gameSettings) {
+      console.log("Modal shown, loading game settings...");
+      loadGameSettings();
+    } else if (showModal && gameSettings) {
+      console.log("Modal shown with existing game settings:", gameSettings);
+    }
+  }, [showModal, gameSettings, loadGameSettings]);
+
   const validateForm = () => {
+    if (!areSettingsReady()) {
+      console.log("Form validation failed - settings not ready");
+      setMessage('Game settings are not ready yet. Please wait...');
+      setMessageType('info');
+      return false;
+    }
+    console.log("Form validation passed - settings are ready");
+
     if (!newUsername1.trim()) {
       setMessage('Please enter an opponent username');
       setMessageType('info');
@@ -45,6 +64,11 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       //        W GUEST       //
       //                      //
   const handleSkip = async () => {
+    if (!areSettingsReady()) {
+      setMessage('Game settings are not ready yet. Please wait...');
+      setMessageType('info');
+      return;
+    }
     try {
       setIsInviting(true);
       let player_1_id = localStorage.getItem('userId');
@@ -85,7 +109,11 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   };
 
   const handleUsernameInvite = async (e) => {
-
+    if (!areSettingsReady()) {
+      setMessage('Game settings are not ready yet. Please wait...');
+      setMessageType('info');
+      return;
+    }
     console.log("Gametype: ", gameType);
     e.preventDefault();
     setMessage(null);
@@ -257,6 +285,19 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           onClose={() => setMessage(null)}
         />
       )}
+      {loadingSettings && (
+        <div className="text-center p-3">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">Loading game settings...</p>
+        </div>
+      )}
+      {settingsError && (
+        <div className="alert alert-danger m-3" role="alert">
+          {settingsError}
+        </div>
+      )}
       <Modal.Header closeButton>
         {gameType === "tournament" ?
           (<Modal.Title>{isInvited ? 'Waiting Opponent' :  'Enter your opponents usernames'}</Modal.Title>):
@@ -308,18 +349,20 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
                   required />
               </Form.Group>
             )}
-            {!(gameType == "tournament") &&(<Button 
-              variant="warning" 
-              className="mt-3 w-100" 
-              onClick={handleSkip} 
-              disabled={isInviting}>
-              Skip (Start Local Game)
-            </Button>)}
+            {!(gameType == "tournament") &&(
+              <Button 
+                variant="warning" 
+                className="mt-3 w-100" 
+                onClick={handleSkip} 
+                disabled={isInviting || !areSettingsReady()}>
+                Skip (Start Local Game)
+              </Button>
+            )}
             <Button 
               variant="primary" 
               type="button" 
               className="mt-3 w-100" 
-              disabled={isInviting}
+              disabled={isInviting || !areSettingsReady()}
               onClick={() => {
                 if (validateForm()) {
                   handleUsernameInvite({ preventDefault: () => {} });
