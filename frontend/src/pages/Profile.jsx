@@ -339,8 +339,7 @@ const chartData = {
         <h3 style={{"margin":"2rem"}}>All Time Matches Stats</h3>
         <div style={{ width: '100%', maxWidth: '800px' }}>
           {loading ? <div>Loading...</div> : (
-            <Line
-            data={chartData}
+            <Line data={chartData}
             options={{
               responsive: true,
               maintainAspectRatio: true,
