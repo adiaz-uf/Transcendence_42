@@ -3,6 +3,7 @@
   max-width: 64rem;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }
 
 .tournament-bracket {
@@ -10,6 +11,7 @@
   flex-direction: column;
   align-items: center;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .bracket-visualization {
@@ -17,35 +19,48 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 2rem;
 }
 
 .tournament-avatar {
-  border-radius: 80%;
+  border-radius: 50%;
   width: 250px;
   height: 250px;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.tournament-avatar:hover {
+  transform: scale(1.05);
 }
 
 .tournament-card {
   background-color: transparent;
   border: none;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 .tournament-card-body {
   background-color: transparent;
+  padding: 1rem;
 }
 
 .tournament-card-title {
   color: white;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .tournament-card-text {
   color: white;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
 }
 
 .tournament-match-container {
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .tournament-match-title {
@@ -55,6 +70,7 @@
   font-size: 1.125rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
+  color: white;
 }
 
 .tournament-results {
@@ -62,17 +78,22 @@
   padding: 1.5rem;
   background-color: transparent;
   border-radius: 0.5rem;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .tournament-results h3 {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
+  color: white;
 }
 
 .tournament-results p {
   font-size: 1.25rem;
   margin-bottom: 1.5rem;
+  color: white;
 }
 
 .tournament-button {
@@ -80,8 +101,109 @@
   color: white;
   padding: 0.5rem 1.5rem;
   border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .tournament-button:hover {
   background-color: #1d4ed8;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .tournament-avatar {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+@media (max-width: 992px) {
+  .tournament-avatar {
+    width: 180px;
+    height: 180px;
+  }
+
+  .tournament-card-title {
+    font-size: 1.3rem;
+  }
+
+  .tournament-card-text {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .tournament-container {
+    padding: 0.5rem;
+  }
+
+  .tournament-avatar {
+    width: 150px;
+    height: 150px;
+  }
+
+  .tournament-card-title {
+    font-size: 1.2rem;
+  }
+
+  .tournament-card-text {
+    font-size: 0.9rem;
+  }
+
+  .tournament-results {
+    padding: 1rem;
+  }
+
+  .tournament-results h3 {
+    font-size: 1.3rem;
+  }
+
+  .tournament-results p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .tournament-avatar {
+    width: 120px;
+    height: 120px;
+  }
+
+  .tournament-card-title {
+    font-size: 1.1rem;
+  }
+
+  .tournament-card-text {
+    font-size: 0.8rem;
+  }
+
+  .tournament-results h3 {
+    font-size: 1.2rem;
+  }
+
+  .tournament-results p {
+    font-size: 1rem;
+  }
+
+  .tournament-button {
+    padding: 0.4rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Additional responsive adjustments for very small screens */
+@media (max-width: 400px) {
+  .tournament-avatar {
+    width: 100px;
+    height: 100px;
+  }
+
+  .tournament-card-title {
+    font-size: 1rem;
+  }
+
+  .tournament-card-text {
+    font-size: 0.75rem;
+  }
 } 
