@@ -1,0 +1,18 @@
+Reflect active status when logged off ?
+    If this isnt the online ofline of friends then that also.
+
+Todo:
+    42 Auth not working?
+    42 Auth user does not have ID in tournaments.
+    How to play on mobile.
+    Arreglar bugs juego
+Low Priority
+    Colour behind game canvas
+    Cant take marvin as a name
+
+In progress
+    Avatar - Bel
+
+Hecho:
+    Comprobar no sean iguales los player al empezar torneo
+    Local Game: Opponent being another user - at the moment they're a guest by default.
