@@ -544,6 +544,10 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                     {gameState.connectionError}
                 </div>
             )}
+            <div className="controls-paddles">
+                <p>{playerNames.left}: W/S keys</p>
+                <p>{playerNames.right}: O/K keys</p>
+            </div>
             <div style={{ position: 'relative' }}>
                 <canvas
                     ref={canvasRef}
@@ -561,16 +565,12 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                 color: 'white', 
                 textAlign: 'center' 
             }}>
-                <div className="controls-info">
-                    <p>{playerNames.left}: W/S keys</p>
-                    <div>
-                        Ball: ({Math.round(gameState.ball.x)}, {Math.round(gameState.ball.y)})<br/>
-                        Velocity: ({Math.round(gameState.ball.rx)}, {Math.round(gameState.ball.ry)})<br/>
-                        Left Paddle: {Math.round(gameState.players.left.y)}<br/>
-                        Right Paddle: {Math.round(gameState.players.right.y)}<br/>
-                        Playing: {gameState.isPlaying ? 'Yes' : 'No'}
-                    </div>
-                    <p>{playerNames.right}: O/K keys</p>
+                <div className="game-specs">
+                    Ball: ({Math.round(gameState.ball.x)}, {Math.round(gameState.ball.y)})<br/>
+                    Velocity: ({Math.round(gameState.ball.rx)}, {Math.round(gameState.ball.ry)})<br/>
+                    Left Paddle: {Math.round(gameState.players.left.y)}<br/>
+                    Right Paddle: {Math.round(gameState.players.right.y)}<br/>
+                    Playing: {gameState.isPlaying ? 'Yes' : 'No'}
                 </div>
             </div>
             {gameState.gameOver && toggleGameOverModal && (
