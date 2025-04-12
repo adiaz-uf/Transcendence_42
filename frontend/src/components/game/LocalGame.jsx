@@ -552,6 +552,10 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                     {gameState.connectionError}
                 </div>
             )}
+            <div className="controls-paddles">
+                <p>{playerNames.left}: W/S keys</p>
+                <p>{playerNames.right}: O/K keys</p>
+            </div>
             <div style={{ position: 'relative' }}>
                 <canvas
                     ref={canvasRef}
@@ -563,32 +567,18 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                         display: 'block'
                     }}
                 />
-                {/* Debug overlay */}
-                <div style={{
-                    position: 'absolute',
-                    top: '10px',
-                    left: '10px',
-                    color: 'white',
-                    backgroundColor: 'rgba(0,0,0,0.7)',
-                    padding: '10px',
-                    fontSize: '12px',
-                    fontFamily: 'monospace'
-                }}>
-                    Ball: ({Math.round(gameState.ball.x)}, {Math.round(gameState.ball.y)})<br/>
-                    Velocity: ({Math.round(gameState.ball.rx)}, {Math.round(gameState.ball.ry)})<br/>
-                    Left Paddle: {Math.round(gameState.players.left.y)}<br/>
-                    Right Paddle: {Math.round(gameState.players.right.y)}<br/>
-                    Playing: {gameState.isPlaying ? 'Yes' : 'No'}
-                </div>
             </div>
             <div className="game-controls" style={{ 
                 marginTop: '20px', 
                 color: 'white', 
                 textAlign: 'center' 
             }}>
-                <div className="controls-info">
-                    <p>{playerNames.left}: W/S keys</p>
-                    <p>{playerNames.right}: O/K keys</p>
+                <div className="game-specs">
+                    Ball: ({Math.round(gameState.ball.x)}, {Math.round(gameState.ball.y)})<br/>
+                    Velocity: ({Math.round(gameState.ball.rx)}, {Math.round(gameState.ball.ry)})<br/>
+                    Left Paddle: {Math.round(gameState.players.left.y)}<br/>
+                    Right Paddle: {Math.round(gameState.players.right.y)}<br/>
+                    Playing: {gameState.isPlaying ? 'Yes' : 'No'}
                 </div>
             </div>
             {gameState.gameOver && toggleGameOverModal && (

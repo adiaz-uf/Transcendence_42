@@ -12,7 +12,8 @@ export const GameSettingProvider = ({ children }) => {
   const [opponentUsername, setOpponentUsername] = useState(""); // Username for invitation
   const [isMultiplayer, setIsMultiplayer] = useState(false); // Multiplayer game
   const [gameSettings, setGameSettings] = useState(null);
-  const [loadingSettings, setLoadingSettings] = useState(true);
+  const [loadingSettings, setLoadingSettings] = useState(false);
+  const [settingsError, setSettingsError] = useState(null);
   const [TournamentSettings, setTournamentSettings] = useState({
       Player1: null,
       Player2: null,
@@ -91,25 +92,36 @@ export const GameSettingProvider = ({ children }) => {
   
  // New state for game settings
 
- // Fetch game settings when the provider mounts
-  useEffect(() => {
-   async function fetchGameSettings() {
-     try {
-       const fetchedSettings = await GETGameSettings();
-       setGameSettings(fetchedSettings);
-     } catch (err) {
-       console.error("Error fetching game settings:", err);
-     } finally {
-       setLoadingSettings(false);
-     }
-   }
-   fetchGameSettings();
- }, []);
+ const loadGameSettings = async () => {
+    if (gameSettings) {
+      console.log("Game settings already loaded:", gameSettings);
+      return;
+    }
+    console.log("Loading game settings...");
+    setLoadingSettings(true);
+    setSettingsError(null);
+    try {
+      const fetchedSettings = await GETGameSettings();
+      console.log("Game settings loaded successfully:", fetchedSettings);
+      setGameSettings(fetchedSettings);
+    } catch (err) {
+      console.error("Error fetching game settings:", err);
+      setSettingsError(err.message || "Failed to load game settings");
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
 
- if (loadingSettings) {
-  return <div>Loading game settings...</div>;
-}
-
+  const areSettingsReady = () => {
+    const ready = !loadingSettings && gameSettings !== null && settingsError === null;
+    console.log("Game settings ready check:", {
+      loadingSettings,
+      hasGameSettings: gameSettings !== null,
+      settingsError,
+      ready
+    });
+    return ready;
+  };
 
   return (
     <GameContext.Provider 
@@ -122,7 +134,11 @@ export const GameSettingProvider = ({ children }) => {
         TournamentSettings, updateTournamentSetting,
         gameType, setGameType,
         getUsernameById,
-        gameSettings}}>
+        gameSettings,
+        loadGameSettings,
+        loadingSettings,
+        settingsError,
+        areSettingsReady}}>
       {children}
     </GameContext.Provider>
   );
