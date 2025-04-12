@@ -218,3 +218,34 @@ class MatchesWonView(APIView):
         total_wins = left_wins + right_wins
 
         return Response({'username': username, 'matches_won': total_wins}, status=status.HTTP_200_OK)
+    
+class UserListMatchesView(APIView):
+    def get(self, request, username, format=None):
+        try:
+            # Buscamos al usuario por su nombre de usuario
+            user = UserProfile.objects.get(username=username)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Filtramos los partidos en los que ha jugado el usuario
+        matches = Match.objects.filter(player_left=user) | Match.objects.filter(player_right=user)
+
+        # Preparamos la respuesta con los datos de los partidos
+        match_data = []
+        for match in matches:
+            # Determinamos si el partido fue ganado o perdido por el usuario
+            if match.left_score > match.right_score:
+                result = 'won' if match.player_left == user else 'lost'
+            else:
+                result = 'lost' if match.player_left == user else 'won'
+
+            match_data.append({
+                'date': match.date,
+                'result': result
+            })
+
+        # Ordenamos los partidos por fecha
+        match_data = sorted(match_data, key=lambda x: x['date'])
+
+        # Devolvemos la respuesta como JSON
+        return Response({'matches': match_data}, status=status.HTTP_200_OK)
