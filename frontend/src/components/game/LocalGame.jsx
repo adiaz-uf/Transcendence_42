@@ -17,12 +17,20 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
     
     const resolvePlayerNames = () => {
         if (gameType === "tournament" && player1 && player2) {
-            return {left: TournamentSettings.Player1username, right: TournamentSettings.Player2username};
+            return {
+                left: getUsernameById(player1),
+                right: getUsernameById(player2)
+            };
         }
-        if (gameType === "match" && TournamentSettings.Player1 && TournamentSettings.Player2) {
-            return {left: TournamentSettings.Player1username, right: TournamentSettings.Player2username};
+        if (gameType === "match" && player1 && player2) {
+            return {
+                left: getUsernameById(player1),
+                right: getUsernameById(player2)
+            };
         }
-        return {left: TournamentSettings.Player1username, right: "Marvin"
+        return {
+            left: getUsernameById(player1) || "Player 1",
+            right: getUsernameById(player2) || "Marvin"
         };
     };
     
@@ -433,9 +441,9 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
         if (gameState.gameOver) {
             ctx.font = '60px Arial';
             ctx.fillStyle = 'white';
-            const winner = gameState.winner === 'left' ? 'Left' : 'Right';
+            const winner = gameState.winner === 'left' ? playerNames.left : playerNames.right;
             ctx.textAlign = 'center';
-            ctx.fillText(`${winner} Player Wins!`, gameSettings.CANVAS_WIDTH / 2, gameSettings.CANVAS_HEIGHT / 2 - 30);
+            ctx.fillText(`${winner} Wins!`, gameSettings.CANVAS_WIDTH / 2, gameSettings.CANVAS_HEIGHT / 2 - 30);
         }
     }, [gameState]);
 
