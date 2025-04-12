@@ -523,7 +523,6 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
             flexDirection: 'column', 
             alignItems: 'center', 
             padding: '20px',
-            backgroundColor: '#1a1a1a',
             minHeight: '100vh'
         }}>
             {message && (
