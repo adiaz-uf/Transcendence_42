@@ -14,6 +14,7 @@ import Friends from '../components/Friends';
 import AvatarUpload from '../components/AvatarUpload';
 import { GETCurrentProfileInfo, GETUserMatchesPlayed, GETUserMatchesWon } from '../components/api-consumer/fetch';
 import defaultAvatar from '../components/navigation/chameleon.jpg';
+import MatchHistory from '../components/MatchHistory';
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
 
@@ -393,6 +394,7 @@ const chartData = {
           fetchProfileData(); // Refresh the profile data
         }}
       />
+      <MatchHistory username={username} />
       </div>
     </>
   );

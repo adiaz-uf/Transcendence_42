@@ -1,0 +1,84 @@
+.match-history-container {
+    padding: 20px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.match-history-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.match-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.match-item {
+    background-color: #2e2e2e;
+    padding: 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease;
+}
+
+.match-item:hover {
+    background-color: #3a3a3a;
+}
+
+.match-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.match-date {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.match-type {
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.match-type.multiplayer {
+    color: #4caf50; /* Green for multiplayer */
+}
+
+.match-type.singleplayer {
+    color: #f44336; /* Red for singleplayer */
+}
+
+.match-details {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+}
+
+.player {
+    font-weight: bold;
+}
+
+.vs {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.match-duration {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #aaa;
+    text-align: center;
+}

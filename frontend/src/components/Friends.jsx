@@ -36,6 +36,7 @@ export default function Friends() {
       useEffect(() => {
         const updateFriendsStatus = async () => {
             console.log("Updating friends' status...");
+            if (friends.length === 0) return; // No friends to update
             const updatedFriends = await Promise.all(
                 friends.map(async (friend) => {
                     try {
@@ -54,6 +55,7 @@ export default function Friends() {
         };
 
         // Set an interval to update friends' statuses every 10 seconds
+
         const intervalId = setInterval(updateFriendsStatus, 10000);
 
         // Cleanup the interval on component unmount

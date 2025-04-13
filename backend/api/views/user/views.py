@@ -302,6 +302,7 @@ class UserListMatchesView(APIView):
         # Preparamos la respuesta con los datos de los partidos
         match_data = []
         for match in matches:
+            serialized_match  = MatchSerializer(match).data
             # Determinamos si el partido fue ganado o perdido por el usuario
             if match.left_score > match.right_score:
                 result = 'won' if match.player_left == user else 'lost'
@@ -309,12 +310,14 @@ class UserListMatchesView(APIView):
                 result = 'lost' if match.player_left == user else 'won'
 
             match_data.append({
-                'date': match.date,
-                'result': result
+                'result': result,
+                'match': serialized_match
             })
 
         # Ordenamos los partidos por fecha
-        match_data = sorted(match_data, key=lambda x: x['date'])
+        # match_data = sorted(match_data, key=lambda x: x['date'])
+        match_data = sorted(match_data, key=lambda x: x['match']['date'], reverse=True)
+
 
         # Devolvemos la respuesta como JSON
         return Response({'matches': match_data}, status=status.HTTP_200_OK)
