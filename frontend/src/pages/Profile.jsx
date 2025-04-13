@@ -11,7 +11,9 @@ import EditProfileModal from '../components/EditProfileModal';
 import TwoFAModal from '../components/TwoFAModal';
 import MessageBox from '../components/MessageBox';
 import Friends from '../components/Friends';
+import AvatarUpload from '../components/AvatarUpload';
 import { GETCurrentProfileInfo, GETUserMatchesPlayed, GETUserMatchesWon } from '../components/api-consumer/fetch';
+import defaultAvatar from '../components/navigation/chameleon.jpg';
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
 
@@ -19,11 +21,13 @@ export default function Profile() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
+  const [avatar, setAvatar] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [messageType, setMessageType] = useState("");
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [is42user, setIs42user] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   const [matches, setMatches] = useState([]);
   const [matchesPlayed, setMatchesPlayed] = useState(0);
@@ -68,7 +72,7 @@ export default function Profile() {
 
   const fetchProfileData = async () => {
     try {
-      const { id, username, email, given_name, surname, is_42user, is_2fa_enabled } = await GETCurrentProfileInfo(localStorage.getItem('username'));
+      const { id, username, email, given_name, surname, is_42user, is_2fa_enabled, avatar } = await GETCurrentProfileInfo(localStorage.getItem('username'));
       setUsername(username);
       setEmail(email);
       setName(`${given_name} ${surname}`);
@@ -77,12 +81,11 @@ export default function Profile() {
       setNewUsername(username);
       setIs42user(is_42user);
       setIs2FAEnabled(is_2fa_enabled);
+      setAvatar(avatar || defaultAvatar);
       localStorage.setItem("username", username);
       localStorage.setItem("userId", id);
       setLoading(false);
-
-    } catch (error)
-    {
+    } catch (error) {
       setError(error?.response?.data || "Fetch failed");
       setMessageType("error");
     }
@@ -291,7 +294,23 @@ const chartData = {
       )}
       <div className='profile-body'>
         <div className="profile-container">
-          <div className="avatar">{getAvatarLetter(name)}</div>
+          <div className="avatar-container">
+            <img 
+              src={avatar || defaultAvatar} 
+              alt="Profile" 
+              className="avatar-image"
+              onClick={() => setShowAvatarModal(true)}
+              style={{ cursor: 'pointer' }}
+            />
+            <Button 
+              variant="outline-primary" 
+              size="sm" 
+              className="mt-2"
+              onClick={() => setShowAvatarModal(true)}
+            >
+              Change Avatar
+            </Button>
+          </div>
           <div className="profile-info">
             <div className="profile-details">
               <h1>Profile Details</h1>
@@ -366,6 +385,14 @@ const chartData = {
           <Stat title={"Win Rate"} value={winRatio} />
         </div>
       <Friends />
+      <AvatarUpload 
+        show={showAvatarModal}
+        handleClose={() => setShowAvatarModal(false)}
+        onAvatarUpdate={(newAvatar) => {
+          setAvatar(newAvatar);
+          fetchProfileData(); // Refresh the profile data
+        }}
+      />
       </div>
     </>
   );
