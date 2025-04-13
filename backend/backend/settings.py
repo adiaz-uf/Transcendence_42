@@ -54,6 +54,10 @@ SIMPLE_JWT = {
 STATIC_URL = '/staticfiles/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # Inside container path
 
+# Media files configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 
 # Application definition
