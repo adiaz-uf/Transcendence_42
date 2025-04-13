@@ -17,7 +17,7 @@ export default function MatchHistory({ username }) {
                 if (response?.data) {
                     // Sort matches by date (most recent first)
                     console.log("Fetched matches:", response);
-                    setMatches(response);
+                    setMatches(response.data);
                 } else {
                     setError("Failed to fetch match history.");
                 }
@@ -43,7 +43,7 @@ export default function MatchHistory({ username }) {
                 <p>No matches found.</p>
             ) : (
                 <div className="match-list">
-                    {matches.map((valueInArray) => (
+                    {Array.isArray(matches) && matches.map((valueInArray) => (
                         <div key={valueInArray.match.id} className="match-item">
                             <div className="match-header">
                                 <span className="match-date">
