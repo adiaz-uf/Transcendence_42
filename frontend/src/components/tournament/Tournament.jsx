@@ -323,49 +323,6 @@ export default function Tournament () {
     console.log('Tournament Complete: ', tournamentComplete);
     console.log('Current Stage: ', currentStage);
     console.log('TournamentSettings: ', TournamentSettings);
-    return (
-      <div className="tournament-container">
-        {message && (
-          <MessageBox
-            message={message}
-            type={messageType}
-            onClose={() => setMessage(null)}
-          />
-        )}
-        <h1 className="text-2xl font-bold mb-6 text-center">Tournament</h1>
-        
-        <div className="tournament-bracket">
-          <div className="bracket-visualization">
-            {/* Semifinal 1 */}
-            <div className="tournament-card">
-                <div className="row g-0 align-items-center">
-                  <div className="col-md-4 d-flex justify-content-center align-items-center">
-                    <img 
-                      src={playerAvatars[matches.semifinal1.player1] || defaultAvatar} 
-                      alt="..." 
-                      className="tournament-avatar"
-                    />
-                  </div>
-
-                  <div className="col-md-4 text-center">
-                    <div className="tournament-card-body">
-                      <h5 className="tournament-card-title">Semifinal 1</h5>
-                      <p className="tournament-card-text">
-                      {getUsernameById(matches.semifinal1.player1)} vs {getUsernameById(matches.semifinal1.player2)}
-                      </p>
-                      {matches.semifinal1.winner && (<p>
-                      Winner: {getUsernameById(matches.semifinal1.winner)}
-                      </p>)}
-                    </div>
-                  </div>
-
-                  <div className="col-md-4 d-flex justify-content-center align-items-center">
-                    <img 
-                      src={playerAvatars[matches.semifinal1.player2] || defaultAvatar} 
-                      alt="..." 
-                      className="tournament-avatar"
-                    />
-                  </div>
     initTournament();
   }, [TournamentSettings]);
 
@@ -388,7 +345,7 @@ export default function Tournament () {
   console.log('Current Stage: ', currentStage);
   console.log('TournamentSettings: ', TournamentSettings);
   return (
-    <div className="tournament-container p-4 max-w-4xl mx-auto">
+    <div className="tournament-container">
       {message && (
         <MessageBox
           message={message}
@@ -398,143 +355,156 @@ export default function Tournament () {
       )}
       <h1 className="text-2xl font-bold mb-6 text-center">Tournament</h1>
       
-      {/* Tournament Bracket Visualization */}
-      {(<div className="tournament-bracket flex flex-col items-center mb-8">
-        {/* Visualization of the tournament bracket */}
-        <div className="bracket-visualization w-full flex flex-col items-center">
-          {/* Semifinals */}
-
+      <div className="tournament-bracket">
+        <div className="bracket-visualization">
           {/* Semifinal 1 */}
-          <div className="card mb-3" style={{ backgroundColor: 'transparent', border: 'none' }}>
-              <div className="row g-0 align-items-center">
-                {/* Left Image */}
-                <div className="col-md-4" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                  <img 
-                    src={myImage} 
-                    alt="..." 
-                    style={{ borderRadius: '80%',width: '250px', height: '250px', objectFit: 'cover' }}
-                  />
-                </div>
+          <div className="tournament-card">
+            <div className="row g-0 align-items-center">
+              <div className="col-md-4 d-flex justify-content-center align-items-center">
+                <img 
+                  src={playerAvatars[matches.semifinal1.player1] || defaultAvatar} 
+                  alt="..." 
+                  className="tournament-avatar"
+                />
+              </div>
 
-              {/* Semifinal 2 */}
-              <div className="tournament-card">
-                <div className="row g-0 align-items-center">
-                  <div className="col-md-4 d-flex justify-content-center align-items-center">
-                    <img 
-                      src={playerAvatars[matches.semifinal2.player1] || defaultAvatar} 
-                      alt="..." 
-                      className="tournament-avatar"
-                    />
-                  </div>
-
-                  <div className="col-md-4 text-center">
-                    <div className="tournament-card-body">
-                      <h5 className="tournament-card-title">Semifinal 2</h5>
-                      <p className="tournament-card-text">
-                      {getUsernameById(matches.semifinal2.player1)} vs {getUsernameById(matches.semifinal2.player2)}
-                      </p>
-                      {matches.semifinal2.winner && (<p>
-                      Winner: {getUsernameById(matches.semifinal2.winner)}
-                      </p>)}
-                    </div>
-                  </div>
-                </div>
-                  <div className="col-md-4 d-flex justify-content-center align-items-center">
-                    <img 
-                      src={playerAvatars[matches.semifinal2.player2] || defaultAvatar} 
-                      alt="..." 
-                      className="tournament-avatar"
-                    />
-                  </div>
-
+              <div className="col-md-4 text-center">
+                <div className="tournament-card-body">
+                  <h5 className="tournament-card-title">Semifinal 1</h5>
+                  <p className="tournament-card-text">
+                    {getUsernameById(matches.semifinal1.player1)} vs {getUsernameById(matches.semifinal1.player2)}
+                  </p>
+                  {matches.semifinal1.winner && (
+                    <p>Winner: {getUsernameById(matches.semifinal1.winner)}</p>
+                  )}
                 </div>
               </div>
+
+              <div className="col-md-4 d-flex justify-content-center align-items-center">
+                <img 
+                  src={playerAvatars[matches.semifinal1.player2] || defaultAvatar} 
+                  alt="..." 
+                  className="tournament-avatar"
+                />
+              </div>
             </div>
+          </div>
 
-            {/* Final */}
-            <div className="tournament-card">
-              <div className="row g-0 align-items-center">
-                <div className="col-md-4 d-flex justify-content-center align-items-center">
-                  {matches.semifinal1.winner && (
-                    <img 
-                      src={playerAvatars[matches.semifinal1.winner] || defaultAvatar}
-                      alt="..." 
-                      className="tournament-avatar"
-                    />
-                  )}
-                </div>
+          {/* Semifinal 2 */}
+          <div className="tournament-card">
+            <div className="row g-0 align-items-center">
+              <div className="col-md-4 d-flex justify-content-center align-items-center">
+                <img 
+                  src={playerAvatars[matches.semifinal2.player1] || defaultAvatar} 
+                  alt="..." 
+                  className="tournament-avatar"
+                />
+              </div>
 
-                <div className="col-md-4 text-center">
-                  <div className="tournament-card-body">
-                    <h5 className="tournament-card-title">Final Match</h5>
-                    <p className="tournament-card-text">
-                    {matches.semifinal1.winner ? getUsernameById(matches.semifinal1.winner) : "To Be Determined"} vs {matches.semifinal2.winner ? getUsernameById(matches.semifinal2.winner) : "To Be Determined"}
-                    </p>
-                    {matches.semifinal2.winner && (<p>
-                    Winner: {getUsernameById(matches.semifinal2.winner)}
-                    </p>)}
-                  </div>
-                </div>
-
-                <div className="col-md-4 d-flex justify-content-center align-items-center">
+              <div className="col-md-4 text-center">
+                <div className="tournament-card-body">
+                  <h5 className="tournament-card-title">Semifinal 2</h5>
+                  <p className="tournament-card-text">
+                    {getUsernameById(matches.semifinal2.player1)} vs {getUsernameById(matches.semifinal2.player2)}
+                  </p>
                   {matches.semifinal2.winner && (
-                    <img 
-                      src={playerAvatars[matches.semifinal2.winner] || defaultAvatar}
-                      alt="..." 
-                      className="tournament-avatar"
-                    />
+                    <p>Winner: {getUsernameById(matches.semifinal2.winner)}</p>
                   )}
                 </div>
+              </div>
+
+              <div className="col-md-4 d-flex justify-content-center align-items-center">
+                <img 
+                  src={playerAvatars[matches.semifinal2.player2] || defaultAvatar} 
+                  alt="..." 
+                  className="tournament-avatar"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Final */}
+          <div className="tournament-card">
+            <div className="row g-0 align-items-center">
+              <div className="col-md-4 d-flex justify-content-center align-items-center">
+                {matches.semifinal1.winner && (
+                  <img 
+                    src={playerAvatars[matches.semifinal1.winner] || defaultAvatar}
+                    alt="..." 
+                    className="tournament-avatar"
+                  />
+                )}
+              </div>
+
+              <div className="col-md-4 text-center">
+                <div className="tournament-card-body">
+                  <h5 className="tournament-card-title">Final Match</h5>
+                  <p className="tournament-card-text">
+                    {matches.semifinal1.winner ? getUsernameById(matches.semifinal1.winner) : "To Be Determined"} vs {matches.semifinal2.winner ? getUsernameById(matches.semifinal2.winner) : "To Be Determined"}
+                  </p>
+                  {matches.final.winner && (
+                    <p>Winner: {getUsernameById(matches.final.winner)}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="col-md-4 d-flex justify-content-center align-items-center">
+                {matches.semifinal2.winner && (
+                  <img 
+                    src={playerAvatars[matches.semifinal2.winner] || defaultAvatar}
+                    alt="..." 
+                    className="tournament-avatar"
+                  />
+                )}
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="tournament-match-container">
-          {!tournamentComplete && currentStage === 'semifinals' && (
-            <div className="semifinals-container">
-              {!matches.semifinal1.winner && matches.semifinal1.id && (
-                <div className="mb-8">
-                  <h3 className="tournament-match-title">SEMIFINAL ONE</h3>
-                  <LocalGame 
-                    player1={matches.semifinal1.player1}
-                    player2={matches.semifinal1.player2}
-                    OnWinnerSelect={(winnerId) => handleWinnerSelected('semifinal1', winnerId)}
-                  />
-                </div>
-              )}
-              
-              {matches.semifinal1.winner && !matches.semifinal2.winner && matches.semifinal2.id && (
-                <div>
-                  <h3 className="tournament-match-title">SEMIFINAL TWO</h3>
-                  <LocalGame 
-                    player1={matches.semifinal2.player1}
-                    player2={matches.semifinal2.player2}
-                    OnWinnerSelect={(winnerId) => handleWinnerSelected('semifinal2', winnerId)}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-          
-          {currentStage === 'final' && !tournamentComplete && matches.final.id && (
-            <div className="final-container">
-              <h3 className="tournament-match-title">FINAL MATCH</h3>
-              <LocalGame 
-                player1={matches.final.player1}
-                player2={matches.final.player2}
-                OnWinnerSelect={(winnerId) => handleWinnerSelected('final', winnerId)}
-              />
-            </div>
-          )}
-
-          {tournamentComplete && (
-            <div className="tournament-results">
-              <h3>Tournament Complete!</h3>
-              <p>Congratulations to {getUsernameById(matches.final.winner)}, our champion!</p>
-              <button className="tournament-button" onClick={() => postAll(matches.final.winner)}>
+      <div className="tournament-match-container">
+        {!tournamentComplete && currentStage === 'semifinals' && (
+          <div className="semifinals-container">
+            {!matches.semifinal1.winner && matches.semifinal1.id && (
+              <div className="mb-8">
+                <h3 className="tournament-match-title">SEMIFINAL ONE</h3>
+                <LocalGame 
+                  player1={matches.semifinal1.player1}
+                  player2={matches.semifinal1.player2}
+                  OnWinnerSelect={(winnerId) => handleWinnerSelected('semifinal1', winnerId)}
+                />
+              </div>
+            )}
             
-            {/* Buttons Container */}
+            {matches.semifinal1.winner && !matches.semifinal2.winner && matches.semifinal2.id && (
+              <div>
+                <h3 className="tournament-match-title">SEMIFINAL TWO</h3>
+                <LocalGame 
+                  player1={matches.semifinal2.player1}
+                  player2={matches.semifinal2.player2}
+                  OnWinnerSelect={(winnerId) => handleWinnerSelected('semifinal2', winnerId)}
+                />
+              </div>
+            )}
+          </div>
+        )}
+        
+        {currentStage === 'final' && !tournamentComplete && matches.final.id && (
+          <div className="final-container">
+            <h3 className="tournament-match-title">FINAL MATCH</h3>
+            <LocalGame 
+              player1={matches.final.player1}
+              player2={matches.final.player2}
+              OnWinnerSelect={(winnerId) => handleWinnerSelected('final', winnerId)}
+            />
+          </div>
+        )}
+
+        {tournamentComplete && (
+          <div className="tournament-results">
+            <h3>Tournament Complete!</h3>
+            <p>Congratulations to {getUsernameById(matches.final.winner)}, our champion!</p>
+            
             <div className="tournament-buttons">
               <button 
                 className="blockchain-button py-2 px-6 rounded"
