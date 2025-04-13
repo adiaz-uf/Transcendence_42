@@ -12,6 +12,7 @@ export default function NavBar({ username }) {
                         <Nav className="me-auto">
                             <Nav.Link href="/">Home</Nav.Link>
                             <Nav.Link href="/profile">Profile</Nav.Link>
+                            <Nav.Link href="/game-history">Game History</Nav.Link>
                         </Nav>
                         <Nav>
                             <Navbar.Text>

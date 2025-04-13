@@ -3,16 +3,16 @@ import Setup2FA from '../../pages/Setup2FA'
 import Register from '../../pages/Register'
 import NotFound from '../../pages/NotFound'
 import Profile from '../../pages/Profile'
-import Alert from '../../components/Alert'
-import { Routes, Route, Navigate } from 'react-router-dom';
+import GameHistory from '../../pages/GameHistory'
+import { Routes, Route } from 'react-router-dom';
 import HomeRouter from '../../pages/Home'
 import { setUserActive } from '../api-consumer/fetch'
 import { ACCESS_TOKEN } from '../../constants'
 import { useEffect } from 'react';
 import api from '../../api'
 import {useNavigate } from "react-router-dom";
+import ProtectedRoute from './ProtectedRoute'
 
-//import ProtectedRoute from './ProtectedRoute'
 function Logout() {
     const navigate = useNavigate();
 
@@ -136,15 +136,15 @@ export default function RouterSwitch() {
 	
       return (
             <Routes>
-					<Route path ='/*' element ={ <HomeRouter/> }/>
+					<Route path ='/*' element ={<ProtectedRoute> <HomeRouter/> </ProtectedRoute>}/>
 					<Route path="/login" element={<Login route='/api/user/login/' />} />
 					<Route path ='/register' element ={<RegisterWrapper/>}/>
 		  			<Route path="/login/callback" element={<Login route='/api/user/login/' />} />
-					<Route path="/logout" element={<Logout />} />
-					<Route path ='/setup-2fa' element={<Setup2FA />} />
-					<Route path ='/profile' element ={<Profile/>}/>
-					<Route path ='/alert' element ={<Alert/>}/>
-					<Route path ='*' element ={<NotFound/>}/>
+					<Route path="/logout" element={<ProtectedRoute><Logout /></ProtectedRoute>} />
+					<Route path ='/setup-2fa' element={<ProtectedRoute><Setup2FA /></ProtectedRoute>} />
+					<Route path ='/profile' element ={<ProtectedRoute><Profile/></ProtectedRoute>}/>
+					<Route path ='/game-history' element ={<ProtectedRoute><GameHistory/></ProtectedRoute>}/>
+					<Route path ='*' element ={<ProtectedRoute><NotFound/></ProtectedRoute>}/>
             </Routes>
 	);
 }
