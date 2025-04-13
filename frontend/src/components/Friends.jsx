@@ -34,6 +34,9 @@ export default function Friends() {
 
       // Periodically update friends active status
       useEffect(() => {
+        if (!Array.isArray(friends) || friends.length === 0) {
+            return;
+        }
         const updateFriendsStatus = async () => {
             console.log("Updating friends' status...");
             if (friends.length === 0) return; // No friends to update
