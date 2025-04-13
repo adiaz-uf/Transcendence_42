@@ -43,27 +43,27 @@ export default function MatchHistory({ username }) {
                 <p>No matches found.</p>
             ) : (
                 <div className="match-list">
-                    {matches.map((match) => (
-                        <div key={match.id} className="match-item">
+                    {matches.map((ValueInArray) => (
+                        <div key={ValueInArray.match.id} className="match-item">
                             <div className="match-header">
                                 <span className="match-date">
-                                    {new Date(match.date).toLocaleString()}
+                                    {new Date(ValueInArray.match.date).toLocaleString()}
                                 </span>
-                                <span className={`match-type ${match.is_multiplayer ? "multiplayer" : "singleplayer"}`}>
-                                    {match.is_multiplayer ? "Multiplayer" : "Singleplayer"}
+                                <span className={`match-type ${ValueInArray.match.is_multiplayer ? "multiplayer" : "singleplayer"}`}>
+                                    {ValueInArray.match.is_multiplayer ? "Multiplayer" : "Singleplayer"}
                                 </span>
                             </div>
                             <div className="match-details">
                                 <span className="player">
-                                    <strong>{match.player_left_username}</strong> ({match.left_score})
+                                    <strong>{ValueInArray.match.player_left_username}</strong> ({ValueInArray.match.left_score})
                                 </span>
                                 <span className="vs">vs</span>
                                 <span className="player">
-                                    <strong>{match.player_right_username}</strong> ({match.right_score})
+                                    <strong>{ValueInArray.match.player_right_username}</strong> ({ValueInArray.match.right_score})
                                 </span>
                             </div>
                             <div className="match-duration">
-                                Duration: {match.match_duration || "N/A"}
+                                Duration: {ValueInArray.match.match_duration || "N/A"}
                             </div>
                         </div>
                     ))}
