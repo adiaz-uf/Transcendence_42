@@ -1,0 +1,74 @@
+import React, { useState, useEffect } from "react";
+import { GetListMatchesFromIdWithScore } from "../components/api-consumer/fetch";
+import "../styles/matchHistory.css";
+
+export default function MatchHistory({ username }) {
+    const [matches, setMatches] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // Fetch match history on component load
+    useEffect(() => {
+        const fetchMatchHistory = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await GetListMatchesFromIdWithScore(username);
+                if (response?.data) {
+                    // Sort matches by date (most recent first)
+                    console.log("Fetched matches:", response);
+                    setMatches(response);
+                } else {
+                    setError("Failed to fetch match history.");
+                }
+            } catch (err) {
+                console.error("Error fetching match history:", err);
+                setError("An error occurred while fetching match history.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMatchHistory();
+    }, [username]);
+
+    return (
+        <div className="match-history-container">
+            <h2 className="match-history-title">Match History</h2>
+            {loading ? (
+                <p>Loading match history...</p>
+            ) : error ? (
+                <p className="error-message">{error}</p>
+            ) : matches.length === 0 ? (
+                <p>No matches found.</p>
+            ) : (
+                <div className="match-list">
+                    {matches.map((valueInArray) => (
+                        <div key={valueInArray.match.id} className="match-item">
+                            <div className="match-header">
+                                <span className="match-date">
+                                    {new Date(valueInArray.match.date).toLocaleString()}
+                                </span>
+                                <span className={`match-type ${valueInArray.match.is_multiplayer ? "multiplayer" : "singleplayer"}`}>
+                                    {valueInArray.match.is_multiplayer ? "Multiplayer" : "Singleplayer"}
+                                </span>
+                            </div>
+                            <div className="match-details">
+                                <span className="player">
+                                    <strong>{valueInArray.match.player_left.username}</strong> ({valueInArray.match.left_score})
+                                </span>
+                                <span className="vs">vs</span>
+                                <span className="player">
+                                    <strong>{valueInArray.match.player_right.username}</strong> ({valueInArray.match.right_score})
+                                </span>
+                            </div>
+                            <div className="match-duration">
+                                Duration: {valueInArray.match.match_duration || "N/A"}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}

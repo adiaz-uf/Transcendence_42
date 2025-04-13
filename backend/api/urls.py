@@ -22,7 +22,6 @@ urlpatterns = [
     path('user/logout/',                          BeaconLogoutView.as_view(), name='active'), #POST #ANY
     path('user/friends/active/<str:username>',    OthersActiveView.as_view(), name='friends'), #GET #AUTH
     
-    path('user/profile/<str:username>', OthersProfileView.as_view(), name='profile'), #UPDT & GET #AUTH
     path('user/exists/<str:username>', CheckUserExistsView.as_view(), name='check_username'), #GET #AUTH
     path('user/friends/<str:username>', UserFriendsView.as_view(), name='friends'), #GET POST DELETE #AUTH
     path('user/matches-played/<str:username>/', MatchesPlayedView.as_view(), name='matches-played'), #GET
