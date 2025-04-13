@@ -16,8 +16,8 @@ export default function MatchHistory({ username }) {
                 const response = await GetListMatchesFromIdWithScore(username);
                 if (response?.data) {
                     // Sort matches by date (most recent first)
-                    console.log("Fetched matches:", response);
-                    setMatches(response.data);
+                    console.log("Fetched matches:", response.data.matches);
+                    setMatches(response.data.matches);
                 } else {
                     setError("Failed to fetch match history.");
                 }
@@ -43,27 +43,27 @@ export default function MatchHistory({ username }) {
                 <p>No matches found.</p>
             ) : (
                 <div className="match-list">
-                    {Array.isArray(matches) && matches.map((valueInArray) => (
-                        <div key={valueInArray.match.id} className="match-item">
+                    {matches.map((ValueInArray) => (
+                        <div key={ValueInArray.match.id} className="match-item">
                             <div className="match-header">
                                 <span className="match-date">
-                                    {new Date(valueInArray.match.date).toLocaleString()}
+                                    {new Date(ValueInArray.match.date).toLocaleString()}
                                 </span>
-                                <span className={`match-type ${valueInArray.match.is_multiplayer ? "multiplayer" : "singleplayer"}`}>
-                                    {valueInArray.match.is_multiplayer ? "Multiplayer" : "Singleplayer"}
+                                <span className={`match-type ${ValueInArray.match.is_multiplayer ? "multiplayer" : "singleplayer"}`}>
+                                    {ValueInArray.match.is_multiplayer ? "Multiplayer" : "Singleplayer"}
                                 </span>
                             </div>
                             <div className="match-details">
                                 <span className="player">
-                                    <strong>{valueInArray.match.player_left.username}</strong> ({valueInArray.match.left_score})
+                                    <strong>{ValueInArray.match.player_left_username}</strong> ({ValueInArray.match.left_score})
                                 </span>
                                 <span className="vs">vs</span>
                                 <span className="player">
-                                    <strong>{valueInArray.match.player_right.username}</strong> ({valueInArray.match.right_score})
+                                    <strong>{ValueInArray.match.player_right_username}</strong> ({ValueInArray.match.right_score})
                                 </span>
                             </div>
                             <div className="match-duration">
-                                Duration: {valueInArray.match.match_duration || "N/A"}
+                                Duration: {ValueInArray.match.match_duration || "N/A"}
                             </div>
                         </div>
                     ))}
