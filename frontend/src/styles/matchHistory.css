@@ -1,11 +1,14 @@
 .match-history-container {
     padding: 20px;
     background-color: #1e1e1e;
+    border: 1px solid #5e5d5d;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     color: #ffffff;
+    width: 50%;
     max-width: 800px;
     margin: 0 auto;
+    margin-top: 2em;
 }
 
 .match-history-title {
@@ -18,12 +21,13 @@
 .match-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 1em;
 }
 
 .match-item {
     background-color: #2e2e2e;
-    padding: 15px;
+    padding: 2em;
+    gap: 1em;
     border-radius: 6px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     transition: background-color 0.2s ease;
@@ -35,8 +39,12 @@
 
 .match-header {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1em;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 10px;
+    
 }
 
 .match-date {
@@ -81,4 +89,10 @@
     font-size: 0.9rem;
     color: #aaa;
     text-align: center;
+}
+
+@media (max-width: 768px) {
+    .match-history-container {
+        width:fit-content;
+    }
 }

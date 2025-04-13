@@ -7,11 +7,9 @@ function GameHistory() {
     return (
         <>
         <NavBar username={username} />
-        <div className='app-body'>
-            <h1>All Time Game History</h1>
-            <div className='pong-container'>
-                <MatchHistory username={username} />
-            </div>
+        <div className='app-body' style={{textAlign:"center"}}>
+            <h1>Game History Dashboard</h1>
+            <MatchHistory username={username} />
         </div>
         </>
     );
