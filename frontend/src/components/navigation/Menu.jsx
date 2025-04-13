@@ -59,7 +59,7 @@ export const Menu = () => {
       { InvitationModal && (
         <InvitePlayer showModal={InvitationModal} handleCloseModal={()=>{setInvationBool(false)}}/>
       )}
-      <MyComponent/>
+      {/* <MyComponent/>  TODO: breaks responsive*/}
     </div>
   );
 };
