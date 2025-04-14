@@ -7,7 +7,6 @@ import { PATCHMatchScore } from '../api-consumer/fetch';
 import MessageBox from '../MessageBox';
 
 const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
-    console.log("LocalGame component rendered");
     const navigate = useNavigate();
     const location = useLocation();
     const { opponentUsername, matchId, gameSettings, gameType, TournamentSettings, getUsernameById } = useGameSetting();
@@ -84,7 +83,6 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
             
             // Add connection status handler
             wsRef.current.onConnectionStateChange = (state) => {
-                console.log('WebSocket connection state:', state);
                 setIsConnected(state === 'connected');
                 
                 // Send initial game state request when connected
@@ -97,40 +95,6 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
             let lastState = null;
             const debugStateChanges = (data) => {
                 if (data.type === 'game_update') {
-                    console.log('Raw game update received:', data);
-                    if (JSON.stringify(data) !== JSON.stringify(lastState)) {
-                        console.log('Game state changed:', {
-                            ball: {
-                                x: data.ball.x,
-                                y: data.ball.y,
-                                rx: data.ball.rx,
-                                ry: data.ball.ry
-                            },
-                            players: {
-                                left: {
-                                    y: data.players.left.y,
-                                    score: data.players.left.score
-                                },
-                                right: {
-                                    y: data.players.right.y,
-                                    score: data.players.right.score
-                                }
-                            },
-                            active: data.active
-                        });
-                        lastState = data;
-                    } else {
-                        console.log('Game state unchanged');
-                    }
-                }
-            };
-
-            wsRef.current.listenForGameUpdates((data) => {
-                // Call debug function
-                debugStateChanges(data);
-
-                if (data.type === 'error') {
-                    console.error('Received error:', data.message);
                     setGameState(prevState => ({
                         ...prevState,
                         connectionError: data.message
@@ -139,9 +103,6 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                 }
 
                 if (data.type === 'game_update') {
-                    console.log('Processing game update:', data);
-                    
-                    // Ensure we have all required properties
                     if (!data.players || !data.ball) {
                         console.error("Missing required game state properties:", data);
                         return;
@@ -181,31 +142,20 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                             connectionError: null
                         };
                         
-                        console.log('New game state:', newState);
-                        
-                        // Log changes in ball position and velocity
-                        if (newState.ball.x !== prevState.ball.x || newState.ball.y !== prevState.ball.y) {
-                            console.log('Ball moved:', {
-                                from: { x: prevState.ball.x, y: prevState.ball.y },
-                                to: { x: newState.ball.x, y: newState.ball.y }
-                            });
+                        // Check for game over
+                        if (data.players.left.score >= gameSettings.WINNING_SCORE || data.players.right.score >= gameSettings.WINNING_SCORE) {
+                            setGameState(prev => ({
+                                ...prev,
+                                gameOver: true,
+                                winner: data.players.left.score >= gameSettings.WINNING_SCORE ? 'left' : 'right',
+                                isPlaying: false
+                            }));
+                            setToggleGameOverModal(true);
                         }
-                        
                         return newState;
                     });
-
-                    // Check for game over
-                    if (data.players.left.score >= gameSettings.WINNING_SCORE || data.players.right.score >= gameSettings.WINNING_SCORE) {
-                        setGameState(prev => ({
-                            ...prev,
-                            gameOver: true,
-                            winner: data.players.left.score >= gameSettings.WINNING_SCORE ? 'left' : 'right',
-                            isPlaying: false
-                        }));
-                        setToggleGameOverModal(true);
-                    }
                 }
-            });
+            };
         } catch (error) {
             console.error('Failed to connect to WebSocket:', error);
             setGameState(prevState => ({
@@ -256,9 +206,7 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
 
     const toggleGame = async () => {
         try {
-            console.log("Toggling game. Current state:", gameState);
             if (gameState.gameOver) {
-                console.log("Resetting game after game over");
                 await wsRef.current.sendMessage({
                     type: 'reset_game'
                 });
@@ -271,7 +219,6 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                 }));
             } else {
                 const newIsPlaying = !gameState.isPlaying;
-                console.log("Setting game active state to:", newIsPlaying);
                 if (newIsPlaying) {
                     await wsRef.current.sendPlayGame();
                 } else {
@@ -341,18 +288,6 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                 
                 // Log every second
                 if (currentTime - lastUpdateTime.current >= 1000) {
-                    console.log('FPS:', frameCounter.current);
-                    console.log('Game State:', {
-                        ball: {
-                            x: Math.round(gameState.ball.x),
-                            y: Math.round(gameState.ball.y),
-                            rx: Math.round(gameState.ball.rx),
-                            ry: Math.round(gameState.ball.ry)
-                        },
-                        leftPaddle: Math.round(gameState.players.left.y),
-                        rightPaddle: Math.round(gameState.players.right.y),
-                        isPlaying: gameState.isPlaying
-                    });
                     frameCounter.current = 0;
                     lastUpdateTime.current = currentTime;
                 }
@@ -475,15 +410,12 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
     useEffect(() => {
         if (gameState.isPlaying && !gameStartTime) {
             const currentTime = Math.floor(Date.now() / 1000);
-            console.log("🕒 Game started at:", new Date(currentTime * 1000).toISOString());
             setGameStartTime(currentTime);
         }
     }, [gameState.isPlaying, gameStartTime]);
 
     // Add a standalone function to update match scores when a game ends
     const updateMatchScore = () => {
-        console.log("🔄 updateMatchScore called with matchId:", matchId);
-        
         const currentTime = Date.now();
         const gameStartTimeMs = gameStartTime * 1000;
         const durationMs = currentTime - gameStartTimeMs;
@@ -493,33 +425,21 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
         const seconds = totalSeconds % 60;
         const milliseconds = Math.floor((durationMs % 1000) / 10);
         
-        const formattedDuration = 
-            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
-        
-        console.log("📊 Updating match scores:", {
-            matchId,
-            left_score: gameState.players.left.score,
-            right_score: gameState.players.right.score,
-            duration: durationMs,
-            formattedDuration: formattedDuration
-        });
+        const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
         
         PATCHMatchScore(
             matchId,
             gameState.players.right.score,
             gameState.players.left.score,
             formattedDuration
-        ).then(response => {
-            console.log("✅ Match score updated successfully:", response);
-        }).catch(error => {
-            console.error("❌ Error updating match score:", error);
+        ).catch(error => {
+            console.error("Error updating match score:", error);
         });
     };
 
     // Call updateMatchScore when the game ends
     useEffect(() => {
         if (gameState.gameOver && matchId) {
-            console.log("🏁 Game over detected - calling updateMatchScore");
             updateMatchScore();
         }
     }, [gameState.gameOver, matchId]);

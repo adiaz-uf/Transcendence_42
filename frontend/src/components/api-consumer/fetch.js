@@ -20,14 +20,9 @@ export async function GETGameSettings() {
         const response = await api.get(`/api/game-settings/`, {
             cache: 'no-store' // Prevent caching to ensure fresh data
         });
-        if (process.env.NODE_ENV === 'development') {
-            console.log("Game settings loaded:", response.data);
-        }
         return response.data;
     } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-            console.error("Error fetching game settings:", error);
-        }
+        console.error("Error fetching game settings:", error);
         return { 
             error: error.response?.data || "An error occurred while fetching game settings",
             status: error.response?.status || 500
@@ -89,7 +84,7 @@ export async function GETCheckUsernameExists(username){
         });
         return PlayerLeftresponse.data;
     } catch (error){
-        console.log("Error checking username existance ", error);
+        console.error("Error checking username existence:", error);
         return { error: error.response?.data || "An error occurred" }; // Return error details
 
     }
@@ -109,7 +104,7 @@ export async function POSTcreateMatch(payload) {
         })
         return matchResponse.data;
     } catch (error){
-        console.log("Error creating match ", error);
+        console.error("Error creating match:", error);
         return { error: error.response?.data || "An error occurred" }; // Return error details
     }
 }
@@ -127,10 +122,9 @@ export async function GETfriends(username=null)
             const response = await api.get(`/api/user/friends/${username}`, {
                 headers: {Authorization: `Bearer ${token}`}
             })
-            console.log("Received friends  for Authed user: ", response);
             return response.data;
         } catch (error){
-            console.log("Error listing friends ", error);
+            console.error("Error listing friends:", error);
             return { error: error.response?.data || "An error occurred" }; // Return error details
         }
 }
@@ -150,7 +144,7 @@ export async function POSTfriend(friendName){
         })
         return response;
     } catch (error){
-        console.log("Error listing friends ", error);
+        console.error("Error listing friends:", error);
         return { error: error.response?.data || "An error occurred" }; // Return error details
     }
 }
@@ -169,7 +163,7 @@ export async function DELETEfriend(friendName) {
         });
         return response.data;
     } catch (error) {
-        console.log("Error removing friend", error);
+        console.error("Error removing friend:", error);
         return { error: error.response?.data || "An error occurred" };
     }
 }
@@ -189,7 +183,7 @@ export async function POSTcreateTournament(payload) {
         })
         return tournamentResponse.data;
     } catch (error){
-        console.log("Error creating tournament ", error);
+        console.error("Error creating tournament:", error);
         return { error: error.response?.data || "An error occurred" }; // Return error details
 
     }
@@ -214,7 +208,7 @@ export async function PATCHAddMatchToTournament(tournamentId, matchId) {
 
         return response.data; // Return the response data if successful
     } catch (error) {
-        console.log("Error adding match to tournament:", error);
+        console.error("Error adding match to tournament:", error);
         return { error: error.response?.data || "An error occurred" }; // Handle error and return response
     }
 }
@@ -236,7 +230,7 @@ export async function PATCHAddWinnerToTournament(tournamentId, userID) {
 
         return response.data; // Return the response data if successful
     } catch (error) {
-        console.log("Error adding winner to tournament:", error);
+        console.error("Error adding winner to tournament:", error);
         return { error: error.response?.data || "An error occurred" }; // Handle error and return response
     }
 }
@@ -254,7 +248,7 @@ export async function GETTournamentDetails(tournamentId) {
         });
         return response.data;
     } catch (error) {
-        console.log('Error fetching tournament details:', error);
+        console.error("Error fetching tournament details:", error);
         return { error: error.response?.data || 'An error occurred' };
     }
 }
@@ -270,7 +264,7 @@ export async function GETUserMatchesPlayed(username) {
       });
       return (response.data.matches_played);
     } catch (error) {
-      console.log("Error fetching matches played: ", error);
+      console.error("Error fetching matches played:", error);
       return { error: error.response?.data || 'An error occurred' };
     }
   };
@@ -286,7 +280,7 @@ export async function GETUserMatchesWon(username) {
       });
       return (response.data.matches_won);
     } catch (error) {
-      console.log("Error fetching matches Won: ", error);
+      console.error("Error fetching matches won:", error);
       return { error: error.response?.data || 'An error occurred' };
     }
   };
@@ -302,10 +296,9 @@ export async function setUserActive(iactive) {
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log("User active status updated:", response);
         return response;
     } catch (error) {
-        console.log("Error setting user active status:", error);
+        console.error("Error setting user active status:", error);
         return { error: error.response?.data || "An error occurred" }; // Handle error and return response
     }
   };
@@ -321,10 +314,9 @@ export async function GetOthersActiveness(in_username) {
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log("User active status updated:", response);
         return response;
     } catch (error) {
-        console.log("Error setting user active status:", error);
+        console.error("Error setting user active status:", error);
         return { error: error.response?.data || "An error occurred" }; // Handle error and return response
     }
   };
@@ -340,10 +332,9 @@ export async function GetListMatchesFromIdWithScore(in_username) {
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log("list-matches-played: active", response);
         return response;
     } catch (error) {
-        console.log("Error setting user active status:", error);
+        console.error("Error setting user active status:", error);
         return { error: error.response?.data || "An error occurred" }; // Handle error and return response
     }
 };

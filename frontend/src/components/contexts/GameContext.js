@@ -4,13 +4,12 @@ import { GETGameSettings } from "../api-consumer/fetch";
 const GameContext = createContext();
 
 export const GameSettingProvider = ({ children }) => {
-
-  const [gameType, setGameType] = useState(null);  // "match | tournament" *TODO: Join to context?? Why not yas. Now its here
-  const [gameMode, setGameMode] = useState(null);  // "local" | "tournament"
-  const [matchId, setMatchId] = useState("");      // Store the match ID
-  const [isInviting, setIsInviting] = useState(""); // "host" | "invitado"
-  const [opponentUsername, setOpponentUsername] = useState(""); // Username for invitation
-  const [isMultiplayer, setIsMultiplayer] = useState(false); // Multiplayer game
+  const [gameType, setGameType] = useState(null);
+  const [gameMode, setGameMode] = useState(null);
+  const [matchId, setMatchId] = useState("");
+  const [isInviting, setIsInviting] = useState("");
+  const [opponentUsername, setOpponentUsername] = useState("");
+  const [isMultiplayer, setIsMultiplayer] = useState(false);
   const [gameSettings, setGameSettings] = useState(null);
   const [TournamentSettings, setTournamentSettings] = useState({
       Player1: null,
@@ -23,12 +22,8 @@ export const GameSettingProvider = ({ children }) => {
       Player4username: '',
       tournamentId: null,
   });
-  
 
   const getUsernameById = (playerId) => {
-    console.log("Looking up username for player ID:", playerId);
-    
-    // First check if we have the username in TournamentSettings
     const playerMap = {
       [TournamentSettings.Player1]: TournamentSettings.Player1username,
       [TournamentSettings.Player2]: TournamentSettings.Player2username,
@@ -36,13 +31,10 @@ export const GameSettingProvider = ({ children }) => {
       [TournamentSettings.Player4]: TournamentSettings.Player4username,
     };
     
-    // If we have the username in TournamentSettings, return it
     if (playerMap[playerId]) {
-      console.log("Found username in TournamentSettings:", playerMap[playerId]);
       return playerMap[playerId];
     }
     
-    // If not found in TournamentSettings, check local storage
     const player1Id = localStorage.getItem("tournament_player1_id");
     const player2Id = localStorage.getItem("tournament_player2_id");
     const player3Id = localStorage.getItem("tournament_player3_id");
@@ -50,37 +42,27 @@ export const GameSettingProvider = ({ children }) => {
     
     if (playerId === player1Id) {
       const username = localStorage.getItem("tournament_player1_username");
-      console.log("Found username in local storage:", username);
       return username || "Unknown Player";
     }
     
     if (playerId === player2Id) {
       const username = localStorage.getItem("tournament_player2_username");
-      console.log("Found username in local storage:", username);
       return username || "Unknown Player";
     }
     
     if (playerId === player3Id) {
       const username = localStorage.getItem("tournament_player3_username");
-      console.log("Found username in local storage:", username);
       return username || "Unknown Player";
     }
     
     if (playerId === player4Id) {
       const username = localStorage.getItem("tournament_player4_username");
-      console.log("Found username in local storage:", username);
       return username || "Unknown Player";
     }
     
-    console.log("Username not found, returning Unknown Player");
     return "Unknown Player";
   };
 
-  
-  // const [showModal, setShowModal] = useState(false); // Controla el estado del modal
-  // const [showBoard, setShowBoard] = useState(false); // Controls the visibility of the Board
-
-  // Load game settings on mount
   useEffect(() => {
     const loadGameSettings = async () => {
       try {
@@ -94,7 +76,6 @@ export const GameSettingProvider = ({ children }) => {
       }
     };
 
-    // Check if settings are in localStorage
     const storedSettings = localStorage.getItem("gameSettings");
     if (storedSettings) {
       setGameSettings(JSON.parse(storedSettings));
@@ -124,7 +105,6 @@ export const GameSettingProvider = ({ children }) => {
     </GameContext.Provider>
   );
 };
-
 
 export const useGameSetting = () => useContext(GameContext);
 

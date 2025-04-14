@@ -16,7 +16,6 @@ export default function MatchHistory({ username }) {
                 const response = await GetListMatchesFromIdWithScore(username);
                 if (response?.data) {
                     // Sort matches by date (most recent first)
-                    console.log("Fetched matches:", response.data.matches);
                     setMatches(response.data.matches);
                 } else {
                     setError("Failed to fetch match history.");

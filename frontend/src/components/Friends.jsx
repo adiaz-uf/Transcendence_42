@@ -40,23 +40,21 @@ export default function Friends() {
             return;
         }
         const updateFriendsStatus = async () => {
-            console.log("Updating friends' status...");
-            if (friends.length === 0) return; // No friends to update
-            const updatedFriends = await Promise.all(
-                friends.map(async (friend) => {
-                    try {
-                        const response = await GetOthersActiveness(friend.username);
-                        if (response?.data) {
-                            return { ...friend, active: response.data.active }; // Update active status
-                        }
-                        return friend; // Return the original friend if no response
-                    } catch (error) {
-                        console.error(`Error updating status for ${friend.username}:`, error);
-                        return friend; // Return the original friend on error
-                    }
-                })
-            );
-            setFriends(updatedFriends); // Update the friends state with the new statuses
+            for (const friend of friends) {
+                try {
+                    const response = await fetch(`http://${window.location.host}:8000/api/users/${friend.username}/status`);
+                    const data = await response.json();
+                    setFriends(prevFriends => 
+                        prevFriends.map(f => 
+                            f.username === friend.username 
+                                ? { ...f, is_active: data.is_active }
+                                : f
+                        )
+                    );
+                } catch (error) {
+                    console.error(`Error updating status for ${friend.username}:`, error);
+                }
+            }
         };
 
         // Set an interval to update friends' statuses every 10 seconds

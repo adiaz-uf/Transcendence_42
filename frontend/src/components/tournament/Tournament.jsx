@@ -76,7 +76,6 @@ export default function Tournament () {
   
     // Create a match and get its ID
     const createMatch = async (player1, player2) => {
-      console.log(`Creating match between ${player1} and ${player2}`);
       try {
           const payload = {
             player_left: player1,
@@ -96,16 +95,11 @@ export default function Tournament () {
   
     // Handle winner selection for a match
     const handleWinnerSelected = async (matchKey, winnerId) => {
-      console.log("WINNER ID: ", winnerId); // Check what's being received
-      console.log("Matchk ID: ", matchKey); // Check what's being received
-
       if (matchKey === "final") {
         setTournamentComplete(true);
-        console.log("Tournament complete, winner:", winnerId);
         
         // Get the actual player ID based on whether the winner is left or right
         const actualWinnerId = winnerId === 'left' ? matches.final.player1 : matches.final.player2;
-        console.log("Actual winner ID:", actualWinnerId);
         
         // Set the congratulation message immediately after the final match
         const championUsername = getUsernameById(actualWinnerId);
@@ -160,10 +154,10 @@ export default function Tournament () {
           leftScore,
           formattedDuration
         );
-        console.log(`✅ Match score updated for ${matchKey} with ID ${matchId}`);
+        console.info(`Match score updated for ${matchKey} with ID ${matchId}`);
       }
     } catch (error) {
-      console.error(`❌ Error updating match score for ${matchKey}:`, error);
+      console.error(`Error updating match score for ${matchKey}:`, error);
     }
 
     // If both semifinals have winners, set up the final
@@ -177,15 +171,8 @@ export default function Tournament () {
       };
 
       if (updatedMatches.semifinal1.winner && updatedMatches.semifinal2.winner && !matches.final.id) {
-        console.log('Setting up final match with winners:', {
-          player1: updatedMatches.semifinal1.winner,
-          player2: updatedMatches.semifinal2.winner
-        });
         setCurrentStage('final');
-
         const finalMatchId = await createMatch(updatedMatches.semifinal1.winner, updatedMatches.semifinal2.winner);
-        console.log('Created final match:', finalMatchId);
-        
         setMatches(prev => ({
           ...prev,
           final: {
@@ -205,16 +192,16 @@ export default function Tournament () {
       // Add match to tournament
       if (matches[matchKey].id) {
         await PATCHAddMatchToTournament(TournamentSettings.tournamentId, matches[matchKey].id);
-        console.log(`✅ ${matchKey} added to tournament`);
+        console.info(`${matchKey} added to tournament`);
       }
       
       // If this is the final match, add the winner to the tournament
       if (matchKey === "final") {
         await PATCHAddWinnerToTournament(TournamentSettings.tournamentId, winnerId);
-        console.log("✅ Winner added to tournament");
+        console.info("Winner added to tournament");
       }
     } catch (error) {
-      console.error(`❌ Error updating ${matchKey} in database:`, error);
+      console.error(`Error updating ${matchKey} in database:`, error);
     }
   };
 
@@ -258,7 +245,6 @@ export default function Tournament () {
 
       // Send scores sequentially
       for (const match of matchData) {
-        console.log(`Sending ${match.matchType} scores to blockchain...`);
         const response = await fetch('/api/blockchain/score/', {
           method: 'POST',
           headers: {
@@ -275,14 +261,12 @@ export default function Tournament () {
         if (!response.ok) {
           throw new Error(`Failed to send ${match.matchType} scores to blockchain`);
         }
-        console.log(`✅ ${match.matchType} scores sent successfully`);
       }
       
-      console.log("✅ All tournament scores sent to blockchain");
       setMessage("Tournament scores successfully uploaded to blockchain! 🚀");
       setMessageType('blockchain');
     } catch (error) {
-      console.error("❌ Error sending tournament scores to blockchain:", error);
+      console.error("Error sending tournament scores to blockchain:", error);
       setMessage("Failed to upload scores to blockchain. Please try again.");
       setMessageType('error');
     } finally {
@@ -321,11 +305,6 @@ export default function Tournament () {
       });
     };
     
-    // Get username by player ID
-    
-    console.log('Tournament Complete: ', tournamentComplete);
-    console.log('Current Stage: ', currentStage);
-    console.log('TournamentSettings: ', TournamentSettings);
     initTournament();
   }, [TournamentSettings]);
 
@@ -344,9 +323,6 @@ export default function Tournament () {
     }
   }, [currentStage, matches.semifinal1.winner, matches.semifinal2.winner, matches.final.id, matches.final.winner]);
 
-  console.log('Tournament Complete: ', tournamentComplete);
-  console.log('Current Stage: ', currentStage);
-  console.log('TournamentSettings: ', TournamentSettings);
   return (
     <div className="tournament-container">
       {message && (

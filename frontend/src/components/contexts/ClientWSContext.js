@@ -27,7 +27,6 @@ export const useWebSocket = () => {
 
 function StateLinkerGameWebSocket({ setGameState, clientWS }) {
     clientWS.listenForGameUpdates((gameUpdate) => {
-        console.log("Received game update:", gameUpdate);
         setGameState((prevState) => ({
             ...prevState,
             ...gameUpdate,
@@ -54,39 +53,24 @@ function StateLinkerGameWebSocket({ setGameState, clientWS }) {
 
 // Component Anchor for passing values and handling WS instance
 export const WebSocketProvider = ({ children }) => {
-    const {matchId} = useGameSetting(); // Use useGameSetting to get matchId
-    const [WSref, setWSref] = useState(null); // UseState  for WebSocket instance
-    const [gameState, setGameState] = useState(initializeGameState()); // Use useState for game state
-
-
-    useEffect(() => {
-        console.log("WebSocketProvider mounted");
-      }, []);
-      
-      useEffect(() => {
-        if (WSref) console.log("WebSocket initialized:", WSref);
-      }, [WSref]);
-      
+    const {matchId} = useGameSetting();
+    const [WSref, setWSref] = useState(null);
+    const [gameState, setGameState] = useState(initializeGameState());
 
     useEffect(() => {
-        // Initialize WebSocket instance only once
-        if (!WSref) {
+        if (WSref) {
             const instance = new ClientWebSocket(`wss://${window.location.host}:8000/game/`, matchId);
-            setWSref(instance); // Set the WebSocket instance
-            console.log("WebSocket instance created:", instance);
-
+            setWSref(instance);
             instance.connect(); 
-            // Link WebSocket updates to game state
             StateLinkerGameWebSocket({ setGameState, clientWS: instance });
         }
 
         return () => {
-            // Cleanup WebSocket connection on unmount
             if (WSref) {
-                    WSref.close();
-                }
-            };
-        }, []); // Empty dependency array ensures this runs only once
+                WSref.close();
+            }
+        };
+    }, []);
     
     return (
             <WebSocketContext.Provider value={{ ClientWS:WSref, gameState, setGameState }}>
