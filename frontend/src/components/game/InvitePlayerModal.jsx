@@ -8,8 +8,7 @@ import MessageBox from '../MessageBox';
 export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   
   const {gameType, setGameMode, setMatchId, isInviting, setIsInviting,
-    updateTournamentSetting, loadGameSettings, gameSettings, loadingSettings, 
-    settingsError, areSettingsReady} = useGameSetting();
+    updateTournamentSetting, gameSettings} = useGameSetting();
   const [newUsername1, setNewUsername1] = useState('');
   const [newUsername2, setNewUsername2] = useState('');
   const [newUsername3, setNewUsername3] = useState('');
@@ -19,25 +18,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   
   const navigate = useNavigate(); 
 
-  // Load game settings when modal is shown
-  useEffect(() => {
-    if (showModal && !gameSettings) {
-      console.log("Modal shown, loading game settings...");
-      loadGameSettings();
-    } else if (showModal && gameSettings) {
-      console.log("Modal shown with existing game settings:", gameSettings);
-    }
-  }, [showModal, gameSettings, loadGameSettings]);
-
   const validateForm = () => {
-    if (!areSettingsReady()) {
-      console.log("Form validation failed - settings not ready");
-      setMessage('Game settings are not ready yet. Please wait...');
-      setMessageType('info');
-      return false;
-    }
-    console.log("Form validation passed - settings are ready");
-
     if (!newUsername1.trim()) {
       setMessage('Please enter an opponent username');
       setMessageType('info');
@@ -64,7 +45,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       //        W GUEST       //
       //                      //
   const handleSkip = async () => {
-    if (!areSettingsReady()) {
+    if (!gameSettings) {
       setMessage('Game settings are not ready yet. Please wait...');
       setMessageType('info');
       return;
@@ -109,12 +90,6 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   };
 
   const handleUsernameInvite = async (e) => {
-    if (!areSettingsReady()) {
-      setMessage('Game settings are not ready yet. Please wait...');
-      setMessageType('info');
-      return;
-    }
-    console.log("Gametype: ", gameType);
     e.preventDefault();
     setMessage(null);
     if (!validateForm()) {
@@ -285,19 +260,6 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           onClose={() => setMessage(null)}
         />
       )}
-      {loadingSettings && (
-        <div className="text-center p-3">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-2">Loading game settings...</p>
-        </div>
-      )}
-      {settingsError && (
-        <div className="alert alert-danger m-3" role="alert">
-          {settingsError}
-        </div>
-      )}
       <Modal.Header closeButton>
         {gameType === "tournament" ?
           (<Modal.Title>{'Enter your opponents usernames'}</Modal.Title>):
@@ -354,7 +316,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
                 variant="warning" 
                 className="mt-3 w-100" 
                 onClick={handleSkip} 
-                disabled={isInviting || !areSettingsReady()}>
+                disabled={isInviting || !gameSettings}>
                 Skip (Start Local Game)
               </Button>
             )}
@@ -362,7 +324,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
               variant="primary" 
               type="button" 
               className="mt-3 w-100" 
-              disabled={isInviting || !areSettingsReady()}
+              disabled={isInviting || !gameSettings}
               onClick={() => {
                 if (validateForm()) {
                   handleUsernameInvite({ preventDefault: () => {} });

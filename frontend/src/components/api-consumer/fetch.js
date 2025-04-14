@@ -15,14 +15,23 @@ export async function PATCHMatchScore(matchId, right_score, left_score, match_du
     return res.data;
 }
 
-export async function GETGameSettings(){
+export async function GETGameSettings() {
     try {
-        const response = await api.get(`/api/game-settings/`);
-        console.log("got gameSettings: ", response.data)
-        return response.data; // Return the JSON data directly
+        const response = await api.get(`/api/game-settings/`, {
+            cache: 'no-store' // Prevent caching to ensure fresh data
+        });
+        if (process.env.NODE_ENV === 'development') {
+            console.log("Game settings loaded:", response.data);
+        }
+        return response.data;
     } catch (error) {
-        console.error("Error fetching profile info:", error);
-        return { error: error.response?.data || "An error occurred" }; // Return error details
+        if (process.env.NODE_ENV === 'development') {
+            console.error("Error fetching game settings:", error);
+        }
+        return { 
+            error: error.response?.data || "An error occurred while fetching game settings",
+            status: error.response?.status || 500
+        };
     }
 }
 
