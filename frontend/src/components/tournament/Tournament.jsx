@@ -9,7 +9,6 @@ import MessageBox from '../MessageBox';
 import { ACCESS_TOKEN } from "../../constants";
 import '../../styles/tournament.css';
 
-
 export default function Tournament () {
     const {TournamentSettings, getUsernameById, gameSettings} = useGameSetting();
     const location = useLocation();

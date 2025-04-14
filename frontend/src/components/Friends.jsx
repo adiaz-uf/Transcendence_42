@@ -128,7 +128,6 @@ export default function Friends() {
             <h3 className="friends-title">Friends</h3>
             {/* {error && <div className="alert alert-danger">{error}</div>} */}
 
-            {/* Add Friend Form */}
             <div className="add-friend-form">
                 <Form.Control
                     type="text"

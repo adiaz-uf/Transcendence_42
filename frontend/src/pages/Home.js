@@ -37,6 +37,7 @@ const HomeRouter = () => {
   const navigate = useNavigate();
 
   const [message, setMessage] = useState(location.state?.message || null);
+  const [messageType] = useState(location.state?.type || '');
 
   useEffect(() => {
     if (location.state?.message) {
@@ -50,14 +51,13 @@ const HomeRouter = () => {
       {message && (
         <MessageBox
           message={message}
-          type={'error'}
+          type={messageType}
           onClose={() => setMessage(null)}
         />
       )}
       <GameSettingProvider>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/pong" element={<GameApp />} /> {' TODO: Not used anymore i think'}
             <Route path="/tournament" element={<Tournament/>} />
             <Route path="/local" element={<LocalGame/>} />
             <Route path="/friends" element={<Friend/>} />
