@@ -1,5 +1,3 @@
-import { ACCESS_TOKEN } from "../../constants"; //JWT auth ws
-
 class ClientWebSocket {
     constructor(serverUrl) {
         if (ClientWebSocket.instance) {

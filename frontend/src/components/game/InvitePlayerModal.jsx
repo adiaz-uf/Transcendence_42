@@ -2,13 +2,13 @@ import React, { useState, useEffect }                                           
 import { Form, Button, Modal }                                            from 'react-bootstrap';
 import {useNavigate}                                                      from "react-router-dom";
 import { useGameSetting }                                                 from '../contexts/GameContext';
-import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament} from "../api-consumer/fetch";
+import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament} from "../api-consumer/fetch";
 import MessageBox from '../MessageBox';
 
 export const InvitePlayer = ({ showModal, handleCloseModal}) => {
   
-  const {gameType, setGameMode, setMatchId, isInviting, setIsInviting, setOpponentUsername, 
-    updateTournamentSetting, setTournamentId, gameSettings} = useGameSetting();
+  const {gameType, setGameMode, setMatchId, isInviting, setIsInviting,
+    updateTournamentSetting, gameSettings} = useGameSetting();
   const [newUsername1, setNewUsername1] = useState('');
   const [newUsername2, setNewUsername2] = useState('');
   const [newUsername3, setNewUsername3] = useState('');
@@ -262,8 +262,8 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       )}
       <Modal.Header closeButton>
         {gameType === "tournament" ?
-          (<Modal.Title>{isInvited ? 'Waiting Opponent' :  'Enter your opponents usernames'}</Modal.Title>):
-          (<Modal.Title>{isInvited ? 'Waiting Opponent' :  'Enter your opponent username'}</Modal.Title>)
+          (<Modal.Title>{'Enter your opponents usernames'}</Modal.Title>):
+          (<Modal.Title>{'Enter your opponent username'}</Modal.Title>)
         }
       </Modal.Header>
       <Modal.Body>
@@ -311,7 +311,7 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
                   required />
               </Form.Group>
             )}
-            {!(gameType == "tournament") &&(
+            {!(gameType === "tournament") &&(
               <Button 
                 variant="warning" 
                 className="mt-3 w-100" 

@@ -66,10 +66,12 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
           if (onLoginSuccess) {
             onLoginSuccess(gameSettings);
           } else {
+            setMessageType("success");
+            setMessage("Ready to play !");
             navigate(navigateTo, {
               state: {
-                message: "Ready to play !",
-                type: "success"
+                  message: "Ready to play!",
+                  type: "success"
               }
             });
           }
