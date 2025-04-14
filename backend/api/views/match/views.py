@@ -73,7 +73,9 @@ class MatchCreationView(generics.CreateAPIView):
         """
         print("This is the request data", self.request.data)
         player_right_id = self.request.data.get("player_right", None)
+        player_left_id = self.request.data.get("player_left", None)
         player_right = None  # Initialize player_right to None by default
+        player_left = None  # Initialize player_right to None by default
 
         if player_right_id:
             try:
@@ -81,9 +83,15 @@ class MatchCreationView(generics.CreateAPIView):
             except UserProfile.DoesNotExist:
                 return Response({"error": "Invalid opponent ID"}, status=400)
 
+        if player_left_id:
+            try:
+                player_left = UserProfile.objects.get(id=player_left_id)
+            except UserProfile.DoesNotExist:
+                return Response({"error": "Invalid opponent ID"}, status=400)
+
         # Save the match
         match = serializer.save(
-            player_left=self.request.user,
+            player_left=player_left,
             player_right=player_right,
             match_duration=timedelta(minutes=0, seconds=0),
             left_score=0,
@@ -94,7 +102,9 @@ class MatchCreationView(generics.CreateAPIView):
 
         # Initialize the game in the session manager
         player_right_username = player_right.username if player_right else None
-        if not session_manager.createGame(str(match.id), self.request.user.username, player_right_username):
+        player_left_username = player_left.username if player_left else None
+
+        if not session_manager.createGame(str(match.id), player_left_username, player_right_username):
             logger.error(f"Failed to create game for match {match.id}")
             return Response(
                 {"error": "Failed to initialize game"},
