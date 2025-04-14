@@ -280,7 +280,7 @@ export default function Tournament () {
       
       console.log("✅ All tournament scores sent to blockchain");
       setMessage("Tournament scores successfully uploaded to blockchain! 🚀");
-      setMessageType('success');
+      setMessageType('blockchain');
     } catch (error) {
       console.error("❌ Error sending tournament scores to blockchain:", error);
       setMessage("Failed to upload scores to blockchain. Please try again.");
