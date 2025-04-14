@@ -37,7 +37,6 @@ export default function Profile() {
 
   const [showModal, setShowModal] = useState(false);
   const [show2FAModal, setShow2FAModal] = useState(false);
-  const [showFriendModal, setShowFriendModal] = useState(false);
   const [qrCode, setQrCode] = useState('');
   const [secret, setSecret] = useState('');
   const [twoFACode, setTwoFACode] = useState('');
@@ -49,8 +48,6 @@ export default function Profile() {
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
   const handleShow2FAModal = () => setShow2FAModal(true);
-  
-  const [message, setMessage] = useState(null);
     
   // ########################################   Fetch API ################################################
 
@@ -264,8 +261,6 @@ const chartData = {
     }
   };
 
-  const getAvatarLetter = (name) => name.charAt(0).toUpperCase();
-
   useEffect(() => {
     fetchProfileData();
   }, []);
@@ -275,7 +270,7 @@ const chartData = {
       matchesResponse();
       matchesWonResponse();
     }
-  }, [username]);  // Se ejecuta cada vez que el `username` cambie
+  }, [username]);
 
   if (loading) return <div>Loading...</div>;
 /*   if (error) return <div><NavBar></NavBar><div className='app-body'>{error}</div></div>; */

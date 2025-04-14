@@ -10,6 +10,7 @@ export default function Friends() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [showFriendModal, setShowFriendModal] = useState(false);
+    const [friendShow, setFriendShow] = useState('');
 
 
 
@@ -109,8 +110,9 @@ export default function Friends() {
         }
     };
 
-    const handleShowFriendProfile = () => {
+    const handleShowFriendProfile = (user) => {
         setShowFriendModal(true);
+        setFriendShow(user);
       };
     
       const handleCloseFriendModal = () => {
@@ -163,7 +165,7 @@ export default function Friends() {
                             <Button
                                 variant="outline-info"
                                 size="sm"
-                                onClick={() => handleShowFriendProfile()}
+                                onClick={() => handleShowFriendProfile(friend.username)}
                                 className="action-btn m-3">
                                 View Profile
                             </Button>
@@ -178,7 +180,7 @@ export default function Friends() {
                             <FriendProfileModal 
                                 show={showFriendModal} 
                                 handleClose={handleCloseFriendModal} 
-                                user={friend.username}
+                                user={friendShow}
                             />
                         </div>
                     ))

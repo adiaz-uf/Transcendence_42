@@ -1,4 +1,4 @@
-import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament, PATCHMatchScore, GETOthersProfileInfo} from "../api-consumer/fetch";
+import { POSTcreateMatch, PATCHAddMatchToTournament, PATCHAddWinnerToTournament, PATCHMatchScore, GETOthersProfileInfo} from "../api-consumer/fetch";
 import { useGameSetting } from '../contexts/GameContext';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
@@ -506,8 +506,8 @@ export default function Tournament () {
             <p>Congratulations to {getUsernameById(matches.final.winner)}, our champion!</p>
             
             <div className="tournament-buttons">
-              <button 
-                className="blockchain-button py-2 px-6 rounded"
+              <Button 
+                className="blockchain-button m-2"
                 onClick={sendTournamentScoresToBlockchain}
                 disabled={isBlockchainLoading}
               >
@@ -527,14 +527,14 @@ export default function Tournament () {
                 ) : (
                   "Push to Blockchain"
                 )}
-              </button>
+              </Button>
               
-              <button 
-                className="return-button py-2 px-6 rounded"
+              <Button 
+                className="return-button m-2"
                 onClick={returnToMenu}
               >
                 Return to Menu
-              </button>
+              </Button>
             </div>
           </div>
         )}

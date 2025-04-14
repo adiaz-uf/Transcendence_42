@@ -4,14 +4,13 @@ import { Button } from 'react-bootstrap';
 import {useGameSetting} from '../contexts/GameContext'
 import '../../styles/game.css'
 import {InvitePlayer} from '../game/InvitePlayerModal';
-import GameOverModal from "../GameOverModal";
 import defaultAvatar from './chameleon.jpg';
 import MessageBox from '../MessageBox';
 
 const MyComponent = () => {
   return (
     <div>
-      <img src={defaultAvatar} alt="My Image" />
+      <img src={defaultAvatar} />
     </div>
   );
 };
