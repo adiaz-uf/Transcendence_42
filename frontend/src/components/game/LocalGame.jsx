@@ -84,11 +84,6 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
             // Add connection status handler
             wsRef.current.onConnectionStateChange = (state) => {
                 setIsConnected(state === 'connected');
-                
-                // Send initial game state request when connected
-                if (state === 'connected') {
-                    wsRef.current.sendMessage({ type: 'get_game_state' });
-                }
             };
 
             // Debug state tracking
