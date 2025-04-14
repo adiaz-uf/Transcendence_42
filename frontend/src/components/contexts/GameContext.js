@@ -1,5 +1,5 @@
-import { createContext, useState, useContext, useEffect} from "react";
-import { GETGameSettings, GETUserProfileById } from "../api-consumer/fetch";
+import { createContext, useState, useContext} from "react";
+import { GETGameSettings } from "../api-consumer/fetch";
 
 const GameContext = createContext();
 

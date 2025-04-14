@@ -1,4 +1,4 @@
-import React, { createContext, useRef, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import ClientWebSocket from "../game/ClientWebSocket";
 import { useGameSetting } from "./GameContext";
 const WebSocketContext = createContext();
