@@ -5,6 +5,7 @@ import '../styles/login.css'
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import MessageBox from '../components/MessageBox';
+import { GETGameSettings } from './api-consumer/fetch.js';
 
 export default function LoginForm({route, navigateTo, onLoginSuccess}) {
   const [username, setUsername] = useState("");
@@ -47,9 +48,23 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
           localStorage.setItem("username", username);
           localStorage.setItem("userId", res.data.id);
         }
-        // Llamamos a onLoginSuccess para que el juego se inicie
-        if (onLoginSuccess) {
-            onLoginSuccess();  // Aquí solo se ejecutará si la función se pasó
+
+        // Load game settings after successful login
+        try {
+          const gameSettings = await GETGameSettings();
+          if (gameSettings.error) {
+            console.error("Failed to load game settings:", gameSettings.error);
+            // Continue with login even if game settings fail to load
+          } else {
+            localStorage.setItem("gameSettings", JSON.stringify(gameSettings));
+            if (process.env.NODE_ENV === 'development') {
+              console.log("Game settings loaded successfully:", gameSettings);
+            }
+          }
+
+          // Llamamos a onLoginSuccess para que el juego se inicie
+          if (onLoginSuccess) {
+            onLoginSuccess(gameSettings);
           } else {
             setMessageType("success");
             setMessage("Ready to play !");
@@ -60,6 +75,20 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
               }
             });
           }
+        } catch (error) {
+          console.error("Error loading game settings:", error);
+          // Continue with login even if game settings fail to load
+          if (onLoginSuccess) {
+            onLoginSuccess(null);
+          } else {
+            navigate(navigateTo, {
+              state: {
+                message: "Ready to play !",
+                type: "success"
+              }
+            });
+          }
+        }
       } else if (res.status === 206) {
         // Si es necesario 2FA
         setRequires2FA(true);

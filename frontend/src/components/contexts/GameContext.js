@@ -1,4 +1,4 @@
-import { createContext, useState, useContext} from "react";
+import { createContext, useState, useContext, useEffect} from "react";
 import { GETGameSettings } from "../api-consumer/fetch";
 
 const GameContext = createContext();
@@ -12,8 +12,6 @@ export const GameSettingProvider = ({ children }) => {
   const [opponentUsername, setOpponentUsername] = useState(""); // Username for invitation
   const [isMultiplayer, setIsMultiplayer] = useState(false); // Multiplayer game
   const [gameSettings, setGameSettings] = useState(null);
-  const [loadingSettings, setLoadingSettings] = useState(false);
-  const [settingsError, setSettingsError] = useState(null);
   const [TournamentSettings, setTournamentSettings] = useState({
       Player1: null,
       Player2: null,
@@ -82,45 +80,31 @@ export const GameSettingProvider = ({ children }) => {
   // const [showModal, setShowModal] = useState(false); // Controla el estado del modal
   // const [showBoard, setShowBoard] = useState(false); // Controls the visibility of the Board
 
-  // Allows to persist State Usage 
+  // Load game settings on mount
+  useEffect(() => {
+    const loadGameSettings = async () => {
+      try {
+        const settings = await GETGameSettings();
+        if (!settings.error) {
+          setGameSettings(settings);
+          localStorage.setItem("gameSettings", JSON.stringify(settings));
+        }
+      } catch (error) {
+        console.error("Error loading game settings:", error);
+      }
+    };
+
+    // Check if settings are in localStorage
+    const storedSettings = localStorage.getItem("gameSettings");
+    if (storedSettings) {
+      setGameSettings(JSON.parse(storedSettings));
+    } else {
+      loadGameSettings();
+    }
+  }, []);
+
   const updateTournamentSetting = (key, value) => {
     setTournamentSettings((prev) => ({ ...prev, [key]: value }));
-  };
- 
-  // const [showModal, setShowModal] = useState(false); // Controla el estado del modal
-  // const [showBoard, setShowBoard] = useState(false); // Controls the visibility of the Board
-  
- // New state for game settings
-
- const loadGameSettings = async () => {
-    if (gameSettings) {
-      console.log("Game settings already loaded:", gameSettings);
-      return;
-    }
-    console.log("Loading game settings...");
-    setLoadingSettings(true);
-    setSettingsError(null);
-    try {
-      const fetchedSettings = await GETGameSettings();
-      console.log("Game settings loaded successfully:", fetchedSettings);
-      setGameSettings(fetchedSettings);
-    } catch (err) {
-      console.error("Error fetching game settings:", err);
-      setSettingsError(err.message || "Failed to load game settings");
-    } finally {
-      setLoadingSettings(false);
-    }
-  };
-
-  const areSettingsReady = () => {
-    const ready = !loadingSettings && gameSettings !== null && settingsError === null;
-    console.log("Game settings ready check:", {
-      loadingSettings,
-      hasGameSettings: gameSettings !== null,
-      settingsError,
-      ready
-    });
-    return ready;
   };
 
   return (
@@ -134,11 +118,8 @@ export const GameSettingProvider = ({ children }) => {
         TournamentSettings, updateTournamentSetting,
         gameType, setGameType,
         getUsernameById,
-        gameSettings,
-        loadGameSettings,
-        loadingSettings,
-        settingsError,
-        areSettingsReady}}>
+        gameSettings
+      }}>
       {children}
     </GameContext.Provider>
   );
