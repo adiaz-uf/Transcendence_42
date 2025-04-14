@@ -6,6 +6,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import MessageBox from '../components/MessageBox';
 import { GETGameSettings } from './api-consumer/fetch.js';
+import { FT_CLIENT_ID } from '../config';
 
 export default function LoginForm({route, navigateTo, onLoginSuccess}) {
   const [username, setUsername] = useState("");
@@ -91,7 +92,7 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
   };
 
   const handle42Login = () => {
-    const clientId = process.env.REACT_APP_FT_CLIENT_ID;
+    const clientId = FT_CLIENT_ID;
     const redirectUri = `${window.location.origin}/api/auth/42/callback`; 
 
     const state = JSON.stringify({
