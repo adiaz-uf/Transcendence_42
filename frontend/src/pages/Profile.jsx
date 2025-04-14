@@ -198,7 +198,6 @@ const chartData = {
       const response = await api.patch('/api/user/profile/', updatedData, {
         headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
-      console.log(response);
       setName(`${response.data.given_name} ${response.data.surname}`);
       setEmail(response.data.email);
       setUsername(response.data.username);

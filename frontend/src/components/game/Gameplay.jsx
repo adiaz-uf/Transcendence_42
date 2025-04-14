@@ -19,31 +19,22 @@ const Gameplay = () => {
   const [pressedKeysPlayerOne, setPressedKeysPlayerOne] = useState(null);
   const [pressedKeysSecondPlayer, setPressedKeysSecondPlayer] = useState(null);
 
-  console.log("Gameplay component rendered ClientWS: ", ClientWS);
-  console.log("Gameplay component rendered matchId: ", matchId);
-  console.log("Gameplay component rendered gameState: ", gameState);
-
   const PlayOrStopGame = () => {
     if (!ClientWS){
-      console.log("ClientWS not initialized");
       return
     }
     if (IsGameActive){
       ClientWS.sendStopGame();
-      console.log("Stopping the game");      
     }
     else{
       ClientWS.sendPlayGame();
-      console.log("Starting the game :)");
     }
     setIsGameActive(!IsGameActive);
   }
   
   useEffect(() => {
     if (!ClientWS) {
-      console.log("ClientWS not initialized yet");
     } else {
-      console.log("ClientWS initialized:", ClientWS);
     }
   }, [ClientWS]);
 

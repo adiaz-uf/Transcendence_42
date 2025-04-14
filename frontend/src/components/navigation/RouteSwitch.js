@@ -73,7 +73,6 @@ export default function RouterSwitch() {
 		try {
 			// Decode the token to get the expiration time
 			const { exp } = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload 30S
-			console.log("Decoded token:", exp);
 			const expiry = exp * 1000 - Date.now() - 5000; // Calculate time until expiration and 5seconds before expiration for sending last active status API cal			
 			
 			// If the token is already expired, navigate to login
@@ -110,7 +109,6 @@ export default function RouterSwitch() {
 			}
 	
 			// Construct the URL with query parameters
-			console.log(encodeURIComponent(token))
 			const url = `/api/user/logout/?active=false&token=${encodeURIComponent(token)}`;
 			// Use sendBeacon to send the request
 			navigator.sendBeacon(url);
@@ -122,7 +120,6 @@ export default function RouterSwitch() {
 				// Do your sendBeacon or logout logic here
 			} else {
 				setUserActive(true);
-				console.log('🔓 Tab is now visible');
 			}
 		};
 	

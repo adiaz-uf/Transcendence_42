@@ -108,7 +108,6 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
         setMessageType('error');
         return;
       }
-      console.log("inviting User player 2 ", player_2);
       updateTournamentSetting('Player2', player_2.userProfile.id);
       updateTournamentSetting('Player2username', player_2.userProfile.username);
 
@@ -117,7 +116,6 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       //        W USER        //
       //                      //
       if (gameType === "match") {
-        console.log("Entering local game creation....");
         setGameMode("local")
         let payload_match = {
           player_left: player1_id,
@@ -144,10 +142,8 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
       //      TOURNAMENT      //
       //                      //
       if (gameType === 'tournament') {
-        console.log("Creating tournament with players...");
         const player1_id = localStorage.getItem("userId");
         const player1_username = localStorage.getItem("username");
-        console.log("Player 1:", player1_id, player1_username);
         
         // Store player 1 info in local storage
         localStorage.setItem("tournament_player1_id", player1_id);
@@ -162,7 +158,6 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           setMessageType('error');
           return;
         }
-        console.log("Player 2:", player_2.userProfile);
         
         // Store player 2 info in local storage
         localStorage.setItem("tournament_player2_id", player_2.userProfile.id);
@@ -177,7 +172,6 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           setMessageType('error');
           return;
         }
-        console.log("Player 3:", player_3.userProfile);
         
         // Store player 3 info in local storage
         localStorage.setItem("tournament_player3_id", player_3.userProfile.id);
@@ -192,7 +186,6 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           setMessageType('error');
           return;
         }
-        console.log("Player 4:", player_4.userProfile);
         
         // Store player 4 info in local storage
         localStorage.setItem("tournament_player4_id", player_4.userProfile.id);
@@ -212,14 +205,12 @@ export const InvitePlayer = ({ showModal, handleCloseModal}) => {
           "owner": player1_id,
           "players": [player1_id, player_2.userProfile.id, player_3.userProfile.id, player_4.userProfile.id]
         };
-        console.log("Creating tournament with payload:", payload_tournament);
         const TournamentResponse = await POSTcreateTournament(payload_tournament);
         if (!TournamentResponse) {
           setMessage('Error creating tournament');
           setMessageType('error');
           return;
         }
-        console.log("Tournament created with ID:", TournamentResponse.id);
         
         // Store tournament ID in local storage
         localStorage.setItem("tournament_id", TournamentResponse.id);

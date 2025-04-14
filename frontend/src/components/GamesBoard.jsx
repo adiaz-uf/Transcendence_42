@@ -18,7 +18,6 @@ const GameBoardModal = ({ showBoard, handleCloseBoard }) => {
           },
         });
 
-        console.log('Response data:', response.data);
         setMatches(response.data); // Asigna los partidos obtenidos a la variable de estado
       } catch (error) {
         setError('Failed to fetch matches'); // Si ocurre un error, actualiza el estado de error

@@ -9,7 +9,6 @@ class ClientWebSocket {
         const hostname = window.location.hostname;
         const port = window.location.port ? `:${window.location.port}` : '';
         this.serverUrl = `${wsProtocol}//${hostname}${port}/game/`;
-        console.log('WebSocket URL:', this.serverUrl);
 
         this.socket = null;
         this.reconnectAttempts = 0;
@@ -43,7 +42,7 @@ class ClientWebSocket {
         if (this.onConnectionStateChange) {
             this.onConnectionStateChange(state);
         }
-        console.log('WebSocket connection state changed to:', state);
+        console.info('WebSocket connection state changed to:', state);
     }
 
     connect() {
@@ -53,7 +52,6 @@ class ClientWebSocket {
 
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.setConnectionState('connected');
-            console.log("WebSocket is already connected.");
             return Promise.resolve();
         }
 
@@ -61,11 +59,11 @@ class ClientWebSocket {
         this.setConnectionState('connecting');
         this.connectionPromise = new Promise((resolve, reject) => {
             try {
-                console.log("Attempting to connect to WebSocket server at:", this.serverUrl);
+                console.info("Attempting to connect to WebSocket server at:", this.serverUrl);
                 this.socket = new WebSocket(this.serverUrl);
 
                 this.socket.addEventListener("open", () => {
-                    console.log("Connected to WebSocket server");
+                    console.info("Connected to WebSocket server");
                     this.reconnectAttempts = 0;
                     this.isConnecting = false;
                     this.setConnectionState('connected');
@@ -73,7 +71,7 @@ class ClientWebSocket {
                 });
 
                 this.socket.addEventListener("close", (event) => {
-                    console.log(`WebSocket connection closed: ${event.reason} (code: ${event.code})`);
+                    console.warn(`WebSocket connection closed: ${event.reason} (code: ${event.code})`);
                     this.isConnecting = false;
                     this.setConnectionState('disconnected');
                     
@@ -102,7 +100,6 @@ class ClientWebSocket {
                     this.messageCount++;
                     try {
                         const data = JSON.parse(event.data);
-                        console.log(`Message ${this.messageCount} received:`, data);
                         this.handleServerMessage(data);
                     } catch (error) {
                         console.error("Error parsing WebSocket message:", error);
@@ -123,7 +120,7 @@ class ClientWebSocket {
     }
 
     close() {
-        console.log("Closing WebSocket connection...");
+        console.info("Closing WebSocket connection...");
         if (this.socket) {
             this.socket.close();
             this.socket = null;
@@ -134,7 +131,7 @@ class ClientWebSocket {
     handleReconnect() {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             setTimeout(() => {
-                console.log(`Attempting to reconnect... (${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`);
+                console.warn(`Attempting to reconnect... (${this.reconnectAttempts + 1}/${this.maxReconnectAttempts})`);
                 this.reconnectAttempts++;
                 this.connect();
             }, this.reconnectDelay);
@@ -146,12 +143,11 @@ class ClientWebSocket {
     async sendMessage(message) {
         try {
             if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-                console.log("WebSocket not connected, attempting to connect...");
+                console.info("WebSocket not connected, attempting to connect...");
                 await this.connect();
             }
             
             if (this.socket.readyState === WebSocket.OPEN) {
-                console.log('Sending message:', message);
                 this.socket.send(JSON.stringify(message));
             } else {
                 throw new Error(`WebSocket is not in OPEN state (current state: ${this.socket.readyState})`);
@@ -166,19 +162,14 @@ class ClientWebSocket {
     }
 
     async sendPlayGame() {
-        console.log("Sending play game message");  // Debug log
         await this.sendMessage({"type": "game_active", "game_active": true});
-        console.log("Play game message sent");  // Debug log
     }
 
     async sendStopGame() {
-        console.log("Sending stop game message");  // Debug log
         await this.sendMessage({"type": "game_active", "game_active": false});
-        console.log("Stop game message sent");  // Debug log
     }
 
     async sendPlayerMove(side, direction) {
-        console.log(`Sending player move: ${side} paddle ${direction}`);  // Debug log
         await this.sendMessage({
             type: "update",
             userId: this.userId,
@@ -188,15 +179,12 @@ class ClientWebSocket {
     }
 
     handleServerMessage(data) {
-        console.log("Handling server message:", data);  // Debug log
         if (data.type === "game_update") {
             if (this.gameUpdateCallback) {
                 this.gameUpdateCallback(data);
             }
         } else if (data.type === "error") {
             console.error("Server Error:", data.message);
-        } else {
-            console.log("Received server message:", data);
         }
     }
 

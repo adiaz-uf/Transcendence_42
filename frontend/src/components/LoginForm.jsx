@@ -39,9 +39,6 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
       });
 
       if (res.status === 200) {
-        console.log("Login successful");
-
-        // Si el token de acceso no está presente en el localStorage, guardamos el primer usuario
         if (!localStorage.getItem(ACCESS_TOKEN)) {
           localStorage.setItem(ACCESS_TOKEN, res.data.access);
           localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
@@ -49,20 +46,14 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
           localStorage.setItem("userId", res.data.id);
         }
 
-        // Load game settings after successful login
         try {
           const gameSettings = await GETGameSettings();
           if (gameSettings.error) {
             console.error("Failed to load game settings:", gameSettings.error);
-            // Continue with login even if game settings fail to load
           } else {
             localStorage.setItem("gameSettings", JSON.stringify(gameSettings));
-            if (process.env.NODE_ENV === 'development') {
-              console.log("Game settings loaded successfully:", gameSettings);
-            }
           }
 
-          // Llamamos a onLoginSuccess para que el juego se inicie
           if (onLoginSuccess) {
             onLoginSuccess(gameSettings);
           } else {
@@ -77,7 +68,6 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
           }
         } catch (error) {
           console.error("Error loading game settings:", error);
-          // Continue with login even if game settings fail to load
           if (onLoginSuccess) {
             onLoginSuccess(null);
           } else {
@@ -90,7 +80,6 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
           }
         }
       } else if (res.status === 206) {
-        // Si es necesario 2FA
         setRequires2FA(true);
       }
     } catch (error) {
@@ -104,18 +93,15 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
   const handle42Login = () => {
     const clientId = process.env.REACT_APP_FT_CLIENT_ID;
     const redirectUri = `${window.location.origin}/api/auth/42/callback`; 
-    console.log("redirectUri: ", redirectUri);
 
     const state = JSON.stringify({
       random: Math.random().toString(36).substring(2), 
       redirect_uri: redirectUri 
     });
     localStorage.setItem("oauth_state", state);
-    console.log("state:", state);
 
     const encodedRedirectUri = encodeURIComponent(redirectUri);
     const authUrl = `https://api.intra.42.fr/oauth/authorize?client_id=${clientId}&redirect_uri=${encodedRedirectUri}&response_type=code&scope=public&state=${state}`;
-    console.log("authUrl full:", authUrl);
 
     window.location.href = authUrl;
   };
