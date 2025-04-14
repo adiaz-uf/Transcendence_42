@@ -9,7 +9,6 @@ import HomeRouter from '../../pages/Home'
 import { setUserActive } from '../api-consumer/fetch'
 import { ACCESS_TOKEN } from '../../constants'
 import { useEffect } from 'react';
-import api from '../../api'
 import {useNavigate } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute'
 
