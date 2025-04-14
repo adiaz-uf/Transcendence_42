@@ -42,7 +42,7 @@ export default function Friends() {
         const updateFriendsStatus = async () => {
             for (const friend of friends) {
                 try {
-                    const response = await fetch(`http://${window.location.host}:8000/api/users/${friend.username}/status`);
+                    const response = await fetch(`http://${window.location.host}/api/users/${friend.username}/status`);
                     const data = await response.json();
                     setFriends(prevFriends => 
                         prevFriends.map(f => 
