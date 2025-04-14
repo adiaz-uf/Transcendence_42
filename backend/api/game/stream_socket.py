@@ -9,19 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .session_manager import session_manager
 from .pongame import PongGame
 
-logger = logging.getLogger(__name__)
-
-
-    # Loop de interacion con el cliente, servidor = StreamSocketMultiplayer
-
-#1 cliente1 ejecuta ws.connect()
-#1.1 cliente1 crea partido POST con posible player_2 para local 2p 
-    #1.1 O sino deja player2 vacio y client2 hace post al partido de client1 poniendose como player2 
-
-#2 cliente ws.send({'match-id':Id}) servidor reciben en servidor.__handle_MatchSessionPairing()
-
-#3. cliente ws.send({'game_active':Id}) servidor reciben en servidor.__handle_game_active()
-
+logger = logging.getLogger("django")
 
 # Function that handles incoming new connections for matches
 class StreamSocket(AsyncWebsocketConsumer):
