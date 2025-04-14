@@ -142,7 +142,7 @@ matches.forEach(match => {
   cumulativeLosses.push(lossCount);
 });
 const chartData = {
-  labels: matches.map(match => new Date(match.date).toLocaleDateString()),
+  labels: matches.map(match => new Date(match.match.date).toLocaleDateString()),
   datasets: [
     {
       label: 'Wins',

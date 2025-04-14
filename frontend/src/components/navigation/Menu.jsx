@@ -1,27 +1,12 @@
 import React, { useState } from "react";
-import {useNavigate, useLocation} from "react-router-dom";
 import { Button } from 'react-bootstrap';
 import {useGameSetting} from '../contexts/GameContext'
 import '../../styles/game.css'
 import {InvitePlayer} from '../game/InvitePlayerModal';
-import defaultAvatar from './chameleon.jpg';
-import MessageBox from '../MessageBox';
-
-const MyComponent = () => {
-  return (
-    <div>
-      <img src={defaultAvatar} />
-    </div>
-  );
-};
 
 export const Menu = () => {
   const { setGameMode, setIsMultiplayer, setGameType} = useGameSetting();
-  const navigate = useNavigate();
-  const location = useLocation();
   const [InvitationModal, setInvationBool] = useState(false);
-  const [message, setMessage] = useState(location.state?.message || null);
-  const [messageType, setMessageType] = useState(location.state?.type || 'info');
 
   const handleSelectMode = async (mode) => {
 
@@ -40,13 +25,6 @@ export const Menu = () => {
 
   return (
     <div className="menu-container">
-      {message && (
-        <MessageBox
-          message={message}
-          type={messageType}
-          onClose={() => setMessage(null)}
-        />
-      )}
       <h1>Play Single Game</h1>
       <Button className="m-5" onClick={() => handleSelectMode("local")}>Start Game (2P)</Button>
       <h1>Or start a Tournament!</h1>
@@ -58,7 +36,6 @@ export const Menu = () => {
       { InvitationModal && (
         <InvitePlayer showModal={InvitationModal} handleCloseModal={()=>{setInvationBool(false)}}/>
       )}
-      {/* <MyComponent/>  TODO: breaks responsive*/}
     </div>
   );
 };

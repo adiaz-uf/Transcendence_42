@@ -58,7 +58,7 @@ export default function AvatarUpload({ show, handleClose, onAvatarUpdate }) {
         <Modal.Title>Change Avatar</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <div className="align-items-center" style={{fontSize:"0.9em"}}>
+        <div className="align-items-center">
           <input
             type="file"
             accept="image/jpeg,image/png,image/gif"
@@ -80,7 +80,7 @@ export default function AvatarUpload({ show, handleClose, onAvatarUpdate }) {
         <Button variant="primary" onClick={handleUpload}>
           Upload
         </Button>
-        <Button variant="secondary" onClick={handleClose}>
+        <Button variant="danger" onClick={handleClose}>
           Cancel
         </Button>
       </Modal.Footer>

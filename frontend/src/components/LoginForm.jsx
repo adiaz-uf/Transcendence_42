@@ -51,9 +51,11 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
         if (onLoginSuccess) {
             onLoginSuccess();  // Aquí solo se ejecutará si la función se pasó
           } else {
+            setMessageType("success");
+            setMessage("Ready to play !");
             navigate(navigateTo, {
               state: {
-                  message: "Ready to play !",
+                  message: "Ready to play!",
                   type: "success"
               }
             });
