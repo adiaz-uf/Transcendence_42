@@ -23,10 +23,10 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile-dev         # uncomment this line for Hot-Reload Frontend
-    volumes:                             # uncomment this line for Hot-Reload Frontend
-      - ./frontend/src:/app/src          # uncomment this line for Hot-Reload Frontend
-      - ./frontend/public:/app/public    # uncomment this line for Hot-Reload Frontend
+  #    dockerfile: Dockerfile-dev         # uncomment this line for Hot-Reload Frontend
+  #  volumes:                             # uncomment this line for Hot-Reload Frontend
+  #    - ./frontend/src:/app/src          # uncomment this line for Hot-Reload Frontend
+  #    - ./frontend/public:/app/public    # uncomment this line for Hot-Reload Frontend
     container_name: pong_frontend
     restart: always
     ports:
