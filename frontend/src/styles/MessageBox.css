@@ -57,6 +57,10 @@
     background-color: #0288D1;
 }
 
+.message-box.blockchain {
+    background-color: #6f42c1;
+}
+
 @keyframes slideIn {
     from {
         transform: translateX(100%);
