@@ -121,8 +121,8 @@ export default function Friends() {
     };
 
     const handleShowFriendProfile = (user) => {
-        setShowFriendModal(true);
         setFriendShow(user);
+        setShowFriendModal(true);
     };
     
     const handleCloseFriendModal = () => {

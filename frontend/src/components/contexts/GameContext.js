@@ -4,12 +4,13 @@ import { GETGameSettings } from "../api-consumer/fetch";
 const GameContext = createContext();
 
 export const GameSettingProvider = ({ children }) => {
-  const [gameType, setGameType] = useState(null);
-  const [gameMode, setGameMode] = useState(null);
-  const [matchId, setMatchId] = useState("");
-  const [isInviting, setIsInviting] = useState("");
-  const [opponentUsername, setOpponentUsername] = useState("");
-  const [isMultiplayer, setIsMultiplayer] = useState(false);
+
+  const [gameType, setGameType] = useState(null);  // "match | tournament" 
+  const [gameMode, setGameMode] = useState(null);  // "local" | "tournament"
+  const [matchId, setMatchId] = useState("");      // Store the match ID
+  const [isInviting, setIsInviting] = useState(""); // "host" | "invitado"
+  const [opponentUsername, setOpponentUsername] = useState(""); // Username for invitation
+  const [isMultiplayer, setIsMultiplayer] = useState(false); // Multiplayer game
   const [gameSettings, setGameSettings] = useState(null);
   const [TournamentSettings, setTournamentSettings] = useState({
       Player1: null,

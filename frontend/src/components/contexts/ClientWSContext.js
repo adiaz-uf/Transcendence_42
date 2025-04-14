@@ -58,10 +58,22 @@ export const WebSocketProvider = ({ children }) => {
     const [gameState, setGameState] = useState(initializeGameState());
 
     useEffect(() => {
-        if (WSref) {
-            const instance = new ClientWebSocket(`wss://${window.location.host}:8000/game/`, matchId);
-            setWSref(instance);
-            instance.connect(); 
+        console.log("WebSocketProvider mounted");
+      }, []);
+      
+      useEffect(() => {
+        if (WSref) console.log("WebSocket initialized:", WSref);
+      }, [WSref]);
+      
+
+    useEffect(() => {
+        // Initialize WebSocket instance only once
+        if (!WSref) {
+            const instance = new ClientWebSocket(`https://${window.location.host}/game/`, matchId);
+            setWSref(instance); // Set the WebSocket instance
+            console.log("WebSocket instance created:", instance);
+
+            // Link WebSocket updates to game state
             StateLinkerGameWebSocket({ setGameState, clientWS: instance });
         }
 
