@@ -185,6 +185,8 @@ class UserFriendsView(APIView):
             friend = self.get_object(username)
             if friend == user:
                 return Response({"error": "You cannot add yourself as a friend."}, status=status.HTTP_400_BAD_REQUEST)
+            if user.friends.filter(id=friend.id).exists():
+                return Response({"error": "You are already friends with this user."}, status=status.HTTP_409_CONFLICT)
             user.friends.add(friend)
             return Response({"message": "Friend added successfully."}, status=status.HTTP_200_OK)
         except UserProfile.DoesNotExist:
