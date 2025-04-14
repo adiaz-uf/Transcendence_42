@@ -94,7 +94,7 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
             // Debug state tracking
             let lastState = null;
             const debugStateChanges = (data) => {
-                if (data.type === 'game_update') {
+                if (data.type === 'error') {
                     setGameState(prevState => ({
                         ...prevState,
                         connectionError: data.message
@@ -156,6 +156,9 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                     });
                 }
             };
+
+            // Set up the game update callback
+            wsRef.current.listenForGameUpdates(debugStateChanges);
         } catch (error) {
             console.error('Failed to connect to WebSocket:', error);
             setGameState(prevState => ({
@@ -469,10 +472,14 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                     onClose={() => setMessage(null)}
                 />
             )}
-            <div className="game-return" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            <div className="game-return" style = {{display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px'}}>
                 {!gameState.gameOver && (
-                    <button style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={toggleGame} disabled={!!gameState.connectionError}>
-                        {gameState.isPlaying ? 'Pause' : 'Start'}
+                    <button 
+                        className="game-return"
+                        onClick={toggleGame} 
+                        disabled={!!gameState.connectionError}
+                    >
+                        {gameState.isPlaying ? 'Pause Game' : 'Start Game'}
                     </button>
                 )}
             </div>
