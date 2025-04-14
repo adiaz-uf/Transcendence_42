@@ -134,18 +134,18 @@ export async function POSTfriend(friendName){
     const token = localStorage.getItem(ACCESS_TOKEN); 
 
     if (!token) {
-        return ;
+        return { error: "No authentication token found" };
     }
     try{
-        const response = await api.post(`/api/user/friends/${friendName}`,  {
+        const response = await api.post(`/api/user/friends/${friendName}`, {}, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
-        })
-        return response;
+        });
+        return response.data;
     } catch (error){
-        console.error("Error listing friends:", error);
-        return { error: error.response?.data || "An error occurred" }; // Return error details
+        console.error("Error adding friend:", error);
+        return { error: error.response?.data?.error || "An error occurred while adding friend" };
     }
 }
 
@@ -272,18 +272,18 @@ export async function GETUserMatchesPlayed(username) {
 export async function GETUserMatchesWon(username) {
     const token = localStorage.getItem(ACCESS_TOKEN);
     if (!token) {
-        return null; 
+        return null;
     }
     try {
-      const response = await api.get(`/api/user/matches-won/${username}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return (response.data.matches_won);
+        const response = await api.get(`/api/user/matches-won/${username}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return (response.data.matches_won);
     } catch (error) {
-      console.error("Error fetching matches won:", error);
-      return { error: error.response?.data || 'An error occurred' };
+        console.error("Error fetching matches won:", error);
+        return { error: error.response?.data || 'An error occurred' };
     }
-  };
+};
 
 export async function setUserActive(iactive) {
     const token = localStorage.getItem(ACCESS_TOKEN);
@@ -301,7 +301,7 @@ export async function setUserActive(iactive) {
         console.error("Error setting user active status:", error);
         return { error: error.response?.data || "An error occurred" }; // Handle error and return response
     }
-  };
+};
 
 export async function GetOthersActiveness(in_username) {
     const token = localStorage.getItem(ACCESS_TOKEN);
@@ -319,7 +319,7 @@ export async function GetOthersActiveness(in_username) {
         console.error("Error setting user active status:", error);
         return { error: error.response?.data || "An error occurred" }; // Handle error and return response
     }
-  };
+};
 
 export async function GetListMatchesFromIdWithScore(in_username) {
     const token = localStorage.getItem(ACCESS_TOKEN);
