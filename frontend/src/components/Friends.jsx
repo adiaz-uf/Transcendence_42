@@ -2,38 +2,40 @@ import React, { useState, useEffect } from 'react';
 import { Button, Form, Spinner } from 'react-bootstrap';
 import { GETfriends, POSTfriend, DELETEfriend, GETCheckUsernameExists, GetOthersActiveness } from '../components/api-consumer/fetch';
 import FriendProfileModal from '../components/FriendProfileModal';
+import MessageBox from '../components/MessageBox';
 import '../styles/friends.css';
 
 export default function Friends() {
     const [friends, setFriends] = useState([]);
     const [newFriendUsername, setNewFriendUsername] = useState('');
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [message, setMessage] = useState(null);
+    const [messageType, setMessageType] = useState('');
     const [showFriendModal, setShowFriendModal] = useState(false);
-
-
-
+    const [friendShow, setFriendShow] = useState('');
 
     // Fetch friends on component load
     const fetchFriends = async () => {
         setLoading(true);
-        setError(null);
+        setMessage(null);
         try {
             const response = await GETfriends();
             if (response?.error) {
-                setError(response.error);
+                setMessage(response.error);
+                setMessageType("error");
             } else {
                 setFriends(response);
             }
         } catch (err) {
-            setError("Failed to load friends");
+            setMessage("Failed to load friends");
+            setMessageType("error");
         } finally {
             setLoading(false);
         }
     };
 
-      // Periodically update friends active status
-      useEffect(() => {
+    // Periodically update friends active status
+    useEffect(() => {
         if (!Array.isArray(friends) || friends.length === 0) {
             return;
         }
@@ -58,7 +60,6 @@ export default function Friends() {
         };
 
         // Set an interval to update friends' statuses every 10 seconds
-
         const intervalId = setInterval(updateFriendsStatus, 10000);
 
         // Cleanup the interval on component unmount
@@ -67,26 +68,32 @@ export default function Friends() {
 
     const handleAddFriend = async () => {
         if (!newFriendUsername.trim()) {
-            setError("Please enter a username.");
+            setMessage("Please enter a username.");
+            setMessageType("info");
             return;
         }
         setLoading(true);
-        setError(null);
+        setMessage(null);
         try {
             const userCheck = await GETCheckUsernameExists(newFriendUsername);
             if (userCheck?.exists) {
                 const response = await POSTfriend(userCheck.userProfile.username);
                 if (response?.error) {
-                    setError(response.error);
+                    setMessage(response.error);
+                    setMessageType("error");
                 } else {
                     setNewFriendUsername('');
-                    fetchFriends(); // Refresh the friends list
+                    await fetchFriends(); // Refresh the friends list first
+                    setMessage("Friend added successfully!");
+                    setMessageType("success");
                 }
             } else {
-                setError("User not found.");
+                setMessage("User not found.");
+                setMessageType("error");
             }
         } catch (error) {
-            setError("An error occurred while adding the friend.");
+            setMessage("An error occurred while adding the friend.");
+            setMessageType("error");
         } finally {
             setLoading(false);
         }
@@ -94,28 +101,33 @@ export default function Friends() {
 
     const handleRemoveFriend = async (friendName) => {
         setLoading(true);
-        setError(null);
+        setMessage(null);
         try {
             const response = await DELETEfriend(friendName);
             if (response?.error) {
-                setError(response.error);
+                setMessage(response.error);
+                setMessageType("error");
             } else {
-                fetchFriends(); // Refresh the friends list
+                await fetchFriends(); // Refresh the friends list first
+                setMessage("Friend removed successfully!");
+                setMessageType("success");
             }
         } catch (error) {
-            setError("An error occurred while removing the friend.");
+            setMessage("An error occurred while removing the friend.");
+            setMessageType("error");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleShowFriendProfile = () => {
+    const handleShowFriendProfile = (user) => {
         setShowFriendModal(true);
-      };
+        setFriendShow(user);
+    };
     
-      const handleCloseFriendModal = () => {
+    const handleCloseFriendModal = () => {
         setShowFriendModal(false);
-      };
+    };
 
     useEffect(() => {
         fetchFriends();
@@ -124,9 +136,11 @@ export default function Friends() {
     return (
         <div className="friends-panel">
             <h3 className="friends-title">Friends</h3>
-            {/* {error && <div className="alert alert-danger">{error}</div>} */}
+            {message && <MessageBox 
+                message={message}
+                type={messageType}
+                onClose={() => setMessage(null)}/>}
 
-            {/* Add Friend Form */}
             <div className="add-friend-form">
                 <Form.Control
                     type="text"
@@ -163,7 +177,7 @@ export default function Friends() {
                             <Button
                                 variant="outline-info"
                                 size="sm"
-                                onClick={() => handleShowFriendProfile()}
+                                onClick={() => handleShowFriendProfile(friend.username)}
                                 className="action-btn m-3">
                                 View Profile
                             </Button>
@@ -178,7 +192,7 @@ export default function Friends() {
                             <FriendProfileModal 
                                 show={showFriendModal} 
                                 handleClose={handleCloseFriendModal} 
-                                user={friend.username}
+                                user={friendShow}
                             />
                         </div>
                     ))

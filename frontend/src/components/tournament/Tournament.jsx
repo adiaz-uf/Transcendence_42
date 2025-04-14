@@ -1,4 +1,4 @@
-import {GETCheckUsernameExists, POSTcreateMatch, POSTcreateTournament, PATCHAddMatchToTournament, GETTournamentDetails, PATCHAddWinnerToTournament, PATCHMatchScore, GETOthersProfileInfo} from "../api-consumer/fetch";
+import { POSTcreateMatch, PATCHAddMatchToTournament, PATCHAddWinnerToTournament, PATCHMatchScore, GETOthersProfileInfo} from "../api-consumer/fetch";
 import { useGameSetting } from '../contexts/GameContext';
 import React, { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
@@ -8,7 +8,6 @@ import defaultAvatar from '../../components/navigation/chameleon.jpg';
 import MessageBox from '../MessageBox';
 import { ACCESS_TOKEN } from "../../constants";
 import '../../styles/tournament.css';
-
 
 export default function Tournament () {
     const {TournamentSettings, getUsernameById, gameSettings} = useGameSetting();
@@ -104,13 +103,17 @@ export default function Tournament () {
         setTournamentComplete(true);
         console.log("Tournament complete, winner:", winnerId);
         
+        // Get the actual player ID based on whether the winner is left or right
+        const actualWinnerId = winnerId === 'left' ? matches.final.player1 : matches.final.player2;
+        console.log("Actual winner ID:", actualWinnerId);
+        
         // Set the congratulation message immediately after the final match
-        const championUsername = getUsernameById(winnerId);
+        const championUsername = getUsernameById(actualWinnerId);
         setMessage(`Congratulations to ${championUsername} for winning the tournament! 🏆`);
         setMessageType('success');
         
         // Update the database for the final match
-        await updateMatchInDatabase(matchKey, winnerId);
+        await updateMatchInDatabase(matchKey, actualWinnerId);
       }
       
       setMatches(prev => {
@@ -506,8 +509,8 @@ export default function Tournament () {
             <p>Congratulations to {getUsernameById(matches.final.winner)}, our champion!</p>
             
             <div className="tournament-buttons">
-              <button 
-                className="blockchain-button py-2 px-6 rounded"
+              <Button 
+                className="blockchain-button m-2"
                 onClick={sendTournamentScoresToBlockchain}
                 disabled={isBlockchainLoading}
               >
@@ -527,14 +530,14 @@ export default function Tournament () {
                 ) : (
                   "Push to Blockchain"
                 )}
-              </button>
+              </Button>
               
-              <button 
-                className="return-button py-2 px-6 rounded"
+              <Button 
+                className="return-button m-2"
                 onClick={returnToMenu}
               >
                 Return to Menu
-              </button>
+              </Button>
             </div>
           </div>
         )}

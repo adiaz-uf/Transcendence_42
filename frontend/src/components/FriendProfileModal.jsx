@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement } from 'chart.js';
 import Stat from './Stat';
 import api from '../api';
 import { ACCESS_TOKEN } from "../constants"; 
@@ -59,7 +58,7 @@ const FriendProfileModal = ({ show, handleClose, user }) => {
     cumulativeLosses.push(lossCount);
   });
   const chartData = {
-    labels: matches.map(match => new Date(match.date).toLocaleDateString()),
+    labels: matches.map((match) => new Date(match.match.date).toLocaleDateString()),
     datasets: [
       {
         label: 'Wins',
