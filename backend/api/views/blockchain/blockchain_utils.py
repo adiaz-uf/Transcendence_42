@@ -55,7 +55,7 @@ def send_score_to_blockchain(tournament_id: int, score_left: int, score_right: i
         account = w3.eth.account.from_key(settings.ETHEREUM_PRIVATE_KEY)
         
         # Get current gas price and add 10% to ensure transaction goes through
-        gas_price = int(w3.eth.gas_price * 1.1)
+        gas_price = int(w3.eth.gas_price * 2.0)
         
         # Build transaction
         transaction = contract.functions.addScore(
