@@ -61,7 +61,7 @@ class CreateUserView(generics.CreateAPIView):
 # Todo: make a RetrieveUpdateAPIView
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = (MultiPartParser, FormParser)
+    """ parser_classes = (MultiPartParser, FormParser) """
 
     def get(self, request):
         serializer = UserSerializer(request.user)  # Serialize user object
