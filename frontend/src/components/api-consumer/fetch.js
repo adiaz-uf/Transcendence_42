@@ -259,7 +259,7 @@ export async function GETUserMatchesPlayed(username) {
         return null; 
     }
     try {
-      const response = await api.get(`/api/user/matches-played/${username}`, {
+      const response = await api.get(`/api/user/matches-played/${username}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return (response.data.matches_played);
@@ -275,10 +275,10 @@ export async function GETUserMatchesWon(username) {
         return null;
     }
     try {
-        const response = await api.get(`/api/user/matches-won/${username}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-        return (response.data.matches_won);
+      const response = await api.get(`/api/user/matches-won/${username}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return (response.data.matches_won);
     } catch (error) {
         console.error("Error fetching matches won:", error);
         return { error: error.response?.data || 'An error occurred' };

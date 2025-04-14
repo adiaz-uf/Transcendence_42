@@ -17,8 +17,8 @@ export const Menu = () => {
         setInvationBool(true);
     } else if (mode === "tournament") { 
       setGameType("tournament");
-      setGameMode("local"); // TODO
-      setIsMultiplayer(false); // TODO
+      setGameMode("local");
+      setIsMultiplayer(false);
       setInvationBool(true);
     }
   };
