@@ -86,7 +86,7 @@ export default function Friends() {
                     setMessageType("success");
                 }
             } else {
-                setMessage("User not found.");
+                setMessage("User not found!!!!!");
                 setMessageType("error");
             }
         } catch (error) {
