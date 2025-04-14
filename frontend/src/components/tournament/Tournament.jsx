@@ -26,6 +26,7 @@ export default function Tournament () {
     const [message, setMessage] = useState(location.state?.message || null);
     const [messageType, setMessageType] = useState(location.state?.type || 'info');
     const [isBlockchainLoading, setIsBlockchainLoading] = useState(false);
+    const [isBlockchainPushed, setIsBlockchainPushed] = useState(false);
   
     // Add state to track match start times
     const [matchStartTimes, setMatchStartTimes] = useState({
@@ -265,6 +266,7 @@ export default function Tournament () {
       
       setMessage("Tournament scores successfully uploaded to blockchain! 🚀");
       setMessageType('blockchain');
+      setIsBlockchainPushed(true);
     } catch (error) {
       console.error("Error sending tournament scores to blockchain:", error);
       setMessage("Failed to upload scores to blockchain. Please try again.");
@@ -488,7 +490,7 @@ export default function Tournament () {
               <Button 
                 className="blockchain-button m-2"
                 onClick={sendTournamentScoresToBlockchain}
-                disabled={isBlockchainLoading}
+                disabled={isBlockchainLoading || isBlockchainPushed}
               >
                 {isBlockchainLoading ? (
                   <div className="flex items-center justify-center">
@@ -503,6 +505,8 @@ export default function Tournament () {
                     </div>
                     <span>Uploading to Blockchain...</span>
                   </div>
+                ) : isBlockchainPushed ? (
+                  "Already Pushed to Blockchain"
                 ) : (
                   "Push to Blockchain"
                 )}

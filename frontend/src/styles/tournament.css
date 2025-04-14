@@ -224,7 +224,10 @@
   font-weight: 500;
   transition: opacity 0.3s;
   width: 200px; /* Fixed width for consistency */
-
+  height: 38px; /* Fixed height for consistency */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .blockchain-button:hover {
@@ -257,7 +260,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem; /* Consistent spacing between buttons */
+  gap: 0.5rem !important; /* Consistent spacing between buttons */
   width: 100%;
   margin-top: 1.5rem;
 }
@@ -265,4 +268,8 @@
 /* Style for the return to menu button */
 .return-button {
   width: 200px; /* Same width as blockchain button */
+  height: 38px; /* Same height as blockchain button */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
