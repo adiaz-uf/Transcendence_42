@@ -104,13 +104,17 @@ export default function Tournament () {
         setTournamentComplete(true);
         console.log("Tournament complete, winner:", winnerId);
         
+        // Get the actual player ID based on whether the winner is left or right
+        const actualWinnerId = winnerId === 'left' ? matches.final.player1 : matches.final.player2;
+        console.log("Actual winner ID:", actualWinnerId);
+        
         // Set the congratulation message immediately after the final match
-        const championUsername = getUsernameById(winnerId);
+        const championUsername = getUsernameById(actualWinnerId);
         setMessage(`Congratulations to ${championUsername} for winning the tournament! 🏆`);
         setMessageType('success');
         
         // Update the database for the final match
-        await updateMatchInDatabase(matchKey, winnerId);
+        await updateMatchInDatabase(matchKey, actualWinnerId);
       }
       
       setMatches(prev => {
