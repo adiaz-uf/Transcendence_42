@@ -62,6 +62,7 @@ const getProgressColor = (type) => {
         case 'success': return '#4CAF50';
         case 'error': return '#F44336';
         case 'warning': return '#FF9800';
+        case 'blockchain': return '#9b6dff';
         default: return '#2196F3';
     }
 };
