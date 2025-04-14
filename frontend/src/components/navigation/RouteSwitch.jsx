@@ -114,19 +114,10 @@ export default function RouterSwitch() {
 			navigator.sendBeacon(url);
 		};
 
-		const handleVisibilityChange = () => {
-			if (document.visibilityState === 'hidden') {
-				setUserActiveFalseWhenClosing()
-				// Do your sendBeacon or logout logic here
-			} else {
-				setUserActive(true);
-			}
-		};
-	
-		document.addEventListener('visibilitychange', handleVisibilityChange);
+		document.addEventListener('beforeunload', setUserActiveFalseWhenClosing);
 	
 		return () => {
-			document.removeEventListener('visibilitychange', handleVisibilityChange);
+			document.removeEventListener('beforeunload', setUserActiveFalseWhenClosing);
 		};
 	}, []);
 	
