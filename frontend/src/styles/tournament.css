@@ -75,12 +75,17 @@
 
 .tournament-results {
   text-align: center;
-  padding: 1.5rem;
-  background-color: transparent;
-  border-radius: 0.5rem;
+  padding: 2em;
+  background-color: #343538;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 500px;
+  margin: 2em auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .tournament-results h3 {
@@ -206,10 +211,12 @@
   .tournament-card-text {
     font-size: 0.75rem;
   }
+}
+
 /* Tournament component styles */
 
 /* Blockchain button - extends the default button style but with a gradient background */
-  .blockchain-button {
+.blockchain-button {
   background: linear-gradient(135deg, #6e8efb, #a777e3) !important;
   box-shadow: 0 4px 15px rgba(110, 142, 251, 0.4);
   border: none;
@@ -217,36 +224,44 @@
   font-weight: 500;
   transition: opacity 0.3s;
   width: 200px; /* Fixed width for consistency */
-  }
+}
 
-  .blockchain-button:hover {
+.blockchain-button:hover {
   opacity: 0.9;
-  }
+}
 
-  .blockchain-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.8;
-  }
-  
-  /* Tournament results container */
-  .tournament-results {
-    background-color: #343538;
-    border-radius: 15px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    padding: 2em;
-    margin: 2em;
-  }
-  
-  /* Button container styling */
-  .tournament-buttons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem; /* Consistent spacing between buttons */
-  }
-  
-  /* Style for the return to menu button */
-  .return-button {
-    width: 200px; /* Same width as blockchain button */
-  } 
+.blockchain-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* Tournament results container */
+.tournament-results {
+  background-color: #343538;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  padding: 2em;
+  margin: 2em auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  max-width: 500px;
+}
+
+/* Button container styling */
+.tournament-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem; /* Consistent spacing between buttons */
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+/* Style for the return to menu button */
+.return-button {
+  width: 200px; /* Same width as blockchain button */
 }
