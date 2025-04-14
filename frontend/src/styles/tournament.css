@@ -224,10 +224,7 @@
   font-weight: 500;
   transition: opacity 0.3s;
   width: 200px; /* Fixed width for consistency */
-  height: 38px; /* Fixed height for consistency */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 38px; /* Added min-height */
 }
 
 .blockchain-button:hover {
@@ -268,8 +265,4 @@
 /* Style for the return to menu button */
 .return-button {
   width: 200px; /* Same width as blockchain button */
-  height: 38px; /* Same height as blockchain button */
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
