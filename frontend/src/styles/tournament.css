@@ -219,11 +219,12 @@
 .blockchain-button {
   background: linear-gradient(135deg, #6e8efb, #a777e3) !important;
   box-shadow: 0 4px 15px rgba(110, 142, 251, 0.4);
-  border: none;
+  border: none !important;
   color: white;
   font-weight: 500;
   transition: opacity 0.3s;
   width: 200px; /* Fixed width for consistency */
+
 }
 
 .blockchain-button:hover {
