@@ -178,11 +178,10 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
               />
             </Form.Group>
           )}
-          <Button id='form-login-button' className='w-100' type='submit'>
+          <Button className='w-100' type='submit'>
             {loading ? <Spinner animation="border" size="sm" /> : 'Login'}
           </Button>
           <Button
-            id='form-login-button'
             className='signin42-button w-100 mt-4'
             type='button'
             onClick={handle42Login}
@@ -198,7 +197,7 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
           <div className='login-register-container'>
             <Form.FloatingLabel>Don't have an account?</Form.FloatingLabel>
             <Link to="/register" className='w-50'>
-              <Button id='form-login-button' className='w-100'>
+              <Button className='w-100'>
                 Register
               </Button>
             </Link>
