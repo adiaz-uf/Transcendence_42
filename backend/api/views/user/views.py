@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, login
+from django.http import JsonResponse
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -159,6 +160,12 @@ class BeaconLogoutView(APIView):
 
         return Response({"message": "User status updated"}, status=status.HTTP_200_OK)
 
+class LogoutView(APIView):
+    def post(self, request):
+        response = JsonResponse({'message': 'Logged out'})
+        response.delete_cookie('access_token')
+        response.delete_cookie('refresh_token')
+        return response
 
 class UserFriendsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -230,24 +237,45 @@ class CheckUserExistsView(generics.RetrieveAPIView):
 #   model: UserProfile 
 #   serializer: Userserializer
 class LoginView(generics.CreateAPIView):
-    serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
+    def __set_auth_cookies(self, response, refresh, access):
+        # Configura cookies HttpOnly, Secure
+        response.set_cookie(
+            key='access_token',
+            value=access,
+            httponly=True,
+            secure=True,              # ✅ Asegúrate de estar usando HTTPS en prod
+            samesite='Lax',
+            max_age=3600              # 1h (opcional)
+        )
+        response.set_cookie(
+            key='refresh_token',
+            value=refresh,
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=7 * 24 * 60 * 60  # 7 días (opcional)
+        )
 
-    def __RefreshToken_And_ActiveFieldOnDB(self, user):
-        refresh = RefreshToken.for_user(user)    
+    def __build_response_with_tokens(self, user):
+        refresh = RefreshToken.for_user(user)
         user.active = True
         user.save(update_fields=['active'])
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'id': user.id
-        }
+
+        response = JsonResponse({
+            'id': user.id,
+            'username': user.username,
+            'message': 'Login successful'
+        })
+        self.__set_auth_cookies(response, str(refresh), str(refresh.access_token))
+        return response
 
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             if user.is_2fa_enabled:
                 code = request.data.get('code')
@@ -255,13 +283,14 @@ class LoginView(generics.CreateAPIView):
                     device = TOTPDevice.objects.filter(user=user, name='default').first()
                     if device and device.verify_token(code):
                         login(request, user)
-                        return Response(self.__RefreshToken_And_ActiveFieldOnDB(user))
-                    return Response({'error': 'Invalide 2FA code'}, status=400)
+                        return self.__build_response_with_tokens(user)
+                    return Response({'error': 'Invalid 2FA code'}, status=400)
                 return Response({'message': '2FA code is required'}, status=206)
             else:
                 login(request, user)
-                return Response(self.__RefreshToken_And_ActiveFieldOnDB(user))
-        return Response({'error': 'Invalid identifiers'}, status=401)
+                return self.__build_response_with_tokens(user)
+
+        return Response({'error': 'Invalid credentials'}, status=401)
 
 class MatchesPlayedView(APIView):
     def get(self, request, username):

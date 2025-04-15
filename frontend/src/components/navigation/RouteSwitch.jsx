@@ -18,7 +18,8 @@ function Logout() {
     useEffect(() => {
         const handleLogout = async () => {
             await setUserActive(false); // Ensure the API call completes
-            localStorage.clear(); // Clear localStorage after the API call
+            await api.post("/api/logout");
+			localStorage.removeItem("gameSettings"); // si lo guardas
             navigate('/login'); // Redirect to login after logout
         };
 

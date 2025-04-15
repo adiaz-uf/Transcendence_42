@@ -7,8 +7,6 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 import json
-import base64
-import qrcode
 import requests
 
 import logging
@@ -39,19 +37,39 @@ def get_or_create_user(user_data):
 
 class FTAuthCallbackView(APIView):
     permission_classes = [AllowAny]
+
+    def __set_auth_cookies(self, response, refresh, access):
+        response.set_cookie(
+            key='access_token',
+            value=access,
+            httponly=True,
+            secure=True,  # 🔒 Solo si usas HTTPS en producción
+            samesite='Lax',
+            max_age=3600
+        )
+        response.set_cookie(
+            key='refresh_token',
+            value=refresh,
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=7 * 24 * 60 * 60
+        )
+
     def get(self, request):
         code = request.GET.get('code')
         state = request.GET.get('state')
 
         if not code:
             return JsonResponse({'error': 'No code provided'}, status=400)
-
         if not state:
             return JsonResponse({'error': 'Missing state parameter'}, status=400)
 
         state_data = json.loads(state)
         redirect_uri = state_data.get('redirect_uri')
         logger.info(f"Retrieved redirect_uri from state: {redirect_uri}")
+
+        # Intercambiar code por token
         token_url = "https://api.intra.42.fr/oauth/token"
         payload = {
             'grant_type': 'authorization_code',
@@ -63,13 +81,12 @@ class FTAuthCallbackView(APIView):
         response = requests.post(token_url, data=payload)
         if response.status_code != 200:
             logger.error(f"Token request failed: {response.status_code} - {response.text}")
-            logger.info(f"Sent payload: {payload}")
-            return JsonResponse({'error': 'Failed to get access token', 'details': response.text}, status=500)
+            return JsonResponse({'error': 'Failed to get access token'}, status=500)
 
         token_data = response.json()
         access_token = token_data.get('access_token')
 
-        # Get user info
+        # Obtener info del usuario desde la API de 42
         user_info_url = "https://api.intra.42.fr/v2/me"
         headers = {'Authorization': f'Bearer {access_token}'}
         user_response = requests.get(user_info_url, headers=headers)
@@ -79,14 +96,14 @@ class FTAuthCallbackView(APIView):
         user_data = user_response.json()
         user = get_or_create_user(user_data)
 
-        # Connect user
-        authenticate(request, username=user.username)
+        # Loguear en Django
         login(request, user)
-        refresh = RefreshToken.for_user(user)    
+        refresh = RefreshToken.for_user(user)
         user.active = True
         user.save(update_fields=['active'])
-        
-        # Redirect to frontend
+
+        # Redirigir al frontend con cookies seguras (sin tokens en URL)
         callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
-        redirect_url = f"{callback_uri}?access={refresh.access_token}"
-        return HttpResponseRedirect(redirect_url)
+        response = HttpResponseRedirect(callback_uri)
+        self.__set_auth_cookies(response, str(refresh), str(refresh.access_token))
+        return response

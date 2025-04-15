@@ -179,7 +179,12 @@ ETHEREUM_CONTRACT_ADDRESS = os.getenv("ETHEREUM_CONTRACT_ADDRESS")
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # dominio frontendTODO:secure url? or BASE_DIR 
+]
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 LOGGING = {
     "version": 1,  # Required

@@ -2,7 +2,6 @@ import { Button, Form, Spinner, Image } from 'react-bootstrap';
 import { useState, useEffect } from "react";
 import api from "../api";
 import '../styles/login.css'
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import MessageBox from '../components/MessageBox';
 import { GETGameSettings } from './api-consumer/fetch.js';
@@ -40,13 +39,6 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
       });
 
       if (res.status === 200) {
-        if (!localStorage.getItem(ACCESS_TOKEN)) {
-          localStorage.setItem(ACCESS_TOKEN, res.data.access);
-          localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-          localStorage.setItem("username", username);
-          localStorage.setItem("userId", res.data.id);
-        }
-
         try {
           const gameSettings = await GETGameSettings();
           if (gameSettings.error) {
@@ -109,13 +101,7 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
 
   // Gestión del callback desde 42
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const accessToken = params.get('access');
-    if (accessToken) {
-      localStorage.setItem(ACCESS_TOKEN, accessToken);
-      api.get("/api/user/profile/", {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      })
+      api.get("/api/user/profile/")
         .then(response => {
           const username = response.data.username;
           const userId = response.data.id;
@@ -133,7 +119,6 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
           setMessageType("error");
           navigate("/login"); 
         });
-    }
   }, [location, navigate]);
 
   useEffect(() => {

@@ -8,17 +8,12 @@ const api = axios.create({
 // Add a request interceptor to include the token in all requests
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => {
     return Promise.reject(error);
   }
 );
-
 // Add a response interceptor to handle token refresh
 api.interceptors.response.use(
   (response) => response,
@@ -30,26 +25,30 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken = localStorage.getItem('refresh_token');
+        // En lugar de obtener el refresh token de localStorage, ahora lo obtienes de las cookies
+        const refreshToken = getCookie('refresh_token');
         if (!refreshToken) {
           throw new Error('No refresh token available');
         }
 
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/token/refresh/`,
-          { refresh: refreshToken }
+          { refresh: refreshToken },
+          { withCredentials: true }  // Asegura que el refresh token en las cookies se envíe también.
         );
 
         const { access } = response.data;
-        localStorage.setItem('access_token', access);
+        // La nueva access token ya no se necesita almacenar en localStorage, ya que estará en la cookie.
+        // Pero si deseas almacenarla, puedes seguir almacenándola en cookies, como expliqué antes.
 
         // Retry the original request with the new token
         originalRequest.headers.Authorization = `Bearer ${access}`;
         return api(originalRequest);
       } catch (refreshError) {
         // If refresh fails, clear tokens and redirect to login
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        // Aquí puedes eliminar las cookies de token si fuera necesario, dependiendo de la configuración en tu backend
+        removeCookie('access_token');
+        removeCookie('refresh_token');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
@@ -59,4 +58,15 @@ api.interceptors.response.use(
   }
 );
 
-export { api }; 
+// Helper functions to get and remove cookies
+const getCookie = (name) => {
+  let value = `; ${document.cookie}`;
+  let parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+};
+
+const removeCookie = (name) => {
+  document.cookie = `${name}=; path=/; max-age=0; secure; HttpOnly; SameSite=Strict`;
+};
+
+export { api };
