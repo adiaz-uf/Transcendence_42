@@ -25,17 +25,45 @@ def get_or_create_user(user_data):
     #print("Received user_data from 42: ", user_data)
     username = user_data['login']
     email = user_data['email']
+    given_name = user_data['displayname'].split()[0]
+    surname = ' '.join(user_data['displayname'].split()[1:]) or ''
+    
+    # Check if a user with the same username exists but is not a 42 user
+    try:
+        existing_user = UserProfile.objects.get(username=username)
+        if not existing_user.is_42user:
+            return None, "username"
+    except UserProfile.DoesNotExist:
+        pass
+    
+    # Check if a user with the same email exists but is not a 42 user
+    try:
+        existing_user = UserProfile.objects.get(email=email)
+        if not existing_user.is_42user:
+            return None, "email"
+    except UserProfile.DoesNotExist:
+        pass
+    
+    # Check if a user with the same name exists but is not a 42 user
+    try:
+        existing_user = UserProfile.objects.get(given_name=given_name, surname=surname)
+        if not existing_user.is_42user:
+            return None, "name"
+    except UserProfile.DoesNotExist:
+        pass
+    
+    # If no conflicts found, create or get the user
     user, created = UserProfile.objects.get_or_create(
         username=username,
         defaults={
             'email': email,
             'is_42user': True,
-            'given_name': user_data['displayname'].split()[0],
-            'surname': ' '.join(user_data['displayname'].split()[1:]) or '',
-            'username': user_data['login']
+            'given_name': given_name,
+            'surname': surname,
+            'username': username
         }
     )
-    return user
+    return user, None
 
 class FTAuthCallbackView(APIView):
     permission_classes = [AllowAny]
@@ -44,7 +72,24 @@ class FTAuthCallbackView(APIView):
         state = request.GET.get('state')
 
         if not code:
-            return JsonResponse({'error': 'No code provided'}, status=400)
+            # User denied permission or there was an error
+            error_message = "Authentication with 42 was cancelled or denied. Please try again or use regular login."
+            # Try to get the redirect_uri from state if available
+            redirect_uri = None
+            if state:
+                try:
+                    state_data = json.loads(state)
+                    redirect_uri = state_data.get('redirect_uri')
+                except json.JSONDecodeError:
+                    pass
+            
+            if redirect_uri:
+                callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
+                redirect_url = f"{callback_uri}?error={error_message}"
+                return HttpResponseRedirect(redirect_url)
+            else:
+                # Fallback if we can't get the redirect_uri
+                return JsonResponse({'error': error_message}, status=400)
 
         if not state:
             return JsonResponse({'error': 'Missing state parameter'}, status=400)
@@ -64,7 +109,10 @@ class FTAuthCallbackView(APIView):
         if response.status_code != 200:
             logger.error(f"Token request failed: {response.status_code} - {response.text}")
             logger.info(f"Sent payload: {payload}")
-            return JsonResponse({'error': 'Failed to get access token', 'details': response.text}, status=500)
+            error_message = "Failed to authenticate with 42. Please try again or use regular login."
+            callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
+            redirect_url = f"{callback_uri}?error={error_message}"
+            return HttpResponseRedirect(redirect_url)
 
         token_data = response.json()
         access_token = token_data.get('access_token')
@@ -74,10 +122,20 @@ class FTAuthCallbackView(APIView):
         headers = {'Authorization': f'Bearer {access_token}'}
         user_response = requests.get(user_info_url, headers=headers)
         if user_response.status_code != 200:
-            return JsonResponse({'error': 'Failed to get user info'}, status=500)
+            error_message = "Failed to get user information from 42. Please try again or use regular login."
+            callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
+            redirect_url = f"{callback_uri}?error={error_message}"
+            return HttpResponseRedirect(redirect_url)
 
         user_data = user_response.json()
-        user = get_or_create_user(user_data)
+        user, conflict_type = get_or_create_user(user_data)
+        
+        # If there's a conflict, redirect with an error message
+        if user is None:
+            error_message = f"An account with this {conflict_type} already exists. Please use your regular login credentials."
+            callback_uri = redirect_uri.replace('/api/auth/42/callback', '/login/callback')
+            redirect_url = f"{callback_uri}?error={error_message}"
+            return HttpResponseRedirect(redirect_url)
 
         # Connect user
         authenticate(request, username=user.username)
