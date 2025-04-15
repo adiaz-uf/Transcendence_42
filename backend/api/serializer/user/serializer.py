@@ -1,5 +1,8 @@
 from rest_framework import serializers
+from django.contrib.auth.password_validation import validate_password
 from api.models import UserProfile
+import re # regex
+
 
 class FriendSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,6 +12,8 @@ class FriendSerializer(serializers.ModelSerializer):
             "username"]
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8)
+
     class Meta:
         model = UserProfile
         fields = [ 
@@ -24,8 +29,20 @@ class UserSerializer(serializers.ModelSerializer):
             "totp_secret",
             "avatar"]
         extra_kwargs = {"password": {"write_only": True}}       #Write only means this field wont be returned and cant be read be users
-        
-    def create(self, validated_data):                       
+    
+    def validate_username(self, value):
+            #Regex match from a to z from A to Z from 0 to 9
+        if not re.match(r'^[a-zA-Z0-9]+$', value):
+            raise serializers.ValidationError("Username must be alphanumeric (letters and numbers only).")
+        return value
+
+    def validate_password(self, value):
+        validate_password(value)
+        return value
+
+
+    def create(self, validated_data):
+        validate_username()
         user = UserProfile.objects.create_user(
             username=validated_data["username"],
             password=validated_data["password"],
