@@ -5,6 +5,7 @@ import '../styles/login.css'
 import { useNavigate } from "react-router-dom";
 import MessageBox from '../components/MessageBox';
 
+
 /* handleSubmit, ...props} */
 export default function Register({route}) {
 
@@ -18,6 +19,15 @@ export default function Register({route}) {
     const navigate = useNavigate();
     const [error, setError] = useState(null);
     const [messageType, setMessageType] = useState("");
+    
+
+    function getCookie(name) {
+        const cookieValue = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith(name + "="))
+          ?.split("=")[1];
+        return cookieValue || null;
+      }
 
 	const handleSubmit = async (e) => {
         setLoading(true);
@@ -33,7 +43,13 @@ export default function Register({route}) {
                 setMessageType("info");
                 return ;
             }
-            await api.post(route, { username, password, email, given_name, surname });
+            const csrftoken = getCookie("csrftoken");
+            await api.post(route, { username, password, email, given_name, surname },
+                {
+                headers: {
+                  "X-CSRFToken": csrftoken,
+                },
+            });
             navigate("/login", {
                 state: {
                     message: "New account created !",

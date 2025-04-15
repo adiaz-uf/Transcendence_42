@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
-from api.views.user.views import CreateUserView, UserProfileView, LoginView, LogoutView, CheckUserExistsView, UserFriendsView, OthersProfileView, MatchesPlayedView, MatchesWonView, UserListMatchesView, UserActiveView, OthersActiveView, BeaconLogoutView
+from api.views.user.views import CreateUserView, VerifyTokenView, UserProfileView, LoginView, LogoutView, CheckUserExistsView, UserFriendsView, OthersProfileView, MatchesPlayedView, MatchesWonView, UserListMatchesView, UserActiveView, OthersActiveView, BeaconLogoutView
 from api.views.match.views import game_settings, MatchCreationView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
 from api.views.auth.TwoFA import Setup2FAView
 from api.views.auth.auth42 import FTAuthCallbackView
@@ -19,6 +19,7 @@ urlpatterns = [
     path('user/profile/',                         UserProfileView.as_view(), name='profile'), #UPDT & GET #AUTH
     path('user/refresh/',                         CustomTokenRefreshView.as_view(), name='refresh'), #GET? #AUTH 
     path('user/active/',                          UserActiveView.as_view(), name='active'), #GET & UPDT #AUTH
+    path('user/verify-token/',                    VerifyTokenView.as_view(), name='active'), #GET
     path('user/logout/',                          BeaconLogoutView.as_view(), name='active'), #POST #ANY
     path('user/normal-logout/',                   LogoutView.as_view(), name='active'), #POST #ANY
     path('user/friends/active/<str:username>',    OthersActiveView.as_view(), name='friends'), #GET #AUTH

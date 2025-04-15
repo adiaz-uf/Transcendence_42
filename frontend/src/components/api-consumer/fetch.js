@@ -1,5 +1,12 @@
 import api from "../../api";
 
+function getCookie(name) {
+    const cookieValue = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(name + "="))
+      ?.split("=")[1];
+    return cookieValue || null;
+  }
 
 export async function PATCHMatchScore(matchId, right_score, left_score, match_duration) {
     const res = await api.patch(`/api/matches/${matchId}`, {'right_score': right_score, 'left_score': left_score, 'match_duration': match_duration}, {
@@ -184,14 +191,24 @@ export async function GETUserMatchesWon(username) {
 
 export async function setUserActive(iactive) {
     try {
-        const response = await api.patch(`/api/user/active/`, { active: iactive }, {
-        });
-        return response;
+      const csrftoken = getCookie('csrftoken');
+  
+      const response = await api.patch(
+        `/api/user/active/`,
+        { active: iactive },
+        {
+          headers: {
+            'X-CSRFToken': csrftoken
+          }
+        }
+      );
+  
+      return response.data;
     } catch (error) {
-        console.error("Error setting user active status:", error);
-        return { error: error.response?.data || "An error occurred" }; // Handle error and return response
+      console.error("Error setting user active status:", error);
+      return { error: error.response?.data || "An error occurred" };
     }
-};
+  }
 
 export async function GetOthersActiveness(in_username) {
     try {

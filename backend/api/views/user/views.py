@@ -325,6 +325,12 @@ class LoginView(generics.CreateAPIView):
 
         return Response({'error': 'Invalid credentials'}, status=401)
 
+class VerifyTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({'message': 'Token is valid'}, status=200)
+
 class MatchesPlayedView(APIView):
     def get(self, request, username):
         user = UserProfile.objects.get(username=username)

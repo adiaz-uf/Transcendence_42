@@ -106,6 +106,7 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
     const errorMessage = params.get('error');
   
     if (errorMessage) {
+      console.log("epaaaa");
       setMessage(errorMessage);
       setMessageType("error");
       const newUrl = window.location.pathname;

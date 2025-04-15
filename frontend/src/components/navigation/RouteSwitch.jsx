@@ -44,49 +44,34 @@ function getCookie(name) {
 export default function RouterSwitch() {
 	const navigate = useNavigate();
 
-	// Set User Active to False when Navigating to !publicRoutes and Token Expired
-	useEffect(() => {
-		// Allow access to public routes like /register
-		const publicRoutes = ['/register', '/login', '/login/callback'];
-		if (publicRoutes.includes(window.location.pathname)) {
-			return;
-		}
-		const token = getCookie('access_token');
-		if (!token) {
-			setUserActive(false);
-			navigate('/login');
-		return;
-		}
-		try {
-			// Decode the token to get the expiration time
-			const { exp } = JSON.parse(atob(token.split('.')[1])); // Decode JWT payload 30S
-			const expiry = exp * 1000 - Date.now() - 5000; // Calculate time until expiration and 5seconds before expiration for sending last active status API cal			
-			
-			// If the token is already expired, navigate to login
-			if (expiry <= 0) {
-				setUserActive(false);
-				localStorage.clear();
-				navigate('/login');
-				return;
-			}
-			// Set a timeout to log the user out when the token expires
-			const timer = setTimeout(() => {
-				setUserActive(false);
-				localStorage.clear();
-				if (window.location.pathname !== '/login') {
-					navigate('/login'); // Redirect to login only if not already on the login page
-				}
-			}, expiry);
+    // Verificar la validez del token directamente en el backend.
+    useEffect(() => {
+        // Allow access to public routes like /register
+        const publicRoutes = ['/register', '/login', '/login/callback'];
+        if (publicRoutes.includes(window.location.pathname)) {
+            return;
+        }
 
-			// Cleanup the timeout when the component unmounts
-			return () => clearTimeout(timer);
-		} catch (error) {
-			console.error("Error decoding token:", error);
-			setUserActive(false);
-			localStorage.clear();
-			navigate('/login');
-		}
-	}, [navigate]);
+        // Realiza una solicitud para verificar si el token es válido
+        const verifyToken = async () => {
+            try {
+                const response = await api.get('/api/user/verify-token/', { withCredentials: true });
+
+                // Si la respuesta es válida, se permite el acceso
+                if (response.status === 200) {
+                    console.log("Token is valid.");
+                }
+            } catch (error) {
+                console.log("Token verification failed.", error);
+                setUserActive(false);
+                localStorage.clear();
+                navigate('/login');
+            }
+        };
+
+        // Llamar la función para verificar el token
+        verifyToken();
+    }, [navigate]);
 
 	useEffect(() => {
 		const setUserActiveFalseWhenClosing = () => {
