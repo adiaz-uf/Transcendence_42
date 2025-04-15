@@ -54,6 +54,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 # Secondary Representation of UserProfile
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8, required=False)
+
     class Meta:
         model = UserProfile
         fields = ["email", "username", "given_name", "surname", "password", "friends", "avatar"]
@@ -62,13 +64,22 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
             "username": {"required": False},
             "given_name": {"required": False},
             "surname": {"required": False},
-            "password": {"write_only": True, "required": False},  # Password shouldn't be readable
+            "password": {"write_only": True, "required": False},
             "avatar": {"required": False},
         }
 
+    def validate_username(self, value):
+        if not re.match(r'^[a-zA-Z0-9]+$', value):
+            raise serializers.ValidationError("Username must be alphanumeric (letters and numbers only).")
+        return value
+
+    def validate_password(self, value):
+        if value:  # Only validate if password is provided
+            validate_password(value)
+        return value
+
     def update(self, instance, validated_data):
         """Update user profile details safely."""
-
         if not isinstance(instance, UserProfile):
             raise TypeError("Expected a UserProfile instance")
 
