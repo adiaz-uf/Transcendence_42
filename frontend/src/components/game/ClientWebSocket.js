@@ -71,13 +71,13 @@ class ClientWebSocket {
                 });
 
                 this.socket.addEventListener("close", (event) => {
-                    console.warn(`WebSocket connection closed: ${event.reason} (code: ${event.code})`);
+                    console.log(`WebSocket connection closed: ${event.reason} (code: ${event.code})`);
                     this.isConnecting = false;
                     this.setConnectionState('disconnected');
                     
-                    if (!event.wasClean) {
-                        this.handleReconnect();
-                    }
+                    // if (!event.wasClean) {
+                    //     this.handleReconnect();
+                    // }
                 });
 
                 this.socket.addEventListener("error", (error) => {
