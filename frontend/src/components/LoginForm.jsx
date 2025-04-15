@@ -111,6 +111,17 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const accessToken = params.get('access');
+    const errorMessage = params.get('error');
+    
+    if (errorMessage) {
+      setMessage(errorMessage);
+      setMessageType("error");
+      // Clear the error parameter from the URL without reloading the page
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      return;
+    }
+    
     if (accessToken) {
       localStorage.setItem(ACCESS_TOKEN, accessToken);
       api.get("/api/user/profile/", {
@@ -191,7 +202,7 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
               <Spinner animation="border" size="sm" />
             ) : (
               <>
-                Sign in with <Image src="42_logo.svg" width={'10%'} />
+                Sign in with <Image src="/42_logo.svg" width={'10%'} />
               </>
             )}
           </Button>
