@@ -110,7 +110,6 @@ export default function Profile() {
     const fetchMatches = async () => {
       try {
         const response = await api.get(`/api/user/list-matches-played/${username}/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
         });
         setMatches(response.data.matches);
         setLoading(false);
@@ -196,7 +195,6 @@ const chartData = {
       if (Object.keys(updatedData).length === 0)
         throw new Error("All the fields are empty");
       const response = await api.patch('/api/user/profile/', updatedData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setName(`${response.data.given_name} ${response.data.surname}`);
       setEmail(response.data.email);
@@ -225,7 +223,6 @@ const chartData = {
   const handleSetup2FA = async () => {
     try {
       const response = await api.get('/api/setup-2fa/', {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setQrCode(response.data.qr_code);
       setSecret(response.data.secret);
@@ -247,7 +244,6 @@ const chartData = {
     try {
       const payload = is2FAEnabled ? { code: twoFACode, disable: true } : { code: twoFACode };
       const response = await api.post('/api/setup-2fa/', payload, {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
       });
       setError(response.data.message);
       setMessageType("success");

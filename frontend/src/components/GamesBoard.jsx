@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ListGroup, Spinner, Card, Modal, Button } from 'react-bootstrap';
-import { ACCESS_TOKEN } from "../constants";
 import api from '../api';
 
 const GameBoardModal = ({ showBoard, handleCloseBoard }) => {
@@ -11,23 +10,18 @@ const GameBoardModal = ({ showBoard, handleCloseBoard }) => {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        // Realiza la solicitud GET para obtener los partidos desde la API
-        const response = await api.get('/api/matches/available/', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
-          },
-        });
+        const response = await api.get('/api/matches/available/', {});
 
-        setMatches(response.data); // Asigna los partidos obtenidos a la variable de estado
+        setMatches(response.data);
       } catch (error) {
-        setError('Failed to fetch matches'); // Si ocurre un error, actualiza el estado de error
+        setError('Failed to fetch matches');
       } finally {
-        setLoading(false); // Deja de cargar después de obtener los datos
+        setLoading(false);
       }
     };
 
-    fetchMatches(); // Llama a la función para obtener los partidos
-  }, []); // El array vacío asegura que la llamada se haga solo una vez al montar el componente
+    fetchMatches();
+  }, []);
 
   if (loading) {
     return (

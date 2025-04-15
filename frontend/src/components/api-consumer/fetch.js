@@ -1,16 +1,8 @@
 import api from "../../api";
-import { ACCESS_TOKEN } from "../../constants"; 
 
 
 export async function PATCHMatchScore(matchId, right_score, left_score, match_duration) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (!token) {
-        return null; // Return null if not logged in
-    }
     const res = await api.patch(`/api/matches/${matchId}`, {'right_score': right_score, 'left_score': left_score, 'match_duration': match_duration}, {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
     });
     return res.data;
 }
@@ -31,17 +23,8 @@ export async function GETGameSettings() {
 }
 
 export async function GETCurrentProfileInfo() {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-
-    if (!token) {
-        return null; // Return null if not logged in
-    }
-
     try {
         const response = await api.get(`/api/user/profile/`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         });
         return response.data; // Return the JSON data directly
     } catch (error) {
@@ -51,17 +34,10 @@ export async function GETCurrentProfileInfo() {
 }
 
 export async function GETOthersProfileInfo(username) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-
-    if (!token) {
-        return null; // Return null if not logged in
-    }
 
     try {
         const response = await api.get(`/api/user/profile/${username}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+
         });
         return response.data; // Return the JSON data directly
     } catch (error) {
@@ -70,17 +46,12 @@ export async function GETOthersProfileInfo(username) {
     }
 }
 
-export async function GETCheckUsernameExists(username){
-    const token = localStorage.getItem(ACCESS_TOKEN); 
-    if (!token) {
-        return ;
-    }
+export async function GETCheckUsernameExists(username){ 
+
     // Call the Django API to check if the username exists
     try{
         const PlayerLeftresponse = await api.get(`/api/user/exists/${username}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,// Include the JWT token in the header
-            },
+
         });
         return PlayerLeftresponse.data;
     } catch (error){
@@ -90,17 +61,10 @@ export async function GETCheckUsernameExists(username){
     }
 };
 
-export async function POSTcreateMatch(payload) {
-    const token = localStorage.getItem(ACCESS_TOKEN); 
+export async function POSTcreateMatch(payload) { 
 
-    if (!token) {
-        return ;
-    }
     try{
         const matchResponse = await api.post('/api/matches/', payload, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         })
         return matchResponse.data;
     } catch (error){
@@ -111,16 +75,10 @@ export async function POSTcreateMatch(payload) {
 
 export async function GETfriends(username=null)
 {
-        // Get the JWT token from local storage
-        const token = localStorage.getItem(ACCESS_TOKEN); 
-        if (!token) {
-            return ;
-        }
         try{
             if (username === null)
                 username =  localStorage.getItem('username')
             const response = await api.get(`/api/user/friends/${username}`, {
-                headers: {Authorization: `Bearer ${token}`}
             })
             return response.data;
         } catch (error){
@@ -130,17 +88,8 @@ export async function GETfriends(username=null)
 }
 
 export async function POSTfriend(friendName){
-    // Get the JWT token from local storage
-    const token = localStorage.getItem(ACCESS_TOKEN); 
-
-    if (!token) {
-        return { error: "No authentication token found" };
-    }
     try{
         const response = await api.post(`/api/user/friends/${friendName}`, {}, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         });
         return response.data;
     } catch (error){
@@ -150,16 +99,8 @@ export async function POSTfriend(friendName){
 }
 
 export async function DELETEfriend(friendName) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-
-    if (!token) {
-        return;
-    }
     try { //friend id as query
         const response = await api.delete(`/api/user/friends/${friendName}`,{
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         });
         return response.data;
     } catch (error) {
@@ -169,41 +110,23 @@ export async function DELETEfriend(friendName) {
 }
 
 
-export async function POSTcreateTournament(payload) {
-    const token = localStorage.getItem(ACCESS_TOKEN); 
-
-    if (!token) {
-        return ;
-    }
+export async function POSTcreateTournament(payload) { 
     try{
         const tournamentResponse = await api.post('/api/tournament/', payload, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         })
         return tournamentResponse.data;
     } catch (error){
         console.error("Error creating tournament:", error);
         return { error: error.response?.data || "An error occurred" }; // Return error details
-
     }
 }
 
 
 
 export async function PATCHAddMatchToTournament(tournamentId, matchId) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-
-    if (!token) {
-        return null; 
-    }
-
     try {
         const response = await api.patch(`/api/tournaments/${tournamentId}/add-matches/`, 
             { pkMatch: matchId }, {
-                headers: {
-                    Authorization: `Bearer ${token}`, // Include the JWT token in the header
-                },
             });
 
         return response.data; // Return the response data if successful
@@ -214,18 +137,9 @@ export async function PATCHAddMatchToTournament(tournamentId, matchId) {
 }
 
 export async function PATCHAddWinnerToTournament(tournamentId, userID) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-
-    if (!token) {
-        return null; 
-    }
-
     try {
         const response = await api.patch(`/api/tournaments/${tournamentId}/add-winner/`, 
             { pkUser: userID }, {
-                headers: {
-                    Authorization: `Bearer ${token}`, // Include the JWT token in the header
-                },
             });
 
         return response.data; // Return the response data if successful
@@ -236,15 +150,8 @@ export async function PATCHAddWinnerToTournament(tournamentId, userID) {
 }
 
 export async function GETTournamentDetails(tournamentId) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (!token) {
-        return null; 
-    }
     try {
         const response = await api.get(`/api/tournaments/${tournamentId}/`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         });
         return response.data;
     } catch (error) {
@@ -254,13 +161,8 @@ export async function GETTournamentDetails(tournamentId) {
 }
 
 export async function GETUserMatchesPlayed(username) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (!token) {
-        return null; 
-    }
     try {
       const response = await api.get(`/api/user/matches-played/${username}/`, {
-        headers: { Authorization: `Bearer ${token}` },
       });
       return (response.data.matches_played);
     } catch (error) {
@@ -270,13 +172,8 @@ export async function GETUserMatchesPlayed(username) {
   };
 
 export async function GETUserMatchesWon(username) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (!token) {
-        return null;
-    }
     try {
       const response = await api.get(`/api/user/matches-won/${username}/`, {
-        headers: { Authorization: `Bearer ${token}` },
       });
       return (response.data.matches_won);
     } catch (error) {
@@ -286,15 +183,8 @@ export async function GETUserMatchesWon(username) {
 };
 
 export async function setUserActive(iactive) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (!token) {
-        return null; 
-    }
     try {
         const response = await api.patch(`/api/user/active/`, { active: iactive }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         });
         return response;
     } catch (error) {
@@ -304,15 +194,8 @@ export async function setUserActive(iactive) {
 };
 
 export async function GetOthersActiveness(in_username) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (!token) {
-        return null; 
-    }
     try {
         const response = await api.get(`/api/user/friends/active/${in_username}`,{
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         });
         return response;
     } catch (error) {
@@ -322,15 +205,8 @@ export async function GetOthersActiveness(in_username) {
 };
 
 export async function GetListMatchesFromIdWithScore(in_username) {
-    const token = localStorage.getItem(ACCESS_TOKEN);
-    if (!token) {
-        return null; 
-    }
     try {
         const response = await api.get(`/api/user/list-matches-played/${in_username}/`,{
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
         });
         return response;
     } catch (error) {

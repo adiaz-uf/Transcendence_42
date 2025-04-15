@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import api from '../api';
-import { ACCESS_TOKEN } from "../constants";
 
 export default function AvatarUpload({ show, handleClose, onAvatarUpdate }) {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -34,17 +33,10 @@ export default function AvatarUpload({ show, handleClose, onAvatarUpdate }) {
 
     try {
       const response = await api.patch('/api/user/profile/', formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
-          'Content-Type': 'multipart/form-data',
-        },
       });
       
       // Fetch the updated profile to get the new avatar URL
-      const profileResponse = await api.get('/api/user/profile/', {
-        headers: { Authorization: `Bearer ${localStorage.getItem(ACCESS_TOKEN)}` },
-      });
-      
+      const profileResponse = await api.get('/api/user/profile/');
       onAvatarUpdate(profileResponse.data.avatar);
       handleClose();
     } catch (error) {

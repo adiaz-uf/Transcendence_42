@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 
 from api.views.user.views import CreateUserView, UserProfileView, LoginView, LogoutView, CheckUserExistsView, UserFriendsView, OthersProfileView, MatchesPlayedView, MatchesWonView, UserListMatchesView, UserActiveView, OthersActiveView, BeaconLogoutView
-from api.views.match.views import game_settings, MatchCreationView, CreateOnlineMatchView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
+from api.views.match.views import game_settings, MatchCreationView, UserMatchListView, MatchScoreUpdateView, AvailableMatchView
 from api.views.auth.TwoFA import Setup2FAView
 from api.views.auth.auth42 import FTAuthCallbackView
 from api.views.auth.jwt import CustomTokenRefreshView

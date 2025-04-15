@@ -61,22 +61,54 @@ class CreateUserView(generics.CreateAPIView):
 #   serializer: UserProfileUpdateSerializer
 # Todo: make a RetrieveUpdateAPIView
 class UserProfileView(APIView):
-    permission_classes = [IsAuthenticated]
     """ parser_classes = (MultiPartParser, FormParser) """
-
+    
     def get(self, request):
-        serializer = UserSerializer(request.user)  # Serialize user object
-        return Response(serializer.data)  # Get serialized user object
+        try:
+            user = request.user
+            if not user:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            profile_data = {
+                "username": user.username,
+                "email": user.email,
+                "given_name": user.given_name,
+                "surname": user.surname,
+                "avatar": user.avatar.url if user.avatar else None
+            }
+            return Response(profile_data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def patch(self, request):
-        serializer = UserProfileUpdateSerializer(request.user, data=request.data, partial=True)
-        
-        if serializer.is_valid():
-            serializer.save()
-            # Get the updated user data
-            updated_serializer = UserSerializer(request.user)
-            return Response(updated_serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def put(self, request):
+        try:
+            user = request.user
+            if not user:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            # Handle avatar upload
+            if 'avatar' in request.FILES:
+                user.avatar = request.FILES['avatar']
+                user.save()
+                return Response({
+                    "message": "Avatar updated successfully",
+                    "avatar_url": user.avatar.url
+                })
+
+            # Handle other profile updates
+            if 'username' in request.data:
+                user.username = request.data['username']
+            if 'email' in request.data:
+                user.email = request.data['email']
+            if 'given_name' in request.data:
+                user.given_name = request.data['given_name']
+            if 'surname' in request.data:
+                user.surname = request.data['surname']
+            
+            user.save()
+            return Response({"message": "Profile updated successfully"})
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
 
 class OthersProfileView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -110,6 +142,7 @@ class UserActiveView(generics.RetrieveUpdateAPIView):
         user.active = self.request.data.get('active', False)  # Default to False if not provided
         user.save(update_fields=['active'])
         return Response({"message": "User activated successfully."}, status=status.HTTP_200_OK)
+    
 # gets Others User Activeness
 class OthersActiveView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -245,9 +278,9 @@ class LoginView(generics.CreateAPIView):
             key='access_token',
             value=access,
             httponly=True,
-            secure=True,              # ✅ Asegúrate de estar usando HTTPS en prod
+            secure=True,             
             samesite='Lax',
-            max_age=3600              # 1h (opcional)
+            max_age=3600              
         )
         response.set_cookie(
             key='refresh_token',
@@ -255,7 +288,7 @@ class LoginView(generics.CreateAPIView):
             httponly=True,
             secure=True,
             samesite='Lax',
-            max_age=7 * 24 * 60 * 60  # 7 días (opcional)
+            max_age=7 * 24 * 60 * 60  
         )
 
     def __build_response_with_tokens(self, user):

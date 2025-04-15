@@ -15,9 +15,7 @@ export default function Setup2FA() {
   useEffect(() => {
     const fetchQrCode = async () => {
       try {
-        const token = localStorage.getItem(ACCESS_TOKEN);
         const response = await api.get('/api/setup-2fa/', {
-          headers: { Authorization: `Bearer ${token}` },
         });
         setQrCode(response.data.qr_code);
       } catch (error) {
@@ -32,9 +30,7 @@ export default function Setup2FA() {
     setLoading(true);
 	  setErrorMessage('');
     try {
-      const token = localStorage.getItem(ACCESS_TOKEN);
       const response = await api.post('/api/setup-2fa/', { code }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
       setErrorMessage(response.data.message);
       navigate('/');

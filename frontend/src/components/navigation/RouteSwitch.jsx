@@ -7,10 +7,10 @@ import GameHistory from '../../pages/GameHistory'
 import { Routes, Route } from 'react-router-dom';
 import HomeRouter from '../../pages/Home'
 import { setUserActive } from '../api-consumer/fetch'
-import { ACCESS_TOKEN } from '../../constants'
 import { useEffect } from 'react';
 import {useNavigate } from "react-router-dom";
 import ProtectedRoute from './ProtectedRoute'
+import api from '../../api'
 
 function Logout() {
     const navigate = useNavigate();
@@ -18,7 +18,7 @@ function Logout() {
     useEffect(() => {
         const handleLogout = async () => {
             await setUserActive(false); // Ensure the API call completes
-            await api.post("/api/logout");
+            await api.post("/api/logout/normal-logout/");
 			localStorage.removeItem("gameSettings"); // si lo guardas
             navigate('/login'); // Redirect to login after logout
         };
@@ -34,28 +34,15 @@ function RegisterWrapper() {
 	return <Register route='/api/user/register/'/>
 }
 
+function getCookie(name) {
+	const value = `; ${document.cookie}`;
+	const parts = value.split(`; ${name}=`);
+	if (parts.length === 2) return parts.pop().split(';').shift();
+	return null;
+  }
+
 export default function RouterSwitch() {
 	const navigate = useNavigate();
-	
-	// // useEffect at mounting for sending False active status when page closes
-	// NOT USED !
-	// useEffect(() => {
-	// 	const token = localStorage.getItem(ACCESS_TOKEN);
-	// 	const data = JSON.stringify({
-	// 	active: false,
-	// 	token, 
-	// 	});
-
-	// 	const blob = new Blob([data], { type: 'application/json' });
-	// 	navigator.sendBeacon('/api/users/update-active', blob);
-
-	// 	const handleUnload = () => {
-	// 	  navigator.sendBeacon('/api/user/active/', JSON.stringify({ active: false }));
-	// 	};
-	  
-	// 	window.addEventListener("beforeunload", handleUnload);
-	// 	return () => window.removeEventListener("beforeunload", handleUnload);
-	//   }, []);
 
 	// Set User Active to False when Navigating to !publicRoutes and Token Expired
 	useEffect(() => {
@@ -64,12 +51,11 @@ export default function RouterSwitch() {
 		if (publicRoutes.includes(window.location.pathname)) {
 			return;
 		}
-
-		const token = localStorage.getItem(ACCESS_TOKEN);
-
-		// If no token is found, navigate to login immediately
+		const token = getCookie('access_token');
 		if (!token) {
-			return;
+			setUserActive(false);
+			navigate('/login');
+		return;
 		}
 		try {
 			// Decode the token to get the expiration time
@@ -104,19 +90,30 @@ export default function RouterSwitch() {
 
 	useEffect(() => {
 		const setUserActiveFalseWhenClosing = () => {
-			const token = localStorage.getItem(ACCESS_TOKEN);
-			if (!token) {
-				return;
-			}
-	
-			// Construct the URL with query parameters
-			const url = `/api/user/logout/?active=false&token=${encodeURIComponent(token)}`;
-			// Use sendBeacon to send the request
-			navigator.sendBeacon(url);
+			const logoutRequest = async () => {
+				try {
+					const response = await fetch('/api/user/logout/', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							active: false,
+						}),
+					});
+					if (response.ok) {
+						console.log('User status updated as inactive.');
+					} else {
+						console.error('Failed to update user status.');
+					}
+				} catch (error) {
+					console.error('Error during logout request', error);
+				}
+			};
+			logoutRequest();
 		};
-
-		document.addEventListener('beforeunload', setUserActiveFalseWhenClosing);
 	
+		document.addEventListener('beforeunload', setUserActiveFalseWhenClosing);
 		return () => {
 			document.removeEventListener('beforeunload', setUserActiveFalseWhenClosing);
 		};

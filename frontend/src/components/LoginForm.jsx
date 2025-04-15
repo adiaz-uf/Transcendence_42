@@ -101,24 +101,52 @@ export default function LoginForm({route, navigateTo, onLoginSuccess}) {
 
   // Gestión del callback desde 42
   useEffect(() => {
-      api.get("/api/user/profile/")
-        .then(response => {
-          const username = response.data.username;
-          const userId = response.data.id;
+    const params = new URLSearchParams(location.search);
+    const accessToken = params.get('access');
+    const errorMessage = params.get('error');
+  
+    if (errorMessage) {
+      setMessage(errorMessage);
+      setMessageType("error");
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      return;
+    }
+  
+    if (accessToken) {
+      document.cookie = `access_token=${accessToken}; path=/; Secure; SameSite=Lax`;
+  
+      fetch("/api/user/profile/", {
+        method: "GET",
+        credentials: "include",
+      })
+        .then(async (res) => {
+          if (!res.ok) throw new Error();
+          const data = await res.json();
+          const username = data.username;
+          const userId = data.id;
           localStorage.setItem("username", username);
           localStorage.setItem("userId", userId);
+  
           navigate("/", {
             state: {
-                message: "Ready to play !",
-                type: "success"
+              message: "Ready to play !",
+              type: "success"
             }
           });
         })
         .catch(error => {
-          setMessage(`Error with 42 profile qwery`);
+          setMessage("Error with 42 profile query");
           setMessageType("error");
-          navigate("/login"); 
+          navigate("/login");
         });
+    }
+  }, [location, navigate]);
+  
+  useEffect(() => {
+    if (location.state?.message) {
+      navigate(location.pathname, { replace: true, state: {} });
+    }
   }, [location, navigate]);
 
   useEffect(() => {

@@ -34,10 +34,10 @@ ALLOWED_HOSTS = ["*"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "api.authentication.CookieJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny",
     ],
 }
 
@@ -179,9 +179,7 @@ ETHEREUM_CONTRACT_ADDRESS = os.getenv("ETHEREUM_CONTRACT_ADDRESS")
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # dominio frontendTODO:secure url? or BASE_DIR 
-]
+CORS_ALLOWED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

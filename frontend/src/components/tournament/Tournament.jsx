@@ -249,8 +249,7 @@ export default function Tournament () {
         const response = await fetch('/api/blockchain/score/', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             tournament_id: tournamentIdInt,

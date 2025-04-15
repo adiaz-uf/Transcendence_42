@@ -1,7 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import api from "../../api";
-import { REFRESH_TOKEN, ACCESS_TOKEN } from "../../constants";
 import { useState, useEffect } from "react";
 
 
@@ -13,24 +12,40 @@ function ProtectedRoute({ children }) {
     }, [])
 
     const refreshToken = async () => {
-        const refreshToken = localStorage.getItem(REFRESH_TOKEN);
+        const refreshToken = getCookie('refresh_token'); // Obtenemos el refresh_token de las cookies
+    
+        if (!refreshToken) {
+            setIsAuthorized(false);
+            return;
+        }
         try {
-            const res = await api.post("/api/token/refresh/", {
-                refresh: refreshToken,
+            const response = await fetch('/api/user/refresh/', {
+                method: 'POST',
+                credentials: 'include', // Esto incluye cookies
             });
-            if (res.status === 200) {
-                localStorage.setItem(ACCESS_TOKEN, res.data.access)
-                setIsAuthorized(true)
+    
+            const data = await response.json();
+            if (data.access) {
+                document.cookie = `access_token=${data.access}; path=/;`;
+                setIsAuthorized(true);
             } else {
-                setIsAuthorized(false)
+                setIsAuthorized(false);
             }
         } catch (error) {
+            console.error('Error al refrescar el token:', error);
             setIsAuthorized(false);
         }
     };
 
+    const getCookie = (name) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    };
+
     const auth = async () => {
-        const token = localStorage.getItem(ACCESS_TOKEN);
+        const token = getCookie('access_token');
         if (!token) {
             setIsAuthorized(false);
             return;

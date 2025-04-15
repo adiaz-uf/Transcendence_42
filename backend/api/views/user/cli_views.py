@@ -1,4 +1,4 @@
-from rest_framework.parsers import MultiPartParser, FormParser
+""" from rest_framework.parsers import MultiPartParser, FormParser
 
 class UserProfileView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -48,4 +48,4 @@ class UserProfileView(APIView):
             user.save()
             return Response({"message": "Profile updated successfully"})
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  """
