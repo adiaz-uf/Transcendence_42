@@ -23,8 +23,8 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
         }
         if (gameType === "match") {
             // For local games, use the usernames from TournamentSettings
-            const leftUsername = TournamentSettings.Player1username || "Player 1";
-            const rightUsername = TournamentSettings.Player2username || "Marvin";
+            const leftUsername = TournamentSettings?.Player1username || "Player 1";
+            const rightUsername = TournamentSettings?.Player2username || "Marvin";
             return {
                 left: leftUsername,
                 right: rightUsername
@@ -49,26 +49,26 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
     const [gameState, setGameState] = useState({
         players: {
             left: {
-                x: gameSettings.PADDLE_MARGIN,
-                y: gameSettings.CANVAS_HEIGHT / 2 - gameSettings.PADDLE_HEIGHT / 2,
-                width: gameSettings.PADDLE_WIDTH,
-                height: gameSettings.PADDLE_HEIGHT,
+                x: gameSettings?.PADDLE_MARGIN,
+                y: gameSettings?.CANVAS_HEIGHT / 2 - gameSettings?.PADDLE_HEIGHT / 2,
+                width: gameSettings?.PADDLE_WIDTH,
+                height: gameSettings?.PADDLE_HEIGHT,
                 score: 0
             },
             right: {
-                x: gameSettings.CANVAS_WIDTH - gameSettings.PADDLE_MARGIN - gameSettings.PADDLE_WIDTH,
-                y: gameSettings.CANVAS_HEIGHT / 2 - gameSettings.PADDLE_HEIGHT / 2,
-                width: gameSettings.PADDLE_WIDTH,
-                height: gameSettings.PADDLE_HEIGHT,
+                x: gameSettings?.CANVAS_WIDTH - gameSettings?.PADDLE_MARGIN - gameSettings?.PADDLE_WIDTH,
+                y: gameSettings?.CANVAS_HEIGHT / 2 - gameSettings?.PADDLE_HEIGHT / 2,
+                width: gameSettings?.PADDLE_WIDTH,
+                height: gameSettings?.PADDLE_HEIGHT,
                 score: 0
             }
         },
         ball: {
-            x: gameSettings.CANVAS_WIDTH / 2,
-            y: gameSettings.CANVAS_HEIGHT / 2,
-            radio: gameSettings.BALL_RADIUS,
-            rx: gameSettings.INITIAL_BALL_SPEED,
-            ry: gameSettings.INITIAL_BALL_SPEED
+            x: gameSettings?.CANVAS_WIDTH / 2,
+            y: gameSettings?.CANVAS_HEIGHT / 2,
+            radio: gameSettings?.BALL_RADIUS,
+            rx: gameSettings?.INITIAL_BALL_SPEED,
+            ry: gameSettings?.INITIAL_BALL_SPEED
         },
         isPlaying: false,
         gameOver: false,
@@ -76,6 +76,12 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
         connectionError: null
     });
 
+    useEffect(() => {
+        if (!gameType){
+            navigate('/')
+        }
+    }, [gameType])
+    
     // Initialize WebSocket connection
     useEffect(() => {
         try {
@@ -105,8 +111,8 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
 
                     setGameState(prevState => {
                         // Keep x positions from initial state
-                        const leftX = gameSettings.PADDLE_MARGIN;
-                        const rightX = gameSettings.CANVAS_WIDTH - gameSettings.PADDLE_MARGIN - gameSettings.PADDLE_WIDTH;
+                        const leftX = gameSettings?.PADDLE_MARGIN;
+                        const rightX = gameSettings?.CANVAS_WIDTH - gameSettings?.PADDLE_MARGIN - gameSettings?.PADDLE_WIDTH;
                         
                         const newState = {
                             ...prevState,
@@ -115,21 +121,21 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                                     ...prevState.players.left,
                                     ...data.players.left,
                                     x: leftX,
-                                    width: gameSettings.PADDLE_WIDTH,
-                                    height: gameSettings.PADDLE_HEIGHT
+                                    width: gameSettings?.PADDLE_WIDTH,
+                                    height: gameSettings?.PADDLE_HEIGHT
                                 },
                                 right: {
                                     ...prevState.players.right,
                                     ...data.players.right,
                                     x: rightX,
-                                    width: gameSettings.PADDLE_WIDTH,
-                                    height: gameSettings.PADDLE_HEIGHT
+                                    width: gameSettings?.PADDLE_WIDTH,
+                                    height: gameSettings?.PADDLE_HEIGHT
                                 }
                             },
                             ball: {
                                 x: data.ball.x || prevState.ball.x,
                                 y: data.ball.y || prevState.ball.y,
-                                radio: gameSettings.BALL_RADIUS,
+                                radio: gameSettings?.BALL_RADIUS,
                                 rx: data.ball.rx || 0,
                                 ry: data.ball.ry || 0
                             },
@@ -138,11 +144,11 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
                         };
                         
                         // Check for game over
-                        if (data.players.left.score >= gameSettings.WINNING_SCORE || data.players.right.score >= gameSettings.WINNING_SCORE) {
+                        if (data.players.left.score >= gameSettings?.WINNING_SCORE || data.players.right.score >= gameSettings?.WINNING_SCORE) {
                             setGameState(prev => ({
                                 ...prev,
                                 gameOver: true,
-                                winner: data.players.left.score >= gameSettings.WINNING_SCORE ? 'left' : 'right',
+                                winner: data.players.left.score >= gameSettings?.WINNING_SCORE ? 'left' : 'right',
                                 isPlaying: false
                             }));
                             setToggleGameOverModal(true);
@@ -329,14 +335,14 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
         
         // Clear canvas
         ctx.fillStyle = 'black';
-        ctx.fillRect(0, 0, gameSettings.CANVAS_WIDTH, gameSettings.CANVAS_HEIGHT);
+        ctx.fillRect(0, 0, gameSettings?.CANVAS_WIDTH, gameSettings?.CANVAS_HEIGHT);
         
         // Draw center line
         ctx.strokeStyle = 'white';
         ctx.setLineDash([5, 15]);
         ctx.beginPath();
-        ctx.moveTo(gameSettings.CANVAS_WIDTH / 2, 0);
-        ctx.lineTo(gameSettings.CANVAS_WIDTH / 2, gameSettings.CANVAS_HEIGHT);
+        ctx.moveTo(gameSettings?.CANVAS_WIDTH / 2, 0);
+        ctx.lineTo(gameSettings?.CANVAS_WIDTH / 2, gameSettings?.CANVAS_HEIGHT);
         ctx.stroke();
         ctx.setLineDash([]);
         
@@ -344,8 +350,8 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
         ctx.font = '48px Arial';
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
-        ctx.fillText(gameState.players.left.score.toString(), gameSettings.CANVAS_WIDTH / 4, 50);
-        ctx.fillText(gameState.players.right.score.toString(), (gameSettings.CANVAS_WIDTH * 3) / 4, 50);
+        ctx.fillText(gameState.players.left.score.toString(), gameSettings?.CANVAS_WIDTH / 4, 50);
+        ctx.fillText(gameState.players.right.score.toString(), (gameSettings?.CANVAS_WIDTH * 3) / 4, 50);
         
         // Draw paddles
         ctx.fillStyle = 'white';
@@ -353,15 +359,15 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
         ctx.fillRect(
             gameState.players.left.x,
             gameState.players.left.y,
-            gameSettings.PADDLE_WIDTH,
-            gameSettings.PADDLE_HEIGHT
+            gameSettings?.PADDLE_WIDTH,
+            gameSettings?.PADDLE_HEIGHT
         );
         // Right paddle
         ctx.fillRect(
             gameState.players.right.x,
             gameState.players.right.y,
-            gameSettings.PADDLE_WIDTH,
-            gameSettings.PADDLE_HEIGHT
+            gameSettings?.PADDLE_WIDTH,
+            gameSettings?.PADDLE_HEIGHT
         );
         
         // Draw ball
@@ -385,7 +391,7 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
             ctx.fillStyle = 'white';
             const winner = gameState.winner === 'left' ? playerNames.left : playerNames.right;
             ctx.textAlign = 'center';
-            ctx.fillText(`${winner} Wins!`, gameSettings.CANVAS_WIDTH / 2, gameSettings.CANVAS_HEIGHT / 2 - 30);
+            ctx.fillText(`${winner} Wins!`, gameSettings?.CANVAS_WIDTH / 2, gameSettings?.CANVAS_HEIGHT / 2 - 30);
         }
     }, [gameState]);
 
@@ -490,8 +496,8 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
             <div style={{ position: 'relative' }}>
                 <canvas
                     ref={canvasRef}
-                    width={gameSettings.CANVAS_WIDTH}
-                    height={gameSettings.CANVAS_HEIGHT}
+                    width={gameSettings?.CANVAS_WIDTH}
+                    height={gameSettings?.CANVAS_HEIGHT}
                     style={{
                         border: '2px solid white',
                         backgroundColor: 'black',
