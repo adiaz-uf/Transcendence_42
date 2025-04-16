@@ -4,6 +4,8 @@ import React                        from 'react';
 import { useEffect, useState }      from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Routes, Route }            from "react-router-dom";
+import ProtectedRoute from '../components/navigation/ProtectedRoute';
+import NotFound from './NotFound';
 
 
 import { GameSettingProvider }      from '../components/contexts/GameContext';
@@ -61,6 +63,7 @@ const HomeRouter = () => {
             <Route path="/tournament" element={<Tournament/>} />
             <Route path="/local" element={<LocalGame/>} />
             <Route path="/friends" element={<Friend/>} />
+            <Route path ='*' element ={<ProtectedRoute><NotFound/></ProtectedRoute>}/>
           </Routes>
       </GameSettingProvider>
     </>

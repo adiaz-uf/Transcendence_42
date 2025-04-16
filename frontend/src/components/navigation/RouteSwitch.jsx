@@ -1,7 +1,7 @@
 import Login from '../../pages/Login'
 import Setup2FA from '../../pages/Setup2FA'
 import Register from '../../pages/Register'
-import NotFound from '../../pages/NotFound'
+
 import Profile from '../../pages/Profile'
 import GameHistory from '../../pages/GameHistory'
 import { Routes, Route } from 'react-router-dom';
@@ -131,7 +131,6 @@ export default function RouterSwitch() {
 					<Route path ='/setup-2fa' element={<ProtectedRoute><Setup2FA /></ProtectedRoute>} />
 					<Route path ='/profile' element ={<ProtectedRoute><Profile/></ProtectedRoute>}/>
 					<Route path ='/game-history' element ={<ProtectedRoute><GameHistory/></ProtectedRoute>}/>
-					<Route path ='*' element ={<ProtectedRoute><NotFound/></ProtectedRoute>}/>
             </Routes>
 	);
 }
