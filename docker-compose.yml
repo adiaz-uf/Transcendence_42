@@ -23,6 +23,7 @@ services:
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile-ultimate     # uncomment this line for the utimate most optimized Dockerfile
   #    dockerfile: Dockerfile-dev         # uncomment this line for Hot-Reload Frontend
   #  volumes:                             # uncomment this line for Hot-Reload Frontend
   #    - ./frontend/src:/app/src          # uncomment this line for Hot-Reload Frontend
@@ -37,7 +38,7 @@ services:
       - transcendence_net
 
   db:
-    image: postgres:17
+    image: postgres:17.1-alpine3.19
     container_name: pong_db
     restart: always
     env_file:
@@ -67,7 +68,7 @@ services:
       - transcendence_net
 
   nginx:
-    image: nginx:latest
+    image: nginx:1.26-alpine
     container_name: pong_nginx
     restart: always
     depends_on:
