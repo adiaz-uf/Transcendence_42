@@ -1,6 +1,6 @@
 # Transcendence
 
-Transcendence is a web application designed for managing and playing online matches, with an integrated scoring system based on blockchain. This project includes a backend, a frontend, and infrastructure configuration for deploying the application using Docker.
+Transcendence is a web application designed for managing and playing online matches, with an integrated scoring system based on blockchain. This Full-Stack project includes a backend, a frontend, and infrastructure configuration for deploying the application using Docker.
 
 ## Project Structure
 
@@ -16,12 +16,18 @@ The project is organized into the following main directories:
 ## Key Features
 
 ### Backend
+- Built with Django, a powerful Python web framework.
 - RESTful API for managing users, matches, and scores.
 - WebSocket integration for real-time updates during matches.
-- Authentication and authorization management.
-
+- JWT Authentication and authorization management.
+- PostgreSQL database for reliable and scalable data storage.
+- Integration with the 42 API for user authentication.
+- 
 ### Frontend
-- User interface developed in React with reusable components.
+- User interface developed in React and Bootstrap with reusable components.
+- Rresponsive design, ensuring compatibility with devices of all sizes (desktop, tablet, and mobile).
+- Works seamlessly across all modern web browsers.
+- Provides a user-friendly and intuitive interface for easy navigation and interaction.
 - Real-time match management system.
 - Modals for displaying available matches and handling errors.
 
@@ -43,8 +49,8 @@ The project is organized into the following main directories:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/adiaz-uf/transcendence.git
-   cd transcendence
+   git clone https://github.com/adiaz-uf/Transcendence_42.git
+   cd Transcendence_42
    ```
 2. Configure environment variables:
 
@@ -57,3 +63,5 @@ Copy the .env.example file to .env and adjust the values according to your envir
 4. Access the application:
 
 Frontend: https://localhost or https://transcendence.local
+
+You can access the PostgreSQL database using PgAdmin. The PgAdmin interface is available at [http://localhost:5050](http://localhost:5050). Use the credentials configured in your `.env` file to log in and manage the database.
