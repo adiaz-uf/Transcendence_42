@@ -22,7 +22,7 @@ The project is organized into the following main directories:
 - JWT Authentication and authorization management.
 - PostgreSQL database for reliable and scalable data storage.
 - Integration with the 42 API for user authentication.
-- 
+  
 ### Frontend
 - User interface developed in React and Bootstrap with reusable components.
 - Rresponsive design, ensuring compatibility with devices of all sizes (desktop, tablet, and mobile).
