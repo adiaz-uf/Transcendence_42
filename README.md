@@ -64,4 +64,12 @@ make init
 
 Frontend: https://localhost or https://transcendence.local
 
-You can access the PostgreSQL database using PgAdmin. The PgAdmin interface is available at [http://localhost:5050](http://localhost:5050). Use the credentials configured in your `.env` file to log in and manage   the database.
+You can access the PostgreSQL database using PgAdmin. The PgAdmin interface is available at [http://localhost:5050](http://localhost:5050). Use the credentials configured in your `.env` file to log in and manage the database.
+
+![Login](https://github.com/user-attachments/assets/dd356021-9a81-4835-98f8-7c2628a23cb6)
+![Register](https://github.com/user-attachments/assets/50643b35-f072-4b71-8a4c-1ae40dc1d275)
+![Tournament](https://github.com/user-attachments/assets/ca859642-0c4d-40b2-95f0-46f1bff3143a)
+![Game](https://github.com/user-attachments/assets/28c982c7-97f9-4f08-a06c-6c74a4e1f44f)
+![Tournament Winner](https://github.com/user-attachments/assets/9d493ed9-8996-4c08-abaf-92e210a713a9)
+![Profile](https://github.com/user-attachments/assets/0f50bddb-9200-4325-81f4-07e8f77724f5)
+![Friends](https://github.com/user-attachments/assets/c6f6551b-286f-438d-abed-f17a41c80b4b)
