@@ -1,4 +1,4 @@
-# Transcendence
+# Transcendence - Full-Stack Project
 
 Transcendence is a web application designed for managing and playing online matches, with an integrated scoring system based on blockchain. This Full-Stack project includes a backend, a frontend, and infrastructure configuration for deploying the application using Docker.
 
