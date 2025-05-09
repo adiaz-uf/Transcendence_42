@@ -54,7 +54,7 @@ The project is organized into the following main directories:
    ```
 2. Configure environment variables:
 
-Copy the .env.example file to .env and adjust the values according to your environment.
+  Copy the .env.example file to .env and adjust the values according to your environment.
 
 3. Build and start the containers:
    ```bash
@@ -62,6 +62,6 @@ Copy the .env.example file to .env and adjust the values according to your envir
    ```
 4. Access the application:
 
-Frontend: https://localhost or https://transcendence.local
+  Frontend: https://localhost or https://transcendence.local
 
-You can access the PostgreSQL database using PgAdmin. The PgAdmin interface is available at [http://localhost:5050](http://localhost:5050). Use the credentials configured in your `.env` file to log in and manage the database.
+  You can access the PostgreSQL database using PgAdmin. The PgAdmin interface is available at [http://localhost:5050](http://localhost:5050). Use the credentials configured in your `.env` file to log in and manage   the database.
