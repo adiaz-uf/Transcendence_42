@@ -15,10 +15,10 @@ up:  ## Start the Docker containers
 	$(DOCKER_COMPOSE) up -d
 
 down:  ## Stop and remove the Docker containers
-	$(DOCKER_COMPOSE) down --timeout 2
+	$(DOCKER_COMPOSE) down --timeout 1
 
 build:  ## Build the Docker containers
-	$(DOCKER_COMPOSE) build
+	$(DOCKER_COMPOSE) build --parallel
 
 restart:  ## Restart the Docker services
 	$(DOCKER_COMPOSE) restart
@@ -27,7 +27,7 @@ logs:  ## Show real-time logs from containers
 	$(DOCKER_COMPOSE) logs -f
 
 clean:  ## Remove all Docker containers and volumes related to the project
-	$(DOCKER_COMPOSE) down -v --timeout 2
+	$(DOCKER_COMPOSE) down -v --timeout 1
 
 shell:  ## Open an interactive shell in the backend (Django) container
 	$(DOCKER_COMPOSE) exec backend sh
