@@ -247,8 +247,13 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
         if (wsRef.current) {
             wsRef.current.close();
         }
-        if (gameType === 'tournament') {
-            OnWinnerSelect(gameState.winner);
+		if (gameType === 'tournament') {
+//            OnWinnerSelect(gameState.winner);
+			OnWinnerSelect({
+				winnerId: gameState.winner,
+				leftScore: gameState.players.left.score,
+				rightScore: gameState.players.right.score,
+			});
         }
         setToggleGameOverModal(false);
         setShowSelf(false);
@@ -443,10 +448,10 @@ const LocalGame = ({ player1, player2, OnWinnerSelect }) => {
 
     // Call updateMatchScore when the game ends
     useEffect(() => {
-        if (gameState.gameOver && matchId) {
+        if (gameState.gameOver && matchId && gameType !== 'tournament') {
             updateMatchScore();
         }
-    }, [gameState.gameOver, matchId]);
+    }, [gameState.gameOver, matchId, gameType]);
 
     // Extract message from navigation state
     useEffect(() => {

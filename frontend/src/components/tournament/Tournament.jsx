@@ -95,7 +95,8 @@ export default function Tournament () {
     };
   
     // Handle winner selection for a match
-    const handleWinnerSelected = async (matchKey, winnerId) => {
+//    const handleWinnerSelected = async (matchKey, winnerId) => {
+    const handleWinnerSelected = async (matchKey, { winnerId, leftScore, rightScore }) => {
       if (matchKey === "final") {
         setTournamentComplete(true);
         
@@ -123,6 +124,8 @@ export default function Tournament () {
           [matchKey]: {
             ...match,
             winner,
+			leftScore,
+			rightScore
           }
         };
       });
@@ -132,8 +135,8 @@ export default function Tournament () {
       const matchId = matches[matchKey].id;
       if (matchId) {
         // Get the actual scores from the game state
-        const leftScore = winnerId === 'left' ? gameSettings.WINNING_SCORE : 0;
-        const rightScore = winnerId === 'right' ? gameSettings.WINNING_SCORE : 0;
+//        const leftScore = winnerId === 'left' ? gameSettings.WINNING_SCORE : 0;
+//        const rightScore = winnerId === 'right' ? gameSettings.WINNING_SCORE : 0;
         
         // Calculate match duration
         const startTime = matchStartTimes[matchKey];
@@ -221,26 +224,26 @@ export default function Tournament () {
       if (matches.semifinal1.id && matches.semifinal1.winner) {
         matchData.push({
           matchType: 'Semifinal 1',
-          leftScore: matches.semifinal1.winner === matches.semifinal1.player1 ? gameSettings.WINNING_SCORE : 0,
-          rightScore: matches.semifinal1.winner === matches.semifinal1.player2 ? gameSettings.WINNING_SCORE : 0
-        });
+		  leftScore:  matches.semifinal1.leftScore  ?? 0,
+		  rightScore: matches.semifinal1.rightScore ?? 0
+		});
       }
       
       // Add semifinal 2 scores
       if (matches.semifinal2.id && matches.semifinal2.winner) {
         matchData.push({
           matchType: 'Semifinal 2',
-          leftScore: matches.semifinal2.winner === matches.semifinal2.player1 ? gameSettings.WINNING_SCORE : 0,
-          rightScore: matches.semifinal2.winner === matches.semifinal2.player2 ? gameSettings.WINNING_SCORE : 0
-        });
+          leftScore:  matches.semifinal2.leftScore  ?? 0,
+		  rightScore: matches.semifinal2.rightScore ?? 0
+		});
       }
       
       // Add final match scores
       if (matches.final.id && matches.final.winner) {
         matchData.push({
           matchType: 'Final',
-          leftScore: matches.final.winner === matches.final.player1 ? gameSettings.WINNING_SCORE : 0,
-          rightScore: matches.final.winner === matches.final.player2 ? gameSettings.WINNING_SCORE : 0
+		  leftScore:  matches.final.leftScore  ?? 0,
+		  rightScore: matches.final.rightScore ?? 0
         });
       }
 
@@ -452,7 +455,7 @@ export default function Tournament () {
                 <LocalGame 
                   player1={matches.semifinal1.player1}
                   player2={matches.semifinal1.player2}
-                  OnWinnerSelect={(winnerId) => handleWinnerSelected('semifinal1', winnerId)}
+                  OnWinnerSelect={(payload) => handleWinnerSelected('semifinal1', payload)}
                 />
               </div>
             )}
@@ -463,7 +466,7 @@ export default function Tournament () {
                 <LocalGame 
                   player1={matches.semifinal2.player1}
                   player2={matches.semifinal2.player2}
-                  OnWinnerSelect={(winnerId) => handleWinnerSelected('semifinal2', winnerId)}
+                  OnWinnerSelect={(payload) => handleWinnerSelected('semifinal2', payload)}
                 />
               </div>
             )}
@@ -476,7 +479,7 @@ export default function Tournament () {
             <LocalGame 
               player1={matches.final.player1}
               player2={matches.final.player2}
-              OnWinnerSelect={(winnerId) => handleWinnerSelected('final', winnerId)}
+              OnWinnerSelect={(payload) => handleWinnerSelected('final', payload)}
             />
           </div>
         )}
