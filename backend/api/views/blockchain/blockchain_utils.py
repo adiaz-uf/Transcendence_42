@@ -1,8 +1,6 @@
 from web3 import Web3
 from django.conf import settings
-import json
-import logging
-import os
+import json, logging, os
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +87,48 @@ def send_score_to_blockchain(tournament_id: int, score_left: int, score_right: i
     except Exception as e:
         logger.error(f"Blockchain error: {str(e)}")
         return False
+
+
+def send_scores_to_blockchain_bulk(tournament_id: int, pairs: list[tuple[str, int, int]]) -> bool:
+    """
+    Send all scores by 1 tx via addScores().
+    pairs = [(label, left, right), ...]
+    """
+    try:
+        account = w3.eth.account.from_key(settings.ETHEREUM_PRIVATE_KEY)
+        gas_price = int(w3.eth.gas_price * 2.0)
+
+        labels = [p[0] for p in pairs]
+        lefts  = [int(p[1]) for p in pairs]
+        rights = [int(p[2]) for p in pairs]
+
+        txn = contract.functions.addScores(
+            int(tournament_id),
+            labels,
+            lefts,
+            rights
+        ).build_transaction({
+            'from': account.address,
+            'nonce': w3.eth.get_transaction_count(account.address),
+            'gas': 3000000,
+            'gasPrice': gas_price
+        })
+
+        logger.info(f"Pushing scores: {list(zip(labels, lefts, rights))}")
+
+        signed = w3.eth.account.sign_transaction(txn, settings.ETHEREUM_PRIVATE_KEY)
+        tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
+
+        if receipt.status == 1:
+            logger.info(f"Bulk scores added: {tx_hash.hex()}")
+            return True
+        logger.error(f"Bulk tx failed: {tx_hash.hex()}")
+        return False
+    except Exception as e:
+        logger.exception("Bulk blockchain error")
+        return False
+
 
 def get_tournament_scores(tournament_id: int) -> list:
     """

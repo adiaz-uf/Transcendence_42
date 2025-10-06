@@ -2,7 +2,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
-from .blockchain_utils import get_tournament_scores, send_score_to_blockchain
+from .blockchain_utils import (
+    get_tournament_scores,
+    send_score_to_blockchain,
+    send_scores_to_blockchain_bulk,
+)
 
 class TournamentBlockchainScoresView(APIView):
     permission_classes = [IsAuthenticated]
@@ -56,4 +60,41 @@ def blockchain_score(request):
                 "scores": scores
             })
     except Exception as e:
-        return Response({"error": str(e)}, status=500) 
+        return Response({"error": str(e)}, status=500)
+
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def blockchain_scores_bulk(request):
+    """
+    Body expected:
+    {
+       "tournament_id": 12345,
+       "matches": [
+         {"label": "Semifinal 1", "score_left": 5, "score_right": 3},
+         {"label": "Semifinal 2", "score_left": 5, "score_right": 2},
+         {"label": "Finale 🏆",   "score_left": 5, "score_right": 4}
+       ]
+    }
+    """
+    try:
+        tournament_id = request.data.get('tournament_id')
+        matches = request.data.get('matches', [])
+        if tournament_id is None or not isinstance(matches, list) or not matches:
+            return Response({"error": "Missing or invalid fields"}, status=400)
+
+        pairs = []
+        for i, m in enumerate(matches):
+            label = m.get('label') or f"Match {i+1}"
+            left = int(m.get('score_left', 0))
+            right = int(m.get('score_right', 0))
+            pairs.append((label, left, right))
+
+        ok = send_scores_to_blockchain_bulk(int(tournament_id), pairs)
+        if not ok:
+            return Response({"error": "Failed to add bulk scores"}, status=500)
+        return Response({"message": "Bulk scores added successfully", "count": len(pairs)})
+    except Exception as e:
+        logger.exception("bulk view error")
+        return Response({"error": str(e)}, status=500)

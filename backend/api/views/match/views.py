@@ -179,33 +179,33 @@ class MatchScoreUpdateView(generics.UpdateAPIView):
         if updated:
             match.save()
             
-            # Check if match is part of a tournament and send score to blockchain
-            try:
-                tournament = match.tournament_set.first()
-                if tournament:
-                    # Convert UUID to a consistent integer representation for blockchain
-                    tournament_id_int = int(str(tournament.id).replace('-', '')[:8], 16)
-                    
-                    # Try to store score in blockchain with retries
-                    max_retries = 3
-                    retry_delay = 2  # seconds
-                    
-                    for attempt in range(max_retries):
-                        success = send_score_to_blockchain(
-                            tournament_id_int,
-                            match.left_score,
-                            match.right_score
-                        )
-                        if success:
-                            logger.info(f"Successfully stored score in blockchain for match {match.id} on attempt {attempt + 1}")
-                            break
-                        elif attempt < max_retries - 1:
-                            logger.warning(f"Failed to store score in blockchain for match {match.id} on attempt {attempt + 1}, retrying in {retry_delay} seconds...")
-                            time.sleep(retry_delay)
-                        else:
-                            logger.error(f"Failed to store score in blockchain for match {match.id} after {max_retries} attempts")
-            except Exception as e:
-                logger.error(f"Error storing score in blockchain: {str(e)}")
+ #           # Check if match is part of a tournament and send score to blockchain
+ #           try:
+ #               tournament = match.tournament_set.first()
+ #               if tournament:
+ #                   # Convert UUID to a consistent integer representation for blockchain
+ #                   tournament_id_int = int(str(tournament.id).replace('-', '')[:8], 16)
+ #                   
+ #                   # Try to store score in blockchain with retries
+ #                   max_retries = 3
+ #                   retry_delay = 2  # seconds
+ #                   
+ #                   for attempt in range(max_retries):
+ #                       success = send_score_to_blockchain(
+ #                           tournament_id_int,
+ #                           match.left_score,
+ #                           match.right_score
+ #                       )
+ #                       if success:
+ #                           logger.info(f"Successfully stored score in blockchain for match {match.id} on attempt {attempt + 1}")
+ #                           break
+ #                       elif attempt < max_retries - 1:
+ #                           logger.warning(f"Failed to store score in blockchain for match {match.id} on attempt {attempt + 1}, retrying in {retry_delay} seconds...")
+ #                           time.sleep(retry_delay)
+ #                       else:
+ #                           logger.error(f"Failed to store score in blockchain for match {match.id} after {max_retries} attempts")
+ #           except Exception as e:
+ #               logger.error(f"Error storing score in blockchain: {str(e)}")
             
             return Response(
                 {"message": "Scores updated successfully!", "match": MatchSerializer(match).data})

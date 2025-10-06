@@ -219,7 +219,8 @@ export default function Tournament () {
       
       // Prepare all match data
       const matchData = [];
-      
+
+/*
       // Add semifinal 1 scores
       if (matches.semifinal1.id && matches.semifinal1.winner) {
         matchData.push({
@@ -266,6 +267,45 @@ export default function Tournament () {
           throw new Error(`Failed to send ${match.matchType} scores to blockchain`);
         }
       }
+*/
+
+		if (matches.semifinal1.id && matches.semifinal1.winner) {
+			matchData.push({
+				label: 'Semifinal 1',
+				score_left: matches.semifinal1.leftScore ?? 0,
+				score_right: matches.semifinal1.rightScore ?? 0
+			});
+		}
+		if (matches.semifinal2.id && matches.semifinal2.winner) {
+			matchData.push({
+				label: 'Semifinal 2',
+				score_left: matches.semifinal2.leftScore ?? 0,
+				score_right: matches.semifinal2.rightScore ?? 0
+			});
+		}
+		if (matches.final.id && matches.final.winner) {
+			matchData.push({
+				label: 'Finale 🏆',
+				score_left: matches.final.leftScore ?? 0,
+				score_right: matches.final.rightScore ?? 0
+			});
+		}
+
+		const resp = await fetch('/api/blockchain/scores/bulk/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`
+			},
+			body: JSON.stringify({
+				tournament_id: tournamentIdInt,
+				matches: matchData
+			})
+		});
+		if (!resp.ok) throw new Error('Bulk upload failed');
+
+
+		/////////////////////////////////////////////////////////////////////////
       
       setMessage("Tournament scores successfully uploaded to blockchain! 🚀");
       setMessageType('blockchain');
